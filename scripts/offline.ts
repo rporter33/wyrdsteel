@@ -3,7 +3,8 @@ import type { Plugin } from 'vite';
 
 /**
  * Emits sw.js listing every file the build produced, so the whole game installs on first visit
- * and runs offline. The cache name carries a hash of that list: a new deploy installs beside the
+ * and runs offline. Art in public/assets is not listed (Low quality never loads it); it is cached
+ * as it is fetched. The cache name carries a hash of that list: a new deploy installs beside the
  * old one and the old cache is dropped once the new worker takes over.
  */
 export function offline(publicFiles: string[]): Plugin {
@@ -38,7 +39,21 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(fetch(req).catch(() => caches.match('./', { ignoreSearch: true })));
     return;
   }
-  e.respondWith(caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req)));
+  // Art (textures, skies, models) loads on demand, by quality; whatever was fetched is kept for offline play.
+  const art = /\/assets\/(materials|env|characters)\//.test(new URL(req.url).pathname);
+  e.respondWith(
+    caches.match(req, { ignoreSearch: true }).then(
+      (hit) =>
+        hit ||
+        fetch(req).then((res) => {
+          if (art && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        }),
+    ),
+  );
 });
 `;
 }

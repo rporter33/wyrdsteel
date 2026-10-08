@@ -20,6 +20,8 @@ export interface Settings {
   textScale: number;
   /** Thicker, more opaque telegraphs. */
   boldTelegraphs: boolean;
+  /** Graphics preset; 'auto' guesses from the GPU. */
+  quality: string;
   showPerf: boolean;
   /** Keyboard rebinding: action -> codes. Empty means defaults. */
   keys: Record<string, string[]>;
@@ -38,6 +40,7 @@ export const DEFAULT_SETTINGS: Settings = {
   music: 0.5,
   textScale: 1,
   boldTelegraphs: false,
+  quality: 'auto',
   showPerf: false,
   keys: {},
   deadzone: 0.18,

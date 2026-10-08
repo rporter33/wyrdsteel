@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 import type { World } from '../../core/sim/types';
 import { box, cyl, glow, cone, ico, bakeStatic, bakeable } from '../models/kit';
-import { PALETTE, toon } from '../materials';
+import { PALETTE, surface } from '../materials';
 import { buildNpc } from '../models/npcs';
 import { applyPose } from '../anim/poses';
 import type { Rig } from '../models/humanoid';
+import type { LightSpot } from '../level/roomMesh';
+import { CrowdRenderer, type Proxy } from './crowd';
+import { IDLE_INPUT, buildSkinnedNpc, characterAssets, type SkinnedModel } from '../models/characters';
 
 interface FView {
   obj: THREE.Object3D;
@@ -25,6 +28,10 @@ export class FeatureViews {
   private exits: FView[] = [];
   private tethers: THREE.LineSegments;
   private t = 0;
+  /** Townsfolk, when skinned characters are on: instanced and idling, one template each. */
+  private readonly crowd = new CrowdRenderer();
+  private npcs: { key: string; proxy: Proxy }[] = [];
+  skinned = false;
 
   constructor() {
     this.tethers = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x7fe0a0, transparent: true, opacity: 0.8 }));
@@ -35,6 +42,8 @@ export class FeatureViews {
     this.group.clear();
     this.items = [];
     this.exits = [];
+    for (const n of this.npcs) this.crowd.release(n.key, n.proxy);
+    this.npcs = [];
     this.group.add(this.tethers);
     w.room.features.forEach((f, i) => {
       const g = new THREE.Group();
@@ -54,6 +63,15 @@ export class FeatureViews {
           break;
         }
         case 'npc': {
+          if (this.skinned && characterAssets()) {
+            const key = `npc|${f.id}`;
+            const got = this.crowd.acquireWith(key, () => buildSkinnedNpc(f.id));
+            if (got) {
+              got.proxy.holder.position.set(f.x, 0, f.z);
+              this.npcs.push({ key, proxy: got.proxy });
+            }
+            break;
+          }
           // Posed once, then baked: NPCs stand still, so they cost two draw calls each.
           const r = buildNpc(f.id);
           applyPose(r, { speed: 0, phase: 0, pose: null, t: 0, strike: 0, airborne: false, stun: 0, dead: false, aiming: false, hurt: 0 });
@@ -150,7 +168,23 @@ export class FeatureViews {
     const merged: THREE.Mesh[] = [];
     this.group.traverse((o) => bakeable(o, animated) && merged.push(o));
     for (const m of merged) m.removeFromParent();
-    this.group.add(baked);
+    baked.traverse((o) => {
+      if (o instanceof THREE.Mesh && !(o.material instanceof THREE.MeshBasicMaterial)) o.castShadow = o.receiveShadow = true;
+    });
+    this.group.add(baked, this.crowd.group);
+  }
+
+  /** Light given off by features in their current state: lit braziers, venting floors, cores. */
+  lightSpots(w: World, out: LightSpot[]): void {
+    for (const f of w.room.features) {
+      const at = (y: number, color: number, intensity: number, flicker = 0) => out.push({ x: f.x, y, z: f.z, color, intensity, flicker });
+      if (f.kind === 'brazier' && f.a > 0) at(1.4, PALETTE.ember, 12, 0.3);
+      else if (f.kind === 'vent') at(f.a === 2 ? 1 : 0.3, 0xff6a2a, f.a === 2 ? 22 : f.a === 1 ? 6 + Math.sin(this.t * 30) * 4 : 2.5, 0.15);
+      else if (f.kind === 'generator' && f.a > 0) at(1.6, PALETTE.gold, 8);
+      else if (f.kind === 'waystone') at(1.5, PALETTE.rune, 5);
+      else if (f.kind === 'shrine') at(1.5, 0xc07bff, 7);
+      else if (f.kind === 'geyser' && f.a === 2) at(1.5, PALETTE.frost, 8);
+    }
   }
 
   sync(w: World, dt: number): void {
@@ -167,7 +201,7 @@ export class FeatureViews {
         // a: 0 idle, 1 warning, 2 venting.
         v.glow.scale.y = f.a === 2 ? 3 : 0.05;
         v.glow.position.y = f.a === 2 ? 0.9 : 0.06;
-        (v.glow.material as THREE.MeshToonMaterial).emissiveIntensity = f.a === 1 ? 1.5 + Math.sin(this.t * 30) : 1.5;
+        (v.glow.material as THREE.MeshStandardMaterial).emissiveIntensity = f.a === 1 ? 1.5 + Math.sin(this.t * 30) : 1.5;
       }
       if (v.kind === 'geyser' && v.glow) {
         v.glow.scale.y = f.a === 2 ? 4 : 0.1;
@@ -176,6 +210,10 @@ export class FeatureViews {
       if (v.kind === 'generator' && v.glow) v.glow.visible = f.a > 0;
       if (v.lid) v.lid.rotation.x = f.a ? -1.2 : 0;
       if (v.rig) applyPose(v.rig, { speed: 0, phase: 0, pose: null, t: 0, strike: 0, airborne: false, stun: 0, dead: false, aiming: false, hurt: 0 });
+    }
+    for (const n of this.npcs) {
+      (n.proxy.model as SkinnedModel).anim.update(IDLE_INPUT, dt);
+      this.crowd.write(n.key, n.proxy);
     }
     w.room.exits.forEach((ex, i) => {
       const v = this.exits[i];
@@ -197,4 +235,4 @@ export class FeatureViews {
   }
 }
 
-export { toon };
+export { surface };

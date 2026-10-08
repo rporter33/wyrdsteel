@@ -1,32 +1,31 @@
 import * as THREE from 'three';
-import { toon, toonVertex as toonVertexMat } from '../materials';
+import { isGlowing, surface, surfaceVertex } from '../materials';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
-// Primitive kit for procedural models. Everything is low-poly and flat-shaded through the toon
-// ramp; silhouettes come from proportions, not detail.
+// Primitive kit for procedural props: physically based surfaces lit by the zone's sky and lights.
 
 export function box(w: number, h: number, d: number, color: number, y = 0, x = 0, z = 0): THREE.Mesh {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), toon(color));
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), surface(color));
   m.position.set(x, y, z);
   return m;
 }
 
 export function cyl(rt: number, rb: number, h: number, color: number, seg = 6, y = 0): THREE.Mesh {
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), toon(color));
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), surface(color));
   m.position.y = y;
   return m;
 }
 
 export function cone(r: number, h: number, color: number, seg = 5): THREE.Mesh {
-  return new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), toon(color));
+  return new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), surface(color));
 }
 
 export function ico(r: number, color: number, detail = 0): THREE.Mesh {
-  return new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), toon(color));
+  return new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), surface(color));
 }
 
 export function glow(r: number, color: number, intensity = 2.5): THREE.Mesh {
-  return new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), toon(color, { emissive: color, emissiveIntensity: intensity }));
+  return new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), surface(color, { emissive: color, emissiveIntensity: intensity }));
 }
 
 /** A pivot group: rotate it to swing whatever hangs from it. */
@@ -87,10 +86,10 @@ export function bakeStatic(root: THREE.Object3D, skip?: Set<THREE.Object3D>): TH
       for (let i = 0; i < n; i++) col.set([c.r, c.g, c.b], i * 3);
       g.setAttribute('color', new THREE.BufferAttribute(col, 3));
     }
-    ((mat.emissiveIntensity ?? 0) > 0 || mat instanceof THREE.MeshBasicMaterial ? glowG : lit).push(g);
+    (isGlowing(mat) ? glowG : lit).push(g);
   });
   const out = new THREE.Group();
-  if (lit.length) out.add(new THREE.Mesh(mergeGeometries(lit, false)!, toonVertexMat()));
+  if (lit.length) out.add(new THREE.Mesh(mergeGeometries(lit, false)!, surfaceVertex()));
   if (glowG.length) out.add(new THREE.Mesh(mergeGeometries(glowG, false)!, new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
   return out;
 }

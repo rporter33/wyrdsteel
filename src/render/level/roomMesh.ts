@@ -1,219 +1,422 @@
 import * as THREE from 'three';
-import { T_CRACKED, T_FLOOR, T_ICE, T_LOW, T_PIT, T_VOID, T_WALL } from '../../core/level/grid';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { T_CRACKED, T_FLOOR, T_ICE, T_LOW, T_PIT, T_WALL } from '../../core/level/grid';
 import type { RoomState } from '../../core/sim/types';
-import { toon, toonVertex } from '../materials';
+import { surface } from '../materials';
+import { pbr, type MaterialName } from '../assets';
 
 export interface RoomPalette {
-  /** How wall tiles are drawn. */
-  style?: 'blocks' | 'trees' | 'crystal';
+  /** How wall tiles are drawn: fitted blocks, a stand of trees, or broken rock and crystal. */
+  style: 'blocks' | 'trees' | 'cliffs';
   floor: number;
-  floorAlt: number;
   wall: number;
-  wallTop: number;
   low: number;
   ice: number;
   pit: number;
   fog: number;
-  light: number;
-  ambient: number;
+  /** Textured look: material, metres per repeat, tint. */
+  floorMat: MaterialName;
+  floorScale: number;
+  floorTint: number;
+  wallMat: MaterialName;
+  wallScale: number;
+  wallTint: number;
+  /** What lies at the bottom of a pit. */
+  pitKind: 'abyss' | 'lava' | 'water';
+  /** Glowing crystal among the rocks (cliff style), as a colour. */
+  crystal?: number;
+  /** Tint of the loose rocks along the walls, when it differs from the wall's. */
+  rubble?: number;
+}
+
+/** A point that gives off light: the renderer lights the few nearest the player. */
+export interface LightSpot {
+  x: number;
+  y: number;
+  z: number;
+  color: number;
+  intensity: number;
+  /** Seconds-scale flicker strength, 0 for steady. */
+  flicker: number;
 }
 
 export const PALETTES: Record<string, RoomPalette> = {
-  hall: { floor: 0x3a434d, floorAlt: 0x333b44, wall: 0x59636e, wallTop: 0x8a96a3, low: 0x4b5560, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x0b1016, light: 0xdfeeff, ambient: 0x2a3644 },
-  wood: { style: 'trees', floor: 0xbfcad3, floorAlt: 0xaebbc6, wall: 0x2b2522, wallTop: 0x4a3f38, low: 0x3d3632, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x8796a3, light: 0xe4f0ff, ambient: 0x52606e },
-  foundry: { floor: 0x3b3430, floorAlt: 0x342e2b, wall: 0x5b4636, wallTop: 0x8a5a36, low: 0x6b5242, ice: 0xa8d8f0, pit: 0x1a0700, fog: 0x1a120d, light: 0xffd9b0, ambient: 0x3a2618 },
-  wyrd: { style: 'crystal', floor: 0x2a2440, floorAlt: 0x241f38, wall: 0x4a3a6a, wallTop: 0x7a5aaa, low: 0x3a2f55, ice: 0xa8d8f0, pit: 0x05030a, fog: 0x120e1e, light: 0xd8c8ff, ambient: 0x2a1f44 },
-  roots: { style: 'crystal', floor: 0x5e7486, floorAlt: 0x566a7b, wall: 0x2e3d4a, wallTop: 0x4c6577, low: 0x3b4e5c, ice: 0xbfe8fb, pit: 0x041422, fog: 0x0d1b26, light: 0xc9ecff, ambient: 0x22394a },
+  hall: { style: 'blocks', floor: 0x5a646e, wall: 0x6b7480, low: 0x4b5560, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x0b1016, floorMat: 'slabs', floorScale: 3, floorTint: 0x9aa4ae, wallMat: 'masonry', wallScale: 2.5, wallTint: 0x8a9098, pitKind: 'abyss' },
+  wood: { style: 'trees', floor: 0xdfe8ef, wall: 0x3b3430, low: 0x3d3632, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x8796a3, floorMat: 'snow', floorScale: 4, floorTint: 0xf2f6fa, wallMat: 'bark', wallScale: 1.5, wallTint: 0x9a948e, pitKind: 'water', rubble: 0xc4ccd4 },
+  foundry: { style: 'blocks', floor: 0x3b3430, wall: 0x5b4636, low: 0x6b5242, ice: 0xa8d8f0, pit: 0x1a0700, fog: 0x1a120d, floorMat: 'plates', floorScale: 2.5, floorTint: 0xc8c0b8, wallMat: 'rust', wallScale: 2.5, wallTint: 0x8c8580, pitKind: 'lava' },
+  wyrd: { style: 'cliffs', floor: 0x2a2440, wall: 0x4a3a6a, low: 0x3a2f55, ice: 0xa8d8f0, pit: 0x05030a, fog: 0x120e1e, floorMat: 'slabs', floorScale: 3, floorTint: 0x5a4f78, wallMat: 'rock', wallScale: 3, wallTint: 0x5e5078, pitKind: 'abyss', crystal: 0xb48cff },
+  roots: { style: 'cliffs', floor: 0x5e7486, wall: 0x2e3d4a, low: 0x3b4e5c, ice: 0xbfe8fb, pit: 0x041422, fog: 0x0d1b26, floorMat: 'rock', floorScale: 4, floorTint: 0x8fa4b4, wallMat: 'rock', wallScale: 3, wallTint: 0x6a7c8a, pitKind: 'water', crystal: 0x8fdcff },
 };
 
-const WALL_H = 2.6;
+const WALL_H = 2.8;
+const PIT_Y = -0.75;
 
-/** Static room geometry: one merged floor, instanced walls. Walls nearest the camera cut away. */
+/** Stable per-tile noise in [0, 1): the same room always looks the same. */
+function hash(x: number, z: number, k = 0): number {
+  let h = (x * 374761393 + z * 668265263 + k * 2246822519) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+/** Smooth 3D value noise for displacing rock. Cosmetic only, so plain floats are fine here. */
+function noise3(x: number, y: number, z: number): number {
+  const xi = Math.floor(x);
+  const yi = Math.floor(y);
+  const zi = Math.floor(z);
+  const fx = x - xi;
+  const fy = y - yi;
+  const fz = z - zi;
+  const s = (t: number) => t * t * (3 - 2 * t);
+  const v = (a: number, b: number, c: number) => hash(xi + a, zi + c, yi + b);
+  const lx = (b: number, c: number) => v(0, b, c) + (v(1, b, c) - v(0, b, c)) * s(fx);
+  const ly = (c: number) => lx(0, c) + (lx(1, c) - lx(0, c)) * s(fy);
+  return ly(0) + (ly(1) - ly(0)) * s(fz);
+}
+
+/** Box-projected UVs in metres, so any geometry takes a tiling texture without seams per tile. */
+function boxUv(g: THREE.BufferGeometry): THREE.BufferGeometry {
+  const pos = g.getAttribute('position');
+  const nor = g.getAttribute('normal');
+  const uv = new Float32Array(pos.count * 2);
+  for (let i = 0; i < pos.count; i++) {
+    const nx = Math.abs(nor.getX(i));
+    const ny = Math.abs(nor.getY(i));
+    const nz = Math.abs(nor.getZ(i));
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    if (ny >= nx && ny >= nz) uv.set([x, z], i * 2);
+    else if (nx >= nz) uv.set([z, y], i * 2);
+    else uv.set([x, y], i * 2);
+  }
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  return g;
+}
+
+/**
+ * Cutaway: wall fragments that stand between the camera and the player are thinned with an
+ * ordered dither, fading in at the edges, so the player is never hidden and the room keeps its
+ * shape. Only what rises above the sight line from the camera to the player's feet is cut.
+ * x, z: the player; y: camera height; w: camera's distance south of the player (0 = off).
+ */
+export const cutUniform = { value: new THREE.Vector4(0, 0, 0, 0) };
+
+function withCutaway<M extends THREE.Material>(m: M): M {
+  const c = m.clone();
+  c.onBeforeCompile = (shader) => {
+    shader.uniforms.uCut = cutUniform;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vCutWorld;')
+      .replace(
+        '#include <project_vertex>',
+        `#include <project_vertex>
+#ifdef USE_INSTANCING
+vCutWorld = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;
+#else
+vCutWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;
+#endif`,
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        '#include <common>',
+        `#include <common>
+uniform vec4 uCut;
+varying vec3 vCutWorld;
+float cutBayer(vec2 p) {
+  const float m[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+  ivec2 i = ivec2(mod(p, 4.0));
+  return (m[i.x + i.y * 4] + 0.5) / 16.0;
+}`,
+      )
+      .replace(
+        'void main() {',
+        `void main() {
+  if (uCut.w > 0.0) {
+    float dz = vCutWorld.z - uCut.y;
+    float line = 0.1 + (uCut.z - 0.1) * dz / uCut.w;
+    float fade = smoothstep(0.3, 1.1, dz) * (1.0 - smoothstep(1.6, 3.0, abs(vCutWorld.x - uCut.x))) * smoothstep(line - 0.8, line + 0.1, vCutWorld.y);
+    if (cutBayer(gl_FragCoord.xy) < fade * 0.85) discard;
+  }`,
+      );
+  };
+  c.customProgramCacheKey = () => 'cutaway2';
+  return c;
+}
+
+/**
+ * Static room geometry, merged per material: a textured floor, sculpted walls (fitted blocks,
+ * trees, or broken rock with crystal), pits with lava or dark water at the bottom, rubble along
+ * the walls, and ground beyond. `textured` is off on Low quality: same shapes, flat colour.
+ */
 export class RoomMesh {
-  readonly group = Object.assign(new THREE.Group(), { name: "room" });
-  private walls: THREE.InstancedMesh | null = null;
-  private wallPos: { x: number; z: number; h: number }[] = [];
-  private lastCut = '';
-  private readonly m = new THREE.Matrix4();
+  readonly group = Object.assign(new THREE.Group(), { name: 'room' });
+  /** Light given off by the room itself: lava, glowing crystal. */
+  readonly lights: LightSpot[] = [];
 
   constructor(
     readonly room: RoomState,
     readonly palette: RoomPalette,
+    readonly textured = true,
   ) {
     this.build();
   }
 
+  private mat(name: MaterialName, scale: number, tint: number, flat: number, extra: { emissive?: number } = {}): THREE.MeshStandardMaterial {
+    if (!this.textured) return surface(flat, extra.emissive ? { emissive: flat, emissiveIntensity: extra.emissive } : {});
+    return pbr(name, { scale, tint, emissive: extra.emissive });
+  }
+
+  private add(g: THREE.BufferGeometry | null, m: THREE.Material, cast = false): void {
+    if (!g) return;
+    const mesh = new THREE.Mesh(g, m);
+    mesh.castShadow = cast;
+    mesh.receiveShadow = true;
+    this.group.add(mesh);
+  }
+
   private build(): void {
     const { w, h, tiles } = this.room;
-    const pos: number[] = [];
-    const col: number[] = [];
-    const idx: number[] = [];
-    const c = new THREE.Color();
-    const pushQuad = (x: number, z: number, y: number, color: THREE.Color) => {
-      const b = pos.length / 3;
-      pos.push(x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
-      for (let i = 0; i < 4; i++) col.push(color.r, color.g, color.b);
-      idx.push(b, b + 2, b + 1, b, b + 3, b + 2);
-    };
-    const walls: { x: number; z: number; h: number }[] = [];
+    const P = this.palette;
+    const at = (x: number, z: number) => (x < 0 || z < 0 || x >= w || z >= h ? T_WALL : tiles[z * w + x]!);
+    const walkable = (t: number) => t === T_FLOOR || t === T_ICE || t === T_CRACKED;
+
+    // Floors, by surface.
+    const quads: Record<'floor' | 'ice' | 'cracked', number[]> = { floor: [], ice: [], cracked: [] };
+    const pits: number[] = [];
     for (let z = 0; z < h; z++) {
       for (let x = 0; x < w; x++) {
         const t = tiles[z * w + x]!;
-        // Hash-based variation so floors read as tiles without a texture.
-        const n = ((x * 73856093) ^ (z * 19349663)) & 7;
-        if (t === T_FLOOR) {
-          // Mostly one tone, with every few tiles slightly darker: reads as flagstones, not a checkerboard.
-          c.setHex(n === 0 || n === 5 ? this.palette.floorAlt : this.palette.floor).multiplyScalar(1 + (n - 3.5) * 0.008);
-          pushQuad(x, z, 0, c);
-        } else if (t === T_ICE || t === T_CRACKED) {
-          c.setHex(this.palette.ice).multiplyScalar(t === T_CRACKED ? 0.6 : 1 + (n - 3.5) * 0.01);
-          pushQuad(x, z, 0, c);
-        } else if (t === T_PIT) {
-          c.setHex(this.palette.pit);
-          pushQuad(x, z, -0.6, c);
-        } else if (t === T_WALL) {
-          walls.push({ x, z, h: WALL_H + (n % 3) * 0.15 });
-        } else if (t === T_LOW) {
-          walls.push({ x, z, h: 0.9 });
-        } else if (t === T_VOID) {
-          // Only draw void tiles that border the room, as a dark rim.
+        if (t === T_FLOOR) quads.floor.push(x, z);
+        else if (t === T_ICE) quads.ice.push(x, z);
+        else if (t === T_CRACKED) quads.cracked.push(x, z);
+        else if (t === T_PIT) pits.push(x, z);
+      }
+    }
+    const plane = (cells: number[], y: number) => {
+      if (!cells.length) return null;
+      const pos: number[] = [];
+      const idx: number[] = [];
+      for (let i = 0; i < cells.length; i += 2) {
+        const x = cells[i]!;
+        const z = cells[i + 1]!;
+        const b = pos.length / 3;
+        pos.push(x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
+        idx.push(b, b + 2, b + 1, b, b + 3, b + 2);
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      return boxUv(g);
+    };
+    this.add(plane(quads.floor, 0), this.mat(P.floorMat, P.floorScale, P.floorTint, P.floor));
+    this.add(plane(quads.ice, 0.01), this.mat('ice', 3, 0xd8f0ff, P.ice));
+    this.add(plane(quads.cracked, 0.01), this.mat('ice', 3, 0x6e8c9c, 0x6e8c9c));
+
+    // Pits: sheer sides down to lava, black water or nothing.
+    if (pits.length) {
+      const sides: THREE.BufferGeometry[] = [];
+      for (let i = 0; i < pits.length; i += 2) {
+        const x = pits[i]!;
+        const z = pits[i + 1]!;
+        for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+          if (!walkable(at(x + dx, z + dz))) continue;
+          const side = new THREE.PlaneGeometry(1, -PIT_Y);
+          side.translate(0, PIT_Y / 2, 0);
+          side.rotateY(dx === 1 ? -Math.PI / 2 : dx === -1 ? Math.PI / 2 : dz === 1 ? Math.PI : 0);
+          side.translate(x + 0.5 + dx * 0.5, 0, z + 0.5 + dz * 0.5);
+          sides.push(side);
         }
       }
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-    g.setIndex(idx);
-    g.computeVertexNormals();
-    const floor = new THREE.Mesh(g, toonVertex());
-    floor.receiveShadow = false;
-    this.group.add(floor);
-
-    // A ground plane under everything, so the world beyond the walls is snowfield or stone, not void.
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(w + 60, h + 60), toon(this.palette.floorAlt, { key: `ground-${this.palette.floorAlt}` }));
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.set(w / 2, -0.02, h / 2);
-    this.group.add(ground);
-
-    if (walls.length && this.palette.style === 'trees') {
-      this.buildTrees(walls);
-    } else if (walls.length) {
-      const box = this.palette.style === 'crystal' ? new THREE.CylinderGeometry(0.35, 0.6, 1, 5) : new THREE.BoxGeometry(1, 1, 1);
-      if (this.palette.style === 'crystal') box.translate(0.5, 0.5, 0.5);
-      else box.translate(0.5, 0.5, 0.5);
-      const mesh = new THREE.InstancedMesh(box, toon(0xffffff, { key: 'wall-white' }), walls.length);
-      walls.forEach((wl, i) => {
-        this.m.makeScale(1, wl.h, 1).setPosition(wl.x, 0, wl.z);
-        mesh.setMatrixAt(i, this.m);
-        const shade = wl.h < 1 ? this.palette.low : this.palette.wall;
-        c.setHex(shade).multiplyScalar(1 + ((((wl.x * 31) ^ (wl.z * 17)) & 7) - 3.5) * 0.02);
-        mesh.setColorAt(i, c);
-      });
-      mesh.instanceMatrix.needsUpdate = true;
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-      this.walls = mesh;
-      this.wallPos = walls;
-      this.group.add(mesh);
-    }
-  }
-
-  private trunks: THREE.InstancedMesh | null = null;
-  private canopies: THREE.InstancedMesh | null = null;
-
-  /** Iron-bark trees for wall tiles: dark trunks with snow-heavy crowns. Fallen logs for low walls. */
-  private buildTrees(walls: { x: number; z: number; h: number }[]): void {
-    const c = new THREE.Color();
-    const trunkG = new THREE.CylinderGeometry(0.22, 0.34, 1, 6).translate(0, 0.5, 0);
-    const crownG = new THREE.ConeGeometry(1, 1, 7).translate(0, 0.5, 0);
-    const trunks = new THREE.InstancedMesh(trunkG, toon(0xffffff, { key: 'wall-white' }), walls.length);
-    const crowns = new THREE.InstancedMesh(crownG, toon(0xffffff, { key: 'wall-white' }), walls.length);
-    walls.forEach((wl, i) => {
-      const n = ((wl.x * 73856093) ^ (wl.z * 19349663)) >>> 0;
-      const jx = ((n & 15) / 15 - 0.5) * 0.5;
-      const jz = (((n >> 4) & 15) / 15 - 0.5) * 0.5;
-      const tall = wl.h < 1 ? 0.6 : 3.4 + ((n >> 8) & 7) * 0.35;
-      if (wl.h < 1) {
-        // Fallen log.
-        this.m.makeRotationZ(Math.PI / 2).scale(new THREE.Vector3(1.3, 1.1, 1.3)).setPosition(wl.x + 0.5 + 0.55, 0.3, wl.z + 0.5);
-        trunks.setMatrixAt(i, this.m);
-        c.setHex(0x3d3632);
-        trunks.setColorAt(i, c);
-        this.m.makeScale(0, 0, 0);
-        crowns.setMatrixAt(i, this.m);
-        crowns.setColorAt(i, c);
-        return;
+      if (sides.length) this.add(boxUv(mergeGeometries(sides.map((g) => g.toNonIndexed()), false)!), this.mat(P.wallMat, P.wallScale, P.wallTint, P.wall));
+      const bottom = plane(pits, PIT_Y);
+      if (P.pitKind === 'lava') {
+        this.add(bottom, this.mat('lava', 3, 0xffffff, 0xff5a1a, { emissive: 2.2 }));
+        this.spots(pits, 4, 0.4, 0xff6a24, 14, 0.25);
       }
-      this.m.makeScale(1, tall, 1).setPosition(wl.x + 0.5 + jx, 0, wl.z + 0.5 + jz);
-      trunks.setMatrixAt(i, this.m);
-      c.setHex(this.palette.wall).multiplyScalar(0.9 + ((n >> 12) & 3) * 0.05);
-      trunks.setColorAt(i, c);
-      const r = 0.9 + ((n >> 14) & 3) * 0.15;
-      this.m.makeScale(r, 2.2 + ((n >> 16) & 3) * 0.3, r).setPosition(wl.x + 0.5 + jx, tall - 0.6, wl.z + 0.5 + jz);
-      crowns.setMatrixAt(i, this.m);
-      c.setHex((n >> 18) & 1 ? 0xdfe8ef : 0x2f3a36);
-      crowns.setColorAt(i, c);
-    });
-    for (const m of [trunks, crowns]) {
-      m.instanceMatrix.needsUpdate = true;
-      if (m.instanceColor) m.instanceColor.needsUpdate = true;
-      this.group.add(m);
+      else if (P.pitKind === 'water') this.add(bottom, new THREE.MeshStandardMaterial({ color: 0x0a1a24, roughness: 0.08, metalness: 0.2 }));
+      else this.add(bottom, surface(0x020305));
     }
-    this.trunks = trunks;
-    this.canopies = crowns;
-    this.wallPos = walls;
+
+    // Ground beyond the walls, so the world doesn't end at the room's edge.
+    const ground = new THREE.PlaneGeometry(w + 80, h + 80).rotateX(-Math.PI / 2).translate(w / 2, -0.02, h / 2);
+    this.add(boxUv(ground), this.mat(P.floorMat, P.floorScale, P.floorTint, P.floor));
+
+    const walls: { x: number; z: number; low: boolean }[] = [];
+    for (let z = 0; z < h; z++)
+      for (let x = 0; x < w; x++) {
+        const t = tiles[z * w + x]!;
+        if (t !== T_WALL && t !== T_LOW) continue;
+        // Only walls that face the room (or lie near it) are built; solid rock far from any floor isn't.
+        let near = false;
+        for (let dz = -2; dz <= 2 && !near; dz++) for (let dx = -2; dx <= 2 && !near; dx++) near = walkable(at(x + dx, z + dz)) || at(x + dx, z + dz) === T_PIT;
+        if (near) walls.push({ x, z, low: t === T_LOW });
+      }
+    const edge = (x: number, z: number) => [-1, 0, 1].some((dz) => [-1, 0, 1].some((dx) => walkable(at(x + dx, z + dz)) || at(x + dx, z + dz) === T_PIT));
+    if (P.style === 'trees') this.trees(walls, edge);
+    else if (P.style === 'cliffs') this.cliffs(walls);
+    else this.blocks(walls, at);
+    this.rubble(at, walkable);
   }
 
-  /** Lower walls between the camera (south) and the player so the player is never hidden. */
-  cutaway(px: number, pz: number): void {
-    if (this.trunks) {
-      this.cutTrees(px, pz);
-      return;
+  /** Fitted blocks (citadel stone, foundry plate) with an overhanging capstone. */
+  private blocks(walls: { x: number; z: number; low: boolean }[], at: (x: number, z: number) => number): void {
+    const P = this.palette;
+    const parts: THREE.BufferGeometry[] = [];
+    for (const wl of walls) {
+      const hgt = at(wl.x, wl.z) === T_WALL ? WALL_H + Math.floor(hash(wl.x, wl.z) * 3) * 0.25 : 0.9;
+      parts.push(new THREE.BoxGeometry(1, hgt, 1).translate(wl.x + 0.5, hgt / 2, wl.z + 0.5));
+      if (!wl.low) parts.push(new THREE.BoxGeometry(1.08, 0.18, 1.08).translate(wl.x + 0.5, hgt + 0.09, wl.z + 0.5));
     }
-    if (!this.walls) return;
-    const key = `${Math.floor(px)}:${Math.floor(pz)}`;
-    if (key === this.lastCut) return;
-    this.lastCut = key;
-    this.wallPos.forEach((wl, i) => {
-      const dz = wl.z - pz;
-      const dx = Math.abs(wl.x + 0.5 - px);
-      const cut = dz > -0.5 && dz < 6 && dx < 5 - dz * 0.3;
-      const hh = cut ? Math.min(wl.h, 0.45) : wl.h;
-      this.m.makeScale(1, hh, 1).setPosition(wl.x, 0, wl.z);
-      this.walls!.setMatrixAt(i, this.m);
-    });
-    this.walls.instanceMatrix.needsUpdate = true;
+    if (!parts.length) return;
+    const g = boxUv(mergeGeometries(parts.map((p) => p.toNonIndexed()), false)!);
+    this.add(g, withCutaway(this.mat(P.wallMat, P.wallScale, P.wallTint, P.wall)), true);
   }
 
-  private cutTrees(px: number, pz: number): void {
-    const key = `${Math.floor(px)}:${Math.floor(pz)}`;
-    if (key === this.lastCut) return;
-    this.lastCut = key;
-    // Trees in front of the player fade to stumps and lose their crowns.
-    const tmp = new THREE.Matrix4();
-    const pos = new THREE.Vector3();
-    const q = new THREE.Quaternion();
-    const sc = new THREE.Vector3();
-    this.wallPos.forEach((wl, i) => {
-      if (wl.h < 1) return;
-      const dz = wl.z - pz;
-      const dx = Math.abs(wl.x + 0.5 - px);
-      const cut = dz > -0.5 && dz < 10 && dx < 9 - dz * 0.25;
-      this.trunks!.getMatrixAt(i, tmp);
-      tmp.decompose(pos, q, sc);
-      const n = ((wl.x * 73856093) ^ (wl.z * 19349663)) >>> 0;
-      const tall = 3.4 + ((n >> 8) & 7) * 0.35;
-      sc.y = cut ? 0.5 : tall;
-      tmp.compose(pos, q, sc);
-      this.trunks!.setMatrixAt(i, tmp);
-      this.canopies!.getMatrixAt(i, tmp);
-      tmp.decompose(pos, q, sc);
-      const r = cut ? 0 : 0.9 + ((n >> 14) & 3) * 0.15;
-      sc.set(r, cut ? 0 : 2.2 + ((n >> 16) & 3) * 0.3, r);
-      tmp.compose(pos, q, sc);
-      this.canopies!.setMatrixAt(i, tmp);
-    });
-    this.trunks!.instanceMatrix.needsUpdate = true;
-    this.canopies!.instanceMatrix.needsUpdate = true;
+  /** Broken rock: lumpy boulders built up into cliffs, with crystal spikes among them. */
+  private cliffs(walls: { x: number; z: number; low: boolean }[]): void {
+    const P = this.palette;
+    const rocks: THREE.BufferGeometry[] = [];
+    const crystals: THREE.BufferGeometry[] = [];
+    const crystalAt: number[] = [];
+    for (const wl of walls) {
+      const r = hash(wl.x, wl.z);
+      const hgt = wl.low ? 0.9 : WALL_H + r * 1.6;
+      const g = new THREE.IcosahedronGeometry(0.85, 2);
+      const pos = g.getAttribute('position');
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const z = pos.getZ(i);
+        const n = 0.75 + noise3(x * 1.7 + wl.x, y * 1.7, z * 1.7 + wl.z) * 0.5;
+        pos.setXYZ(i, x * n, y * n, z * n);
+      }
+      g.scale(1, hgt / 1.6, 1).translate(wl.x + 0.5 + (hash(wl.x, wl.z, 1) - 0.5) * 0.3, hgt * 0.45, wl.z + 0.5 + (hash(wl.x, wl.z, 2) - 0.5) * 0.3);
+      g.computeVertexNormals();
+      rocks.push(g);
+      if (P.crystal && !wl.low && hash(wl.x, wl.z, 3) < 0.22) {
+        const c = new THREE.OctahedronGeometry(0.28, 0).scale(0.6, 2.8 + hash(wl.x, wl.z, 4) * 1.5, 0.6);
+        c.rotateZ((hash(wl.x, wl.z, 5) - 0.5) * 0.7).rotateX((hash(wl.x, wl.z, 6) - 0.5) * 0.7);
+        c.translate(wl.x + 0.5, 0.9, wl.z + 0.5);
+        crystals.push(c);
+        crystalAt.push(wl.x, wl.z);
+      }
+    }
+    if (rocks.length) this.add(boxUv(mergeGeometries(rocks, false)!), withCutaway(this.mat(P.wallMat, P.wallScale, P.wallTint, P.wall)), true);
+    if (crystals.length && P.crystal) {
+      this.spots(crystalAt, 5, 1.6, P.crystal, 5, 0);
+      const m = this.textured ? pbr('crystal', { scale: 1.5, tint: P.crystal, emissive: 0.6 }) : surface(P.crystal, { emissive: P.crystal, emissiveIntensity: 0.6 });
+      this.add(boxUv(mergeGeometries(crystals, false)!), withCutaway(m), true);
+    }
+  }
+
+  /**
+   * The Iron Wood: spruce of stacked, drooping tiers, dark needles with snow lying in patches on
+   * the upper faces; fallen logs for low walls. Deeper in the wall band the stand thins out.
+   */
+  private trees(walls: { x: number; z: number; low: boolean }[], edge: (x: number, z: number) => boolean): void {
+    const P = this.palette;
+    const trunks: THREE.BufferGeometry[] = [];
+    const crowns: THREE.BufferGeometry[] = [];
+    const needles = new THREE.Color();
+    const snow = new THREE.Color(0xeef3f8);
+    const c = new THREE.Color();
+    const v = new THREE.Vector3();
+    for (const wl of walls) {
+      const jx = (hash(wl.x, wl.z) - 0.5) * 0.5;
+      const jz = (hash(wl.x, wl.z, 1) - 0.5) * 0.5;
+      if (wl.low) {
+        trunks.push(new THREE.CylinderGeometry(0.32, 0.36, 1.6, 10).rotateZ(Math.PI / 2).rotateY(hash(wl.x, wl.z, 2) * 0.6).translate(wl.x + 0.5, 0.32, wl.z + 0.5).toNonIndexed());
+        continue;
+      }
+      if (!edge(wl.x, wl.z) && hash(wl.x, wl.z, 9) > 0.45) continue;
+      const tall = 4.5 + hash(wl.x, wl.z, 3) * 2.5;
+      const cx = wl.x + 0.5 + jx;
+      const cz = wl.z + 0.5 + jz;
+      trunks.push(new THREE.CylinderGeometry(0.08, 0.3, tall * 0.8, 8).translate(cx, tall * 0.4, cz).toNonIndexed());
+      needles.setHSL(0.38 + hash(wl.x, wl.z, 10) * 0.05, 0.25, 0.1 + hash(wl.x, wl.z, 11) * 0.05);
+      const tiers = 4;
+      for (let k = 0; k < tiers; k++) {
+        const f = k / tiers;
+        const r = (1.25 - f * 0.85) * (0.85 + hash(wl.x, wl.z, 4 + k) * 0.3);
+        const ht = 1.5 - f * 0.4;
+        const cone = new THREE.ConeGeometry(r, ht, 11, 2, true);
+        // Droop the rim and break it up, so tiers read as boughs rather than lampshades.
+        const pos = cone.getAttribute('position');
+        for (let i = 0; i < pos.count; i++) {
+          v.fromBufferAttribute(pos, i);
+          if (v.y < -ht / 2 + 0.01) {
+            const a = Math.atan2(v.z, v.x);
+            const jag = 0.82 + 0.3 * Math.abs(Math.sin(a * 5.5 + k));
+            pos.setXYZ(i, v.x * jag, v.y - 0.12 * jag, v.z * jag);
+          }
+        }
+        cone.rotateY(hash(wl.x, wl.z, 12 + k) * 6.28).translate(cx, tall * 0.32 + k * (tall * 0.62) / tiers + ht / 2, cz);
+        const g = cone.toNonIndexed();
+        g.computeVertexNormals();
+        const n = g.getAttribute('normal');
+        const p = g.getAttribute('position');
+        const col = new Float32Array(n.count * 3);
+        for (let i = 0; i < n.count; i++) {
+          const lie = noise3(p.getX(i) * 1.9, p.getY(i) * 1.9, p.getZ(i) * 1.9);
+          const s = THREE.MathUtils.smoothstep(n.getY(i) * 0.7 + lie * 0.75, 0.72, 0.95);
+          c.copy(needles).lerp(snow, s);
+          col.set([c.r, c.g, c.b], i * 3);
+        }
+        g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        crowns.push(g);
+      }
+    }
+    if (trunks.length) this.add(boxUv(mergeGeometries(trunks, false)!), withCutaway(this.mat(P.wallMat, P.wallScale, P.wallTint, P.wall)), true);
+    if (crowns.length) {
+      const m = (this.textured ? pbr('snowsoft', { scale: 2 }) : surface(0xffffff)).clone();
+      m.vertexColors = true;
+      m.side = THREE.DoubleSide;
+      this.add(boxUv(mergeGeometries(crowns, false)!), withCutaway(m), true);
+    }
+  }
+
+  /** Rocks and rubble along the foot of the walls, where floor meets stone. */
+  private rubble(at: (x: number, z: number) => number, walkable: (t: number) => boolean): void {
+    const P = this.palette;
+    const parts: THREE.BufferGeometry[] = [];
+    const { w, h } = this.room;
+    for (let z = 0; z < h; z++)
+      for (let x = 0; x < w; x++) {
+        if (!walkable(at(x, z))) continue;
+        const nearWall = [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ].find(([dx, dz]) => at(x + dx!, z + dz!) === T_WALL);
+        if (!nearWall || hash(x, z, 7) > 0.35) continue;
+        const s = 0.12 + hash(x, z, 8) * 0.22;
+        const g = new THREE.DodecahedronGeometry(s, 0).scale(1, 0.6, 1);
+        g.rotateY(hash(x, z, 9) * 6.28);
+        g.translate(x + 0.5 + nearWall[0]! * 0.38, s * 0.3, z + 0.5 + nearWall[1]! * 0.38);
+        parts.push(g);
+      }
+    if (parts.length) this.add(boxUv(mergeGeometries(parts, false)!), this.mat(P.floorMat === 'plates' ? 'rust' : 'rock', 1.5, P.rubble ?? P.wallTint, P.wall), true);
+  }
+
+  /** One light per cell of `cell` tiles that holds any of `tiles` (x, z pairs), at their centre. */
+  private spots(tiles: number[], cell: number, y: number, color: number, intensity: number, flicker: number): void {
+    const cells = new Map<string, [number, number, number]>();
+    for (let i = 0; i < tiles.length; i += 2) {
+      const k = `${Math.floor(tiles[i]! / cell)},${Math.floor(tiles[i + 1]! / cell)}`;
+      const c = cells.get(k) ?? [0, 0, 0];
+      c[0] += tiles[i]! + 0.5;
+      c[1] += tiles[i + 1]! + 0.5;
+      c[2]++;
+      cells.set(k, c);
+    }
+    for (const [x, z, n] of cells.values()) this.lights.push({ x: x / n, y, z: z / n, color, intensity, flicker });
+  }
+
+  /** Thin what stands between camera and player; called each frame with both positions. */
+  cutaway(px: number, pz: number, camY: number, camZ: number): void {
+    cutUniform.value.set(px, pz, camY, Math.max(0.01, camZ - pz));
   }
 
   dispose(): void {

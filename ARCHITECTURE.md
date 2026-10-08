@@ -65,20 +65,49 @@ ids are mapped in `renames.json` so old saves still load.
 
 ## Rendering (`src/render`)
 
-Three.js, WebGL2 only, low-poly procedural models with toon shading. Budget: 60 fps on a mid-range
-integrated GPU at 1080p, at most 120 draw calls and 250k triangles, with 40 enemies on screen.
+Three.js on WebGL2, physically based. Four presets (`render/quality.ts`), guessed from the GPU's
+name and overridable in Settings or with `?quality=`:
 
-- **Instanced crowds.** Every copy of a model shares one instanced mesh (two if it has glowing
-  parts). Each copy is posed through a proxy skeleton that is never added to the scene; its pivot
-  matrices are written into a float texture, and the vertex shader moves each vertex by its pivot's
-  matrix. Forty thralls cost the same draw calls as one. Players go through the same path.
-- **Baked statics.** Room features that never move (conveyor tiles, waystones, NPCs) are merged
-  per room into one lit mesh and one glowing mesh.
-- **Batched effects.** Projectiles, loot gems, loot beams, shadows and health bars are each one
-  instanced mesh.
+| | Low | Medium | High | Ultra |
+|---|---|---|---|---|
+| For | software rendering, old laptops | integrated GPUs | discrete GPUs, Apple silicon | |
+| Characters | rigid procedural | skinned, clip-animated | skinned | skinned |
+| Rooms | flat colour | PBR texture sets | PBR | PBR, 16× anisotropy |
+| Light | sun, sky fill | + sky IBL, 1024 shadow map, 2 point lights | + 2048 shadows, GTAO, 4 point lights | + 4096 shadows, 6 point lights |
+| Post | none | bloom, SMAA | + ambient occlusion | same |
 
-Measured in the busiest rooms: 9–23 draw calls and about 21k triangles. The browser smoke test
-asserts the draw-call budget during a fight.
+- **Rooms** (`level/roomMesh.ts`) are built per room from the tile grid and merged per material:
+  textured floors with box-projected UVs, then walls in the zone's style (fitted masonry, snow-laden
+  spruce, broken rock with glowing crystal), rubble at the wall foot, and pits with lava or dark
+  water at the bottom. Walls between the camera and the player are thinned with an ordered dither,
+  and only where they rise above the line of sight to the player's feet. Features that never
+  move (conveyor tiles, waystones) are merged per room into one painted and one glowing mesh.
+- **Light.** Each zone has its own key light, sky fill, exposure, fog and HDR sky for image-based
+  light. The key light's shadow map follows the camera. Braziers, vents, cores, waystones, lava and
+  crystal are light sources; the few nearest the player get the preset's point lights, moved each
+  frame, so the light count (and so the shader) never changes.
+- **Skinned crowds.** Every copy of a model shares one instanced mesh per material kind (painted,
+  metal, glowing, each texture set). Each copy is posed through a proxy skeleton that is never
+  added to the scene; its bone matrices (times the inverse rest pose) are written into a float
+  texture, one row per copy, and the vertex shader skins each vertex by up to four of them. Forty
+  thralls cost the same draw calls as one. The same path serves the rigid procedural models: each
+  part is a single-bone vertex.
+- **Animation** (`anim/animator.ts`). Clips come from a CC0 library on one shared skeleton. The
+  sim decides what happens; the view only chooses clips and blends them. Action clips are not
+  played at their own pace: an action's progress is mapped onto the clip so that the clip's moment
+  of impact lands on the tick the sim deals the hit. Locomotion blends walk, jog and sprint by
+  speed with a shared stride phase; aiming and firing replace the upper body while the legs keep
+  walking. Weights are kept summing to one per half of the body.
+- **Characters** (`models/characters.ts`): the Sworn and the townsfolk are a CC0 hero body under
+  clothing (a per-vertex colour and mask baked from the rest pose and laid over the skin texture)
+  and plate, helms and weapons built in code and hung on bones. Enemies are a tinted mannequin with
+  their kit hung the same way, until generated models replace the bodies.
+- **Batched effects.** Projectiles, loot gems, loot beams, blob shadows and health bars are each
+  one instanced mesh.
+
+Measured in a Foundry fight at the default camera: Low 11–21 draw calls; Medium 136 draw calls and
+192k triangles; High 254 and 383k (counting every pass: the shadow map and the ambient-occlusion
+normals each draw the scene again). The browser smoke test asserts at most 120 draw calls at Low.
 
 ## Interface, audio and platform
 
@@ -125,8 +154,10 @@ attack wins none; no hit exceeds its cap (the largest seen is about 26% of max H
 |---|---|---|
 | Polynomial trig and banned float APIs in the core | Bit-identical results on every browser, which co-op lockstep requires; the error is far below anything a player can see | If profiling ever shows the trig helpers as hot, or a platform needs native precision |
 | Fixed 60 Hz step; catch-up capped at five ticks | Replays, golden tests and the bot all run the step the player does; a long stall slows time instead of skipping it | If a target device can't hold 60 steps a second; the step costs ~0.7 ms with 40 enemies, so far from it |
-| Procedural low-poly art, rigid-part animation, no skeletons | No licensing questions, a small download, and every model instances the same way | If an artist joins: a glTF pipeline would replace `src/render/models`, and the instancing would need skinning |
-| Pivot matrices in a float texture for instancing | Draw calls stay flat as crowds grow (9–23 in the busiest rooms, against a budget of 120) | On a three.js upgrade that changes the shader chunks it patches; the smoke test's draw-call assertion and screenshots are the alarm |
+| CC0 bodies and clips, armour built in code | A large step up from boxes with no licensing risk, and every body shares one skeleton and one set of clips | When generated or commissioned character models arrive: they replace the bodies only, provided they are rigged to the same skeleton |
+| Art downloaded on demand, not precached | The initial download stays small, and Low (software rendering) never fetches it; what a player has seen is cached for offline play | If players report missing art offline: precache the current zone's sets when its waystone is reached |
+| Draw calls above 120 at High | High is for discrete GPUs, where the extra shadow and ambient-occlusion passes cost little; Low keeps the old budget and the smoke test asserts it | If a High-preset GPU misses 60 fps: merge the static room meshes across materials with an atlas |
+| Bone matrices in a float texture for instancing | Draw calls stay flat as crowds grow | On a three.js upgrade that changes the shader chunks it patches; the smoke test's draw-call assertion and screenshots are the alarm |
 | Balance verified by a bot, not by people | Every balance claim is tested on every push, so regressions show the same day | When real players arrive: the bot reads telegraphs perfectly, so human win rates will be lower and the boss may want softening |
 | Boss counters read broad habits (close, far, dodgy) | Readable adaptation a player can notice and answer, which was the point | If players learn to game the reads; a finer read (which attacks you dodge) fits the same seam |
 | Saves only at waystones and in the citadel | No mid-fight state to serialise, and no save-scumming a boss | If sessions on phones get short enough that losing a room hurts |

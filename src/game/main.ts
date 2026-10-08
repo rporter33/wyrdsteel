@@ -20,6 +20,7 @@ import { MenuPad, installArrowKeys } from '../ui/focus';
 import { AudioEngine } from '../audio/engine';
 import { playEvents } from '../audio/sfx';
 import { Music, type Mood } from '../audio/music';
+import { QUALITY, type QualityName } from '../render/quality';
 import { characterSave, startFrom } from '../core/save/serialize';
 import { DEFAULT_SETTINGS, SLOTS, type Settings } from '../core/save/schema';
 import type { StartSpec } from '../core/sim/world';
@@ -81,6 +82,7 @@ const aim = {
 };
 
 // ---- Settings ----
+let appliedQuality = '';
 function applySettings(s: Settings): void {
   settings = s;
   gfx.rig.settings.distance = s.cameraDistance;
@@ -89,6 +91,12 @@ function applySettings(s: Settings): void {
   gfx.opts.flash = s.flash && !s.reducedMotion;
   audio.setVolume(s.volume, s.music);
   gfx.opts.boldTelegraphs = s.boldTelegraphs;
+  // ?quality=low|medium|high|ultra overrides the setting (the browser tests pin Low).
+  const q = (params.get('quality') ?? s.quality) as QualityName | 'auto';
+  if (q !== appliedQuality && (q === 'auto' || q in QUALITY)) {
+    appliedQuality = q;
+    gfx.setQuality(q);
+  }
   document.documentElement.style.setProperty('--text-scale', String(s.textScale));
   hud.showPerf = s.showPerf || params.has('perf');
   input.deadzone = s.deadzone;

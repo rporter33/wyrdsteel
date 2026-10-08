@@ -5,10 +5,11 @@ import { buildHumanoid, type Rig } from '../models/humanoid';
 import { buildWeapon } from '../models/weapons';
 import { blobShadow, glow } from '../models/kit';
 import { applyPose } from '../anim/poses';
-import { PALETTE, toon } from '../materials';
+import { PALETTE, surface } from '../materials';
 import { buildNpc } from '../models/npcs';
 import { CrowdRenderer, type Proxy } from './crowd';
 import type { EnemyModel } from '../models/enemies';
+import { SKINNED_ENEMIES, animInput, buildSkinnedEnemy, buildSkinnedHero, characterAssets, type SkinnedModel } from '../models/characters';
 
 interface View {
   id: number;
@@ -97,6 +98,12 @@ export class EntityViews {
   camera: THREE.Camera | null = null;
   /** Accessibility: hit flashes can be turned off. */
   flash = true;
+  /** Skinned, animated characters (when their assets have loaded) instead of the rigid ones. */
+  skinned = false;
+  /** With real shadow maps the blob shadows under bodies are hidden. */
+  set realShadows(on: boolean) {
+    this.shadows.visible = !on;
+  }
 
   constructor(private readonly db: ContentDb) {
     this.crowd.group.name = 'crowd';
@@ -235,9 +242,10 @@ export class EntityViews {
 
   private create(e: Entity, w: World): View {
     const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, proxy: null, crowdKey: '', shadowR: 0, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, seen: 0, deadAt: -1, color: null, size: 0, beam: false };
+    const sk = this.skinned && !!characterAssets();
     if (e.kind === 'player') {
       const key = playerKey(e, w);
-      const got = this.crowd.acquireWith(key, () => buildPlayer(key));
+      const got = sk ? this.crowd.acquireWith(`sk|${key}`, () => buildSkinnedPlayer(key)) : this.crowd.acquireWith(key, () => buildPlayer(key));
       if (got) {
         v.proxy = got.proxy;
         v.crowdKey = got.key;
@@ -249,7 +257,12 @@ export class EntityViews {
       v.shadowR = 0.45;
     } else if (e.kind === 'enemy') {
       const def = this.db.enemies[e.def];
-      const got = this.crowd.acquire(def?.model ?? e.def, def?.color ?? '#888888', e.elite ?? []);
+      const model = def?.model ?? e.def;
+      const color = def?.color ?? '#888888';
+      const got =
+        sk && SKINNED_ENEMIES.has(model)
+          ? this.crowd.acquireWith(`sk|${model}|${color}`, (el) => buildSkinnedEnemy(model, color, el), e.elite ?? [])
+          : this.crowd.acquire(model, color, e.elite ?? []);
       if (got) {
         v.proxy = got.proxy;
         v.crowdKey = got.key;
@@ -277,14 +290,14 @@ export class EntityViews {
     } else if (e.tur) {
       // Sentry turret: tripod and a rifle head that tracks its target.
       const head = new THREE.Group();
-      head.add(new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.3, 0.8), toon(0x3f5468)));
+      head.add(new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.3, 0.8), surface(0x3f5468)));
       const muzzle = glow(0.07, 0x9be7ff, 2);
       muzzle.position.z = 0.45;
       head.add(muzzle);
       head.position.y = 1.0;
       head.name = 'head';
       for (let i = 0; i < 3; i++) {
-        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.1, 5), toon(0x2a3038));
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.1, 5), surface(0x2a3038));
         leg.position.set(Math.cos(i * 2.09) * 0.25, 0.5, Math.sin(i * 2.09) * 0.25);
         leg.rotation.z = Math.cos(i * 2.09) * 0.35;
         leg.rotation.x = -Math.sin(i * 2.09) * 0.35;
@@ -293,7 +306,7 @@ export class EntityViews {
       v.obj.add(head);
       v.shadowR = 0.4;
     } else {
-      v.obj.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), toon(0x888888)));
+      v.obj.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), surface(0x888888)));
     }
     return v;
   }
@@ -322,8 +335,9 @@ export class EntityViews {
       v.proxy.holder.position.copy(v.obj.position);
       v.proxy.holder.rotation.y = 0;
     }
-    if (v.rig) {
-      v.rig.root.rotation.y = facing;
+    const anim = (v.proxy?.model as SkinnedModel | undefined)?.anim;
+    if (v.rig || anim) {
+      if (v.rig) v.rig.root.rotation.y = facing;
       const speed = Math.hypot(e.vx, e.vz);
       v.phase += speed * dt * 1.6;
       const def = e.act ? this.db.actions[e.act.id] : null;
@@ -333,14 +347,17 @@ export class EntityViews {
       const firing = !!p && (p.lastInput.held & (1 << 4)) !== 0;
       if (firing) v.lastFire = w.tick;
       const aiming = w.tick - v.lastFire < 20;
+      const gun = aiming && (!e.act || def?.pose === 'shoot');
       if (v.ranged && v.melee) {
         // Instanced parts hide by scale, not visibility.
-        const gun = aiming && !e.act;
         v.ranged.scale.setScalar(gun ? 1 : 0);
         v.melee.scale.setScalar(gun ? 0 : 1);
         v.meleeL?.scale.setScalar(gun ? 0 : 1);
       }
-      applyPose(v.rig, {
+      if (anim) {
+        v.proxy!.model.root.rotation.y = facing;
+        anim.update(animInput(e, w, { pose: def ? def.pose : null, t: e.act ? Math.min(1, (e.act.t + alpha) / len) : 0, strike, aiming: aiming || (!!def && def.pose === 'shoot'), armed: !gun && e.kind === 'player' }), dt);
+      } else applyPose(v.rig!, {
         speed: e.act ? 0 : speed,
         phase: v.phase,
         pose: def ? def.pose : null,
@@ -396,4 +413,20 @@ function buildPlayer(key: string): EnemyModel {
   if (meleeKind === 'blades') hold('blades', rig.handL, 'meleeL', true);
   hold(rangedKind, rig.handR, 'ranged', false);
   return { root: rig.root as THREE.Group, rig, flash: () => {} };
+}
+
+/** The skinned Sworn for a player key; a body per class until there is an appearance choice. */
+function buildSkinnedPlayer(key: string): EnemyModel {
+  const [, cls = 'berserker', align = '', meleeKind = 'sword', rangedKind = 'pistols'] = key.split('|');
+  const st = CLASS_STYLE[cls] ?? CLASS_STYLE.berserker!;
+  return buildSkinnedHero({
+    cls,
+    align,
+    body: st.body,
+    trim: align === 'cyber' ? 0x9fd8ff : align === 'human' ? 0xd8c8a0 : st.trim,
+    cape: st.cape,
+    meleeKind,
+    rangedKind,
+    female: cls === 'commando',
+  });
 }

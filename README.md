@@ -11,8 +11,11 @@ that game's premise, loot and class depth, and sets out to fix what its critics 
   tree you can swap at Idunn's Well.
 - Diablo-style loot: five rarities, prefix and suffix affixes, sockets and runes, crafting.
 - Wyrd Trials after the chapter: seeded remixes of each zone, ten tiers deep.
+- Graphics presets from Low (software rendering, old laptops) to Ultra: physically based
+  materials, shadow maps, ambient occlusion, bloom, point lights from fires and lava, and skinned
+  characters animated from a clip library. Settings → Graphics, or `?quality=low|medium|high|ultra`.
 - Saves stay in your browser; works offline after the first visit. No accounts, no server, no
-  analytics. No third-party assets (see [CREDITS.md](CREDITS.md)).
+  analytics. All art is CC0 (see [CREDITS.md](CREDITS.md)); sound and music are synthesized.
 
 ## What it fixes
 
@@ -64,12 +67,13 @@ How it is built, how it is tested, and what it gave up: [ARCHITECTURE.md](ARCHIT
 |---|---|
 | `src/core/` | The game rules: a deterministic simulation with no rendering, DOM or clock access. Unit-tested in Node. |
 | `src/data/` | Content packs (classes, enemies, items, rooms, zones, story, the boss) as JSON. |
-| `src/render/` | Three.js scene, procedural models and effects. Reads sim state; never changes it. |
+| `src/render/` | Three.js scene: textured rooms, skinned characters, effects, post-processing, quality presets. Reads sim state; never changes it. |
 | `src/audio/` | Synthesized sound effects and generated music. |
 | `src/platform/` | The fixed-step loop, input devices and storage. |
 | `src/ui/` | HUD and menus. |
 | `src/game/` | Wires the pieces together; the debug hook. |
 | `tests/` | Unit tests, golden replays, the balance bot, browser tests. |
+| `scripts/assets/` | Fetches the CC0 sources and builds `public/assets/` (textures, skies, characters, clips). Run by hand; the output is committed. |
 
 ## Legal
 

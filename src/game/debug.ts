@@ -103,6 +103,11 @@ export function installDebug(d: DebugDeps): void {
       if (!s) return 'no session';
       return s.command([{ t: 'travel', zone, node: '' }])[0] ?? null;
     },
+    /** Debug-only: camera distance and pitch, for close-up screenshots. */
+    camera: (distance: number, pitchDeg?: number) => {
+      d.gfx.rig.settings.distance = distance;
+      if (pitchDeg !== undefined) d.gfx.rig.settings.pitchDeg = pitchDeg;
+    },
     god: () => {
       const w = d.session()?.world;
       const e = w?.entities.find((x) => x.id === w.players[0]?.entity);

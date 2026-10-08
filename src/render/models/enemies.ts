@@ -2,16 +2,21 @@ import * as THREE from 'three';
 import type { Entity, World } from '../../core/sim/types';
 import { buildHumanoid, type Rig } from './humanoid';
 import { box, cyl, ico, glow, cone } from './kit';
-import { PALETTE, toon } from '../materials';
+import { PALETTE, isGlowing, surface } from '../materials';
 
 export interface EnemyModel {
   root: THREE.Group;
   rig: Rig | null;
   flash(on: boolean): void;
   update?(e: Entity, w: World): void;
+  /**
+   * Textured bodies only: clothing over the skin, as a colour and how much of it covers the skin
+   * at a rest-pose point (model space). Baked per vertex when the model's template is built.
+   */
+  clothing?(p: THREE.Vector3): [number, number, number, number];
 }
 
-const FLASH = new THREE.MeshToonMaterial({ color: 0xffffff, emissive: 0xffe0d0, emissiveIntensity: 0.55 });
+const FLASH = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffe0d0, emissiveIntensity: 0.55 });
 const ELITE_COLOR: Record<string, number> = {
   frostbound: 0x9be7ff,
   volatile: 0xff6a3c,
@@ -23,7 +28,7 @@ const ELITE_COLOR: Record<string, number> = {
 
 function flasher(root: THREE.Object3D): (on: boolean) => void {
   const meshes: THREE.Mesh[] = [];
-  root.traverse((o) => o instanceof THREE.Mesh && !(o.material instanceof THREE.MeshBasicMaterial) && !(o.material as THREE.MeshToonMaterial).emissiveIntensity && meshes.push(o));
+  root.traverse((o) => o instanceof THREE.Mesh && !isGlowing(o.material as THREE.Material) && meshes.push(o));
   const orig = meshes.map((m) => m.material);
   let state = false;
   return (on) => {
@@ -33,7 +38,7 @@ function flasher(root: THREE.Object3D): (on: boolean) => void {
   };
 }
 
-function eliteAura(root: THREE.Group, elites: string[], r: number): void {
+export function eliteAura(root: THREE.Group, elites: string[], r: number): void {
   elites.forEach((id, i) => {
     const ring = new THREE.Mesh(new THREE.RingGeometry(r * 1.1 + i * 0.12, r * 1.1 + i * 0.12 + 0.08, 24), new THREE.MeshBasicMaterial({ color: ELITE_COLOR[id] ?? 0xffffff, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2;
@@ -234,4 +239,4 @@ export function buildEnemy(model: string, colorHex: string, elites: string[]): E
   return { root, rig, flash: flasher(root), update };
 }
 
-export { toon };
+export { surface };

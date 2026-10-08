@@ -70,6 +70,17 @@ export function SettingsView(props: { onBack: () => void }) {
           <label class="check">
             <input type="checkbox" checked={s.reducedMotion} onChange={(e) => set({ reducedMotion: (e.target as HTMLInputElement).checked })} /> Reduced motion (no shake, no flashes)
           </label>
+          <h3>Graphics</h3>
+          <label>
+            Quality{' '}
+            <select value={s.quality} onChange={(e) => set({ quality: (e.target as HTMLSelectElement).value })}>
+              <option value="auto">Auto (guess from your GPU)</option>
+              <option value="low">Low: integrated graphics, battery</option>
+              <option value="medium">Medium: shadows, bloom, textures</option>
+              <option value="high">High: ambient occlusion, sharper shadows</option>
+              <option value="ultra">Ultra: full resolution, 4K shadows</option>
+            </select>
+          </label>
           <h3>Sound and display</h3>
           <label>
             Volume <b>{Math.round(s.volume * 100)}%</b>
