@@ -400,8 +400,10 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
       body.put('Head', head, mesh(new THREE.IcosahedronGeometry(0.15, 1).scale(1, 1.05, 1.1), metal(0x4d5862), 0, 0.1, 0.01), horn(1), horn(-1), ...eyes(PALETTE.blood, 0.08, 0.16));
       body.put('spine_03', chest, mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.36, 8).scale(1, 1, 0.7), metal(0x4d5862), 0, 0.03, 0.02));
       const shield = new THREE.Group();
-      shield.add(mesh(new THREE.BoxGeometry(0.62, 0.07, 1.0), metal(0x4d5862)), mesh(new THREE.BoxGeometry(0.2, 0.05, 0.2), metal(PALETTE.gold), 0, 0.05, 0));
-      body.put('lowerarm_l', body.at('lowerarm_l').lerp(body.at('hand_l'), 0.5).add(new THREE.Vector3(0, 0.08, 0)), shield);
+      // Strapped along the outside of the forearm: in the clips the forearm's rest-pose up stays up,
+      // so the board stands in the forearm's vertical plane and faces away from the body.
+      shield.add(mesh(new THREE.BoxGeometry(0.62, 1.0, 0.07), metal(0x4d5862)), mesh(new THREE.BoxGeometry(0.2, 0.2, 0.05), metal(PALETTE.gold), 0, 0, -0.05));
+      body.put('lowerarm_l', body.at('lowerarm_l').lerp(body.at('hand_l'), 0.5).add(new THREE.Vector3(0, 0, -0.08)), shield);
       body.put('hand_r', body.grip('r'), mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.3, 5).rotateX(Math.PI / 2), cloth(PALETTE.wood), 0, 0, 0.25), mesh(new THREE.ConeGeometry(0.05, 0.22, 4).rotateX(Math.PI / 2), metal(PALETTE.steel), 0, 0, 0.98));
       for (const side of ['l', 'r'] as const) body.put(`upperarm_${side}`, body.at(`upperarm_${side}`), mesh(new THREE.IcosahedronGeometry(0.12, 1).scale(1.3, 0.8, 1.3), metal(0x4d5862), (side === 'l' ? 1 : -1) * 0.06, 0.07, 0));
       moves = SHIELD;

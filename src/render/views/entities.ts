@@ -26,6 +26,8 @@ interface View {
   lastFire: number;
   seen: number;
   deadAt: number;
+  /** Reach of the held melee weapon from the grip, for blade ribbons. */
+  bladeLen: number;
   /** Batched projectiles and pickups: their colour, size and whether a loot beam marks them. */
   color: THREE.Color | null;
   size: number;
@@ -240,8 +242,18 @@ export class EntityViews {
     return this.views.get(id)?.obj ?? null;
   }
 
+  /** The hilt and tip of an entity's melee weapon in world space, when it is holding one out. */
+  blade(id: number, base: THREE.Vector3, tip: THREE.Vector3): boolean {
+    const v = this.views.get(id);
+    const m = v?.melee;
+    if (!v || !m || m.scale.x === 0 || !v.bladeLen) return false;
+    m.localToWorld(base.set(0, 0, v.bladeLen * 0.3));
+    m.localToWorld(tip.set(0, 0, v.bladeLen));
+    return true;
+  }
+
   private create(e: Entity, w: World): View {
-    const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, proxy: null, crowdKey: '', shadowR: 0, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, seen: 0, deadAt: -1, color: null, size: 0, beam: false };
+    const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, proxy: null, crowdKey: '', shadowR: 0, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, seen: 0, deadAt: -1, color: null, size: 0, beam: false, bladeLen: 0 };
     const sk = this.skinned && !!characterAssets();
     if (e.kind === 'player') {
       const key = playerKey(e, w);
@@ -254,6 +266,7 @@ export class EntityViews {
         v.meleeL = got.proxy.model.root.getObjectByName('meleeL') ?? null;
         v.ranged = got.proxy.model.root.getObjectByName('ranged') ?? null;
       }
+      v.bladeLen = BLADE_LEN[key.split('|')[3] ?? ''] ?? 0.65;
       v.shadowR = 0.45;
     } else if (e.kind === 'enemy') {
       const def = this.db.enemies[e.def];
@@ -334,6 +347,11 @@ export class EntityViews {
     if (v.proxy) {
       v.proxy.holder.position.copy(v.obj.position);
       v.proxy.holder.rotation.y = 0;
+      // The fallen sink away once their death has played, before the sim removes them.
+      if (e.dead && e.kind === 'enemy') {
+        if (v.deadAt < 0) v.deadAt = w.tick;
+        v.proxy.holder.position.y -= Math.max(0, (w.tick - v.deadAt) / 60 - 1.0) * 1.4;
+      } else v.deadAt = -1;
     }
     const anim = (v.proxy?.model as SkinnedModel | undefined)?.anim;
     if (v.rig || anim) {
@@ -380,6 +398,9 @@ export class EntityViews {
     }
   }
 }
+
+/** Grip-to-tip length of each melee weapon kind, in metres. */
+const BLADE_LEN: Record<string, number> = { sword: 1.0, blades: 0.72, greataxe: 0.85 };
 
 function playerKey(e: Entity, w: World): string {
   const slot = w.players.find((p) => p.entity === e.id);

@@ -234,7 +234,7 @@ export class GameRenderer {
       const chill = e.status.chill > 0 || e.status.freeze > 0 ? 1 : Math.min(1, e.status.b[1]! / 100);
       this.frost.style.opacity = String(surging ? 0.25 + chill * 0.6 : chill * 0.6);
     }
-    this.fx.update(w, events, dt, this.opts, (id) => this.views.get(id));
+    this.fx.update(w, events, dt, this.opts, (id) => this.views.get(id), (id, b, t) => this.views.blade(id, b, t), this.db);
     this.post.render();
   }
 

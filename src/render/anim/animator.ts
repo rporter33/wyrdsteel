@@ -304,7 +304,8 @@ export class Animator {
       if (l.group === 'F') w *= scaleF;
       else w = sum[l.group] > 1e-4 ? (w / sum[l.group]) * (1 - F) : 0;
       l.action.weight = w;
-      l.action.enabled = w > 1e-3;
+      // Any weight counted in the sums must be applied, or the half falls short of one.
+      l.action.enabled = w > 0;
     }
     // Nothing on a half yet (the first frame): let the idle carry it.
     for (const g of ['U', 'L'] as const) {

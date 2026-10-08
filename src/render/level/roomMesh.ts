@@ -49,6 +49,7 @@ export const PALETTES: Record<string, RoomPalette> = {
 };
 
 const WALL_H = 2.8;
+const PALETTE_GOLD = 0xf5c542;
 const PIT_Y = -0.75;
 
 /** Stable per-tile noise in [0, 1): the same room always looks the same. */
@@ -257,6 +258,7 @@ export class RoomMesh {
     else if (P.style === 'cliffs') this.cliffs(walls);
     else this.blocks(walls, at);
     this.rubble(at, walkable);
+    if (P.style === 'blocks') this.decor(at, walkable);
   }
 
   /** Fitted blocks (citadel stone, foundry plate) with an overhanging capstone. */
@@ -374,6 +376,73 @@ export class RoomMesh {
       m.side = THREE.DoubleSide;
       this.add(boxUv(mergeGeometries(crowns, false)!), withCutaway(m), true);
     }
+  }
+
+  /**
+   * Dressing on the faces of walls that look onto the floor, never on the floor itself: in the
+   * citadel, torches in iron sconces (which light the room) and hanging banners; in the foundry,
+   * runs of pipe and glowing furnace grates.
+   */
+  private decor(at: (x: number, z: number) => number, walkable: (t: number) => boolean): void {
+    const P = this.palette;
+    const { w, h } = this.room;
+    const foundry = P.pitKind === 'lava';
+    const iron: THREE.BufferGeometry[] = [];
+    const flame: THREE.BufferGeometry[] = [];
+    const cloth: THREE.BufferGeometry[] = [];
+    const trim: THREE.BufferGeometry[] = [];
+    // A part placed in a face's own frame: u along the wall, v up, n out into the room.
+    const place = (g: THREE.BufferGeometry, x: number, z: number, dx: number, dz: number, u: number, v: number, n: number) => {
+      g.rotateY(Math.atan2(dx, dz));
+      g.translate(x + 0.5 + dx * (0.5 + n) + dz * u, v, z + 0.5 + dz * (0.5 + n) - dx * u);
+      return g;
+    };
+    for (let z = 0; z < h; z++)
+      for (let x = 0; x < w; x++) {
+        if (at(x, z) !== T_WALL) continue;
+        for (const [dx, dz] of [[0, 1], [0, -1], [1, 0], [-1, 0]] as const) {
+          if (!walkable(at(x + dx, z + dz))) continue;
+          const r = hash(x * 3 + dx, z * 3 + dz, 11);
+          if (foundry) {
+            if (r < 0.5) {
+              // Two pipes along the face, with a flange.
+              iron.push(place(new THREE.CylinderGeometry(0.07, 0.07, 1.02, 8).rotateZ(Math.PI / 2), x, z, dx, dz, 0, 1.9, 0.09));
+              iron.push(place(new THREE.CylinderGeometry(0.05, 0.05, 1.02, 8).rotateZ(Math.PI / 2), x, z, dx, dz, 0, 2.15, 0.07));
+              if (r < 0.15) iron.push(place(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 10).rotateZ(Math.PI / 2), x, z, dx, dz, 0, 1.9, 0.09));
+            } else if (r > 0.9) {
+              trim.push(place(new THREE.BoxGeometry(0.62, 0.42, 0.06), x, z, dx, dz, 0, 0.75, 0.02));
+              flame.push(place(new THREE.BoxGeometry(0.5, 0.3, 0.02), x, z, dx, dz, 0, 0.75, 0.05));
+              this.lights.push({ x: x + 0.5 + dx * 0.9, y: 0.8, z: z + 0.5 + dz * 0.9, color: 0xff6a24, intensity: 6, flicker: 0.2 });
+            }
+          } else if (r < 0.14) {
+            // Torch: a bracket, a cup, and the flame.
+            iron.push(place(new THREE.BoxGeometry(0.06, 0.06, 0.3), x, z, dx, dz, 0, 1.95, 0.12));
+            iron.push(place(new THREE.CylinderGeometry(0.08, 0.05, 0.14, 7), x, z, dx, dz, 0, 2.05, 0.26));
+            flame.push(place(new THREE.ConeGeometry(0.07, 0.24, 6).translate(0, 0.12, 0), x, z, dx, dz, 0, 2.1, 0.26));
+            // The light sits out from the wall, or the stone beside the flame burns white.
+            this.lights.push({ x: x + 0.5 + dx * 1.2, y: 2.2, z: z + 0.5 + dz * 1.2, color: 0xff9a4a, intensity: 5, flicker: 0.35 });
+          } else if (r > 0.86) {
+            // Banner: a long cloth with a gold band and a pole across the top.
+            cloth.push(place(new THREE.PlaneGeometry(0.62, 1.5).translate(0, -0.75, 0), x, z, dx, dz, 0, 2.65, 0.03));
+            trim.push(place(new THREE.BoxGeometry(0.62, 0.08, 0.01), x, z, dx, dz, 0, 1.3, 0.035));
+            iron.push(place(new THREE.CylinderGeometry(0.025, 0.025, 0.8, 6).rotateZ(Math.PI / 2), x, z, dx, dz, 0, 2.65, 0.05));
+          }
+        }
+      }
+    const merged = (gs: THREE.BufferGeometry[]) => (gs.length ? mergeGeometries(gs.map((g) => (g.index ? g.toNonIndexed() : g)).map((g) => {
+      for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k);
+      return g;
+    }), false) : null);
+    this.add(merged(iron), surface(0x2a3038, { metal: 0.8, rough: 0.45 }), true);
+    this.add(merged(flame), surface(foundry ? 0xff6a24 : 0xffa04a, { emissive: foundry ? 0xff6a24 : 0xffa04a, emissiveIntensity: 3 }));
+    const banner = surface(P.wall === 0x6b7480 ? 0x7a1e22 : 0x3a2a5a, { rough: 0.9 });
+    const cl = merged(cloth);
+    if (cl) {
+      const m = banner.clone();
+      m.side = THREE.DoubleSide;
+      this.add(cl, m, true);
+    }
+    this.add(merged(trim), surface(foundry ? 0x2a2420 : PALETTE_GOLD, { metal: foundry ? 0.3 : 0.85, rough: 0.4 }));
   }
 
   /** Rocks and rubble along the foot of the walls, where floor meets stone. */

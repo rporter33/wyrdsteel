@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { SimEvent, World } from '../../core/sim/types';
 import type { CameraRig } from '../camera';
 import type { RenderOptions } from '../scene';
@@ -38,8 +39,53 @@ interface Trail {
 interface Decal {
   mesh: THREE.Mesh;
   fill: THREE.Mesh;
+  rim: THREE.Mesh;
   start: number;
   end: number;
+}
+
+/** A fading ribbon behind a swung blade: the last few hilt and tip positions, oldest first. */
+interface Ribbon {
+  mesh: THREE.Mesh;
+  pts: { base: THREE.Vector3; tip: THREE.Vector3; age: number }[];
+  color: THREE.Color;
+  seen: boolean;
+}
+const RIBBON_N = 14;
+const RIBBON_LIFE = 0.14;
+/** Pose families that swing a blade (and so leave a ribbon). */
+const SWINGS = new Set(['slashR', 'slashL', 'twin', 'thrust', 'overhead', 'uppercut', 'spin', 'slam', 'leap']);
+
+/** A thin quad from (x1, y1) to (x2, y2) in the shape's plane. */
+function band(x1: number, y1: number, x2: number, y2: number, hw: number): THREE.BufferGeometry {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const l = Math.hypot(dx, dy) || 1;
+  const nx = (-dy / l) * hw;
+  const ny = (dx / l) * hw;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute([x1 + nx, y1 + ny, 0, x1 - nx, y1 - ny, 0, x2 - nx, y2 - ny, 0, x2 + nx, y2 + ny, 0], 3));
+  g.setIndex([0, 1, 2, 0, 2, 3]);
+  return g.toNonIndexed();
+}
+
+/** The bright edge of a telegraph's shape, in the same plane as its fill. */
+function rimOf(ev: Extract<SimEvent, { k: 'telegraph' }>): THREE.BufferGeometry {
+  const w = 0.07;
+  const parts: THREE.BufferGeometry[] = [];
+  if (ev.shape === 'line') {
+    const hx = ev.width / 2;
+    parts.push(band(-hx, 0, hx, 0, w), band(hx, 0, hx, ev.len, w), band(hx, ev.len, -hx, ev.len, w), band(-hx, ev.len, -hx, 0, w));
+  } else if (ev.shape === 'ring') {
+    parts.push(new THREE.RingGeometry(Math.max(0.05, ev.r - ev.width), Math.max(0.1, ev.r - ev.width) + w, 48).toNonIndexed(), new THREE.RingGeometry(ev.r - w, ev.r, 48).toNonIndexed());
+  } else if (ev.shape === 'cone') {
+    const arc = ev.width > 0 ? Math.min(Math.PI * 2, ev.width) : 1.2;
+    const a0 = Math.PI / 2 - arc / 2;
+    parts.push(new THREE.RingGeometry(ev.r - w * 1.5, ev.r, 32, 1, a0, arc).toNonIndexed());
+    if (arc < Math.PI * 2 - 0.01) for (const a of [a0, a0 + arc]) parts.push(band(0, 0, Math.cos(a) * ev.r, Math.sin(a) * ev.r, w / 2));
+  } else parts.push(new THREE.RingGeometry(ev.r - w * 1.5, ev.r, 48).toNonIndexed());
+  for (const g of parts) for (const k of Object.keys(g.attributes)) if (k !== 'position') g.deleteAttribute(k);
+  return mergeGeometries(parts, false)!;
 }
 
 const STATUS_COLOR: Record<string, number> = { burn: 0xff8a3c, chill: 0x9be7ff, freeze: 0xcff4ff, root: 0xf5c542, shock: 0xc6a8ff };
@@ -59,6 +105,10 @@ export class Effects {
   private numHost: HTMLElement;
   private trails: Trail[] = [];
   private decals: Decal[] = [];
+  private ribbons = new Map<number, Ribbon>();
+  private readonly ribbonMat = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, toneMapped: false });
+  private readonly up = new THREE.Vector3(0, 1, 0);
+  private readonly dir = new THREE.Vector3();
   private reticle: THREE.Mesh;
   private softRing: THREE.Mesh;
   private lockMark: THREE.Group;
@@ -103,10 +153,73 @@ export class Effects {
     this.trails = [];
     for (const d of this.decals) this.scene.remove(d.mesh);
     this.decals = [];
+    for (const r of this.ribbons.values()) this.scene.remove(r.mesh);
+    this.ribbons.clear();
+  }
+
+  /** A quick bright point where a blow lands, large enough for bloom to catch. */
+  private flash(x: number, y: number, z: number, color: number, size: number): void {
+    if (this.parts.length >= MAX_P) return;
+    const c = new THREE.Color(color).multiplyScalar(3);
+    this.parts.push({ x, y, z, vx: 0, vy: 0, vz: 0, life: 0.09, max: 0.09, size, color: c, grav: 0 });
+  }
+
+  /** Add this frame's blade position to its owner's ribbon (creating one on the first swing frame). */
+  private sampleBlade(id: number, base: THREE.Vector3, tip: THREE.Vector3, color: number): void {
+    let r = this.ribbons.get(id);
+    if (!r) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(RIBBON_N * 2 * 3), 3));
+      g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(RIBBON_N * 2 * 4), 4));
+      const idx: number[] = [];
+      for (let i = 0; i < RIBBON_N - 1; i++) idx.push(i * 2, i * 2 + 1, i * 2 + 3, i * 2, i * 2 + 3, i * 2 + 2);
+      g.setIndex(idx);
+      const mesh = new THREE.Mesh(g, this.ribbonMat);
+      mesh.frustumCulled = false;
+      mesh.renderOrder = 5;
+      this.scene.add(mesh);
+      r = { mesh, pts: [], color: new THREE.Color(color), seen: true };
+      this.ribbons.set(id, r);
+    }
+    r.seen = true;
+    r.pts.push({ base: base.clone(), tip: tip.clone(), age: 0 });
+    if (r.pts.length > RIBBON_N) r.pts.shift();
+  }
+
+  /** Age ribbons, rebuild their strips, and drop the ones that have faded. */
+  private updateRibbons(dt: number): void {
+    for (const [id, r] of this.ribbons) {
+      for (const p of r.pts) p.age += dt;
+      r.pts = r.pts.filter((p) => p.age < RIBBON_LIFE);
+      if (!r.pts.length && !r.seen) {
+        this.scene.remove(r.mesh);
+        r.mesh.geometry.dispose();
+        this.ribbons.delete(id);
+        continue;
+      }
+      r.seen = false;
+      const pos = r.mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
+      const col = r.mesh.geometry.getAttribute('color') as THREE.BufferAttribute;
+      const n = r.pts.length;
+      for (let i = 0; i < RIBBON_N; i++) {
+        // Unused slots collapse onto the newest sample.
+        const p = r.pts[Math.min(i, n - 1)];
+        if (!p) continue;
+        pos.setXYZ(i * 2, p.base.x, p.base.y, p.base.z);
+        pos.setXYZ(i * 2 + 1, p.tip.x, p.tip.y, p.tip.z);
+        const a = i < n ? (1 - p.age / RIBBON_LIFE) * (i / Math.max(1, n - 1)) : 0;
+        col.setXYZW(i * 2, r.color.r * 2, r.color.g * 2, r.color.b * 2, a * 0.15);
+        col.setXYZW(i * 2 + 1, r.color.r * 2, r.color.g * 2, r.color.b * 2, a * 0.85);
+      }
+      pos.needsUpdate = true;
+      col.needsUpdate = true;
+      r.mesh.visible = n > 1;
+    }
   }
 
   burst(x: number, y: number, z: number, color: number, n: number, speed: number, size = 0.07, grav = 9, life = 0.45): void {
-    const c = new THREE.Color(color);
+    // Brighter than white, so the bloom pass gives sparks a glow.
+    const c = new THREE.Color(color).multiplyScalar(1.8);
     for (let i = 0; i < n && this.parts.length < MAX_P; i++) {
       const a = Math.random() * Math.PI * 2;
       const up = Math.random() * 0.8 + 0.2;
@@ -155,12 +268,30 @@ export class Effects {
     fill.scale.setScalar(0.01);
     mesh.add(fill);
     fill.position.z = 0.001;
+    // A bright edge, so the shape reads at a glance on any floor; it pulses faster as the blow nears.
+    const rim = new THREE.Mesh(rimOf(ev), new THREE.MeshBasicMaterial({ color: new THREE.Color(bold ? 0xff4a8a : 0xff5a4a).multiplyScalar(1.6), transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, toneMapped: false }));
+    rim.position.z = 0.002;
+    mesh.add(rim);
     this.scene.add(mesh);
-    this.decals.push({ mesh, fill, start: ev.t, end: ev.t + Math.max(6, ev.dur) });
+    this.decals.push({ mesh, fill, rim, start: ev.t, end: ev.t + Math.max(6, ev.dur) });
   }
 
-  update(w: World, events: SimEvent[], dt: number, opts: RenderOptions, get: (id: number) => THREE.Object3D | null): void {
+  /**
+   * `blade` gives the hilt and tip of an entity's held blade this frame, when it has one; swings
+   * by such entities leave ribbons that follow the blade instead of a flat arc.
+   */
+  update(w: World, events: SimEvent[], dt: number, opts: RenderOptions, get: (id: number) => THREE.Object3D | null, blade?: (id: number, base: THREE.Vector3, tip: THREE.Vector3) => boolean, db?: { actions: Record<string, { pose: string }> }): void {
     const ent = (id: number) => w.entities.find((e) => e.id === id);
+    if (blade && db && !opts.lowFx) {
+      const base = this.p.clone();
+      const tip = this.s.clone();
+      for (const e of w.entities) {
+        if (e.kind !== 'player' || !e.act || e.dead) continue;
+        const pose = db.actions[e.act.id]?.pose;
+        if (pose && SWINGS.has(pose) && blade(e.id, base, tip)) this.sampleBlade(e.id, base, tip, 0x9fd8ff);
+      }
+    }
+    this.updateRibbons(dt);
     for (const ev of events) {
       switch (ev.k) {
         case 'hit': {
@@ -173,6 +304,7 @@ export class Effects {
           const onPlayer = target?.kind === 'player';
           const color = ev.status ? (STATUS_COLOR[ev.status] ?? 0xffffff) : onPlayer ? 0xe5484d : ev.crit ? 0xffd24a : 0xffffff;
           this.burst(ev.x, ev.y, ev.z, color, opts.lowFx ? 3 : ev.heavy ? 18 : 8, ev.heavy ? 8 : 5);
+          if (!opts.lowFx) this.flash(ev.x, ev.y, ev.z, color, ev.heavy ? 0.55 : 0.35);
           this.number(ev.x, ev.y + 0.8, ev.z, String(ev.dmg), (onPlayer ? 'taken' : ev.crit ? 'crit' : ev.weak ? 'weak' : '') + (ev.status ? ' st' : ''));
           if (ev.heavy) this.rig.addTrauma(onPlayer ? 0.35 : 0.22);
           else if (onPlayer) this.rig.addTrauma(0.18);
@@ -181,7 +313,7 @@ export class Effects {
         }
         case 'swing': {
           const e = ent(ev.src);
-          if (e && !opts.lowFx) this.trail(e.x, e.z, e.fx, e.fz, 2.3, 2.0, e.kind === 'player' ? 0x9fd8ff : 0xffb0a0, e.y + 1.1);
+          if (e && !opts.lowFx && !this.ribbons.has(e.id)) this.trail(e.x, e.z, e.fx, e.fz, 2.3, 2.0, e.kind === 'player' ? 0x9fd8ff : 0xffb0a0, e.y + 1.1);
           break;
         }
         case 'dodge':
@@ -282,7 +414,17 @@ export class Effects {
       p.y = Math.max(0.02, p.y + p.vy * dt);
       p.z += p.vz * dt;
       const k = p.life / p.max;
-      this.s.setScalar(p.size * (0.3 + 0.7 * k));
+      // Sparks stretch along their flight, so a burst reads as streaks rather than dots.
+      const speed = Math.hypot(p.vx, p.vy, p.vz);
+      const sz = p.size * (0.3 + 0.7 * k);
+      if (speed > 0.5) {
+        this.dir.set(p.vx / speed, p.vy / speed, p.vz / speed);
+        this.q.setFromUnitVectors(this.up, this.dir);
+        this.s.set(sz * 0.6, sz * (1 + Math.min(4, speed * 0.35)), sz * 0.6);
+      } else {
+        this.q.identity();
+        this.s.setScalar(sz);
+      }
       this.p.set(p.x, p.y, p.z);
       this.m.compose(this.p, this.q, this.s);
       this.mesh.setMatrixAt(n, this.m);
@@ -322,9 +464,11 @@ export class Effects {
     this.decals = this.decals.filter((d) => {
       const k = Math.min(1, (w.tick - d.start) / (d.end - d.start));
       d.fill.scale.setScalar(Math.max(0.01, k));
+      (d.rim.material as THREE.MeshBasicMaterial).opacity = 0.55 + 0.35 * Math.sin(w.tick * (0.25 + k * 0.6));
       if (w.tick >= d.end) {
         this.scene.remove(d.mesh);
         d.mesh.geometry.dispose();
+        d.rim.geometry.dispose();
         return false;
       }
       return true;
