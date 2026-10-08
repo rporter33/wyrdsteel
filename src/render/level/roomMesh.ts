@@ -45,7 +45,7 @@ export const PALETTES: Record<string, RoomPalette> = {
   wood: { style: 'trees', floor: 0xdfe8ef, wall: 0x3b3430, low: 0x3d3632, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x8796a3, floorMat: 'snow', floorScale: 4, floorTint: 0xf2f6fa, wallMat: 'bark', wallScale: 1.5, wallTint: 0x9a948e, pitKind: 'water', rubble: 0xc4ccd4 },
   foundry: { style: 'blocks', floor: 0x3b3430, wall: 0x5b4636, low: 0x6b5242, ice: 0xa8d8f0, pit: 0x1a0700, fog: 0x1a120d, floorMat: 'plates', floorScale: 2.5, floorTint: 0xc8c0b8, wallMat: 'rust', wallScale: 2.5, wallTint: 0x8c8580, pitKind: 'lava' },
   wyrd: { style: 'cliffs', floor: 0x2a2440, wall: 0x4a3a6a, low: 0x3a2f55, ice: 0xa8d8f0, pit: 0x05030a, fog: 0x120e1e, floorMat: 'slabs', floorScale: 3, floorTint: 0x5a4f78, wallMat: 'rock', wallScale: 3, wallTint: 0x5e5078, pitKind: 'abyss', crystal: 0xb48cff },
-  roots: { style: 'cliffs', floor: 0x5e7486, wall: 0x2e3d4a, low: 0x3b4e5c, ice: 0xbfe8fb, pit: 0x041422, fog: 0x0d1b26, floorMat: 'rock', floorScale: 4, floorTint: 0x8fa4b4, wallMat: 'rock', wallScale: 3, wallTint: 0x6a7c8a, pitKind: 'water', crystal: 0x8fdcff },
+  roots: { style: 'cliffs', floor: 0x5e7486, wall: 0x2e3d4a, low: 0x3b4e5c, ice: 0xbfe8fb, pit: 0x041422, fog: 0x0d1b26, floorMat: 'rock', floorScale: 4, floorTint: 0xc4d4e0, wallMat: 'rock', wallScale: 3, wallTint: 0x7a8c9a, pitKind: 'water', crystal: 0x8fdcff },
 };
 
 const WALL_H = 2.8;

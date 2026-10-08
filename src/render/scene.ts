@@ -31,7 +31,7 @@ const LIGHTS: Record<string, ZoneLight> = {
   hall: { sun: 0xffe2c0, sunI: 2.4, sunDir: [-0.5, 1, 0.45], sky: 0xdfeeff, ground: 0x2a3644, hemiI: 0.45, env: 0.7, exposure: 1.0, fogDensity: 0.016 },
   wood: { sun: 0xe6efff, sunI: 1.7, sunDir: [-0.35, 1, 0.6], sky: 0xe4f0ff, ground: 0x52606e, hemiI: 0.3, env: 0.55, exposure: 0.8, fogDensity: 0.02 },
   foundry: { sun: 0xffb27a, sunI: 2.2, sunDir: [0.4, 1, 0.5], sky: 0xffd9b0, ground: 0x3a2618, hemiI: 0.4, env: 0.8, exposure: 1.0, fogDensity: 0.026 },
-  roots: { sun: 0xa8dcff, sunI: 2.0, sunDir: [-0.3, 1, 0.55], sky: 0xc9ecff, ground: 0x22394a, hemiI: 0.45, env: 0.9, exposure: 1.05, fogDensity: 0.024 },
+  roots: { sun: 0xa8dcff, sunI: 2.4, sunDir: [-0.3, 1, 0.55], sky: 0xc9ecff, ground: 0x2a4a5e, hemiI: 0.7, env: 1.1, exposure: 1.2, fogDensity: 0.02 },
   wyrd: { sun: 0xc8b0ff, sunI: 1.6, sunDir: [0.3, 1, 0.5], sky: 0xd8c8ff, ground: 0x2a1f44, hemiI: 0.4, env: 0.6, exposure: 1.0, fogDensity: 0.026 },
 };
 
