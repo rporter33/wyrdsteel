@@ -3,6 +3,7 @@ import type { ContentDb } from '../data/types';
 import type { Entity, SimEvent, World } from '../sim/types';
 import { byId } from '../sim/entity';
 import { boundAbilities } from '../combat/attack';
+import { flowField, flowDir } from '../nav/flowfield';
 
 export type Policy = 'tactical' | 'mash' | 'kite';
 
@@ -61,13 +62,7 @@ export function botInput(w: World, db: ContentDb, slot: number, policy: Policy, 
   }
   mem.threats = mem.threats.filter((t) => t.until > w.tick);
   const t = nearestEnemy(w, e);
-  if (!t) {
-    // Walk toward any burrower or encounter: just drift to centre.
-    const [mx, mz] = quantizeMove(w.room.spawnX - e.x, w.room.spawnZ - e.z);
-    inp.mx = mx;
-    inp.mz = mz;
-    return inp;
-  }
+  if (!t) return explore(w, e, inp);
   const dx = t.x - e.x;
   const dz = t.z - e.z;
   const d = Math.sqrt(dx * dx + dz * dz) || 1;
@@ -163,5 +158,30 @@ export function botInput(w: World, db: ContentDb, slot: number, policy: Policy, 
     inp.pressed = BTN.light;
   }
   if (e.y > 0.3 && cycle % 9 === 0) inp.pressed = BTN.light;
+  return inp;
+}
+
+/**
+ * With nothing to fight: walk to the next unfinished encounter, then to an open exit (the first
+ * one, which is the critical path). Uses the room's flow field, like the enemies do.
+ */
+function explore(w: World, e: Entity, inp: PlayerInput): PlayerInput {
+  let tx: number | null = null;
+  let tz: number | null = null;
+  const enc = w.room.encounters.find((x) => x.state !== 'done');
+  if (enc) {
+    tx = enc.x;
+    tz = enc.z;
+  } else {
+    const ex = w.room.exits.find((x) => x.open && x.to);
+    if (ex) {
+      tx = ex.x;
+      tz = ex.z;
+    }
+  }
+  if (tx === null || tz === null) return inp;
+  const field = flowField(w.room, `${w.room.id}:${w.room.variant}:${w.room.ver}`, Math.floor(tx), Math.floor(tz));
+  const dir = flowDir(w.room, field, e.x, e.z) ?? [tx - e.x, tz - e.z];
+  [inp.mx, inp.mz] = quantizeMove(dir[0], dir[1]);
   return inp;
 }

@@ -57,7 +57,9 @@ export function createWorld(spec: StartSpec, db: ContentDb): World {
     transition: null,
   };
   spec.players.forEach((p, slot) => {
-    const character = p.character ?? starterCharacter(db, p.name, p.cls);
+    // Clone: the world owns its state. A shared object would let a run rewrite its own start spec,
+    // and a replay of that spec would then begin from the end.
+    const character = p.character ? structuredClone(p.character) : starterCharacter(db, p.name, p.cls);
     const ps: PlayerSlot = {
       slot,
       entity: 0,

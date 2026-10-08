@@ -8,6 +8,7 @@ import { EntityViews } from './views/entities';
 import { Effects } from './fx/effects';
 import { FeatureViews } from './views/features';
 import { Valkyrie } from './fx/valkyrie';
+import { Weather } from './fx/weather';
 
 export interface RenderOptions {
   lowFx: boolean;
@@ -24,6 +25,8 @@ export class GameRenderer {
   readonly fx: Effects;
   readonly features: FeatureViews;
   readonly valkyrie: Valkyrie;
+  readonly weather = new Weather();
+  private frost: HTMLDivElement;
   private room: RoomMesh | null = null;
   private roomKey = '';
   private hemi = new THREE.HemisphereLight(0xdfeeff, 0x1a222c, 1.1);
@@ -40,7 +43,10 @@ export class GameRenderer {
     this.features = new FeatureViews();
     this.valkyrie = new Valkyrie(document.getElementById('hud') ?? document.body);
     this.sun.position.set(-6, 14, 8);
-    this.scene.add(this.hemi, this.sun, this.views.group, this.features.group, this.valkyrie.root);
+    this.scene.add(this.hemi, this.sun, this.views.group, this.features.group, this.valkyrie.root, this.weather.points);
+    this.frost = document.createElement('div');
+    this.frost.className = 'frost';
+    document.getElementById('hud')?.appendChild(this.frost);
     this.scene.fog = new THREE.Fog(0x0b1016, 26, 60);
   }
 
@@ -61,6 +67,7 @@ export class GameRenderer {
     this.hemi.groundColor.setHex(pal.ambient);
     this.views.clear();
     this.features.build(w);
+    this.weather.setMode(palette === 'wood' ? 'snow' : palette === 'wyrd' ? 'motes' : palette === 'foundry' ? 'embers' : 'none');
     this.fx.clear();
   }
   private roomKeyNonce = 0;
@@ -95,6 +102,12 @@ export class GameRenderer {
       this.rig.update({ x, z }, { x: lx, z: lz }, dt, this.canvas.clientWidth / Math.max(1, this.canvas.clientHeight));
       this.room?.cutaway(x, z);
       this.valkyrie.update(e.dead, x, z, dt);
+      const surging = w.room.surgeEnd > w.tick;
+      const warn = w.room.surgeAt > 0 && w.room.surgeAt - w.tick < 180 && w.room.surgeAt > w.tick;
+      this.weather.intensity = surging ? 1 : warn ? 0.6 : 0.3;
+      this.weather.update(dt, x, z, surging ? 1 : 0.1);
+      const chill = e.status.chill > 0 || e.status.freeze > 0 ? 1 : Math.min(1, e.status.b[1]! / 100);
+      this.frost.style.opacity = String(surging ? 0.25 + chill * 0.6 : chill * 0.6);
     }
     this.fx.update(w, events, dt, this.opts, (id) => this.views.get(id));
     this.renderer.render(this.scene, this.rig.camera);

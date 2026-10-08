@@ -2,6 +2,7 @@ import type { ContentDb } from '../../core/data/types';
 import type { World } from '../../core/sim/types';
 import { boundAbilities } from '../../core/combat/attack';
 import { XP_TABLE, LEVEL_CAP } from '../../core/progression/rewards';
+import { inHeat } from '../../core/level/hazards';
 
 const NPC_LABEL: Record<string, string> = {
   smith: 'Brokkr — smithy',
@@ -49,6 +50,7 @@ export class Hud {
   private bounty: HTMLElement;
   private zoneEl: HTMLElement;
   private prompt: HTMLElement;
+  private heat: HTMLElement;
   private last: Record<string, string | number> = {};
   showPerf = false;
 
@@ -86,6 +88,7 @@ export class Hud {
     this.bounty = el('div', 'bounty', prog);
     this.zoneEl = el('div', 'zone', prog);
     this.prompt = el('div', 'hud-prompt', this.root);
+    this.heat = el('div', 'hud-heat', this.root);
     this.perf = el('div', 'perf', this.root);
     this.root.style.display = 'none';
   }
@@ -155,6 +158,14 @@ export class Hud {
     const active = w.room.encounters.find((x) => x.state === 'active');
     const zoneText = `${zone?.name ?? ''}${room ? ' — ' + room.name : ''}${active ? ` · wave ${active.wave + 1}/${active.waves.length}` : w.room.cleared ? ' · cleared' : ''}`;
     this.set('zone', zoneText, () => (this.zoneEl.textContent = zoneText));
+    // Blizzard: are you in heat?
+    const surging = w.room.surgeEnd > w.tick;
+    const warn = w.room.surgeAt > w.tick && w.room.surgeAt - w.tick < 180;
+    const heatState = surging ? (inHeat(w, e) ? 'warm' : 'cold') : warn ? 'cold' : '';
+    this.set('heat', heatState + (warn ? 'w' : ''), () => {
+      this.heat.className = 'hud-heat ' + heatState;
+      this.heat.textContent = warn ? 'A surge is coming: find heat' : heatState === 'warm' ? 'Warm' : heatState === 'cold' ? 'Blizzard: freezing — find a brazier' : '';
+    });
     // Context prompt: finisher on a kneeling heavy, or a nearby NPC.
     let prompt = '';
     for (const t of w.entities) {
@@ -162,9 +173,11 @@ export class Hud {
     }
     if (!prompt) {
       for (const f of w.room.features) {
-        if ((f.kind === 'npc' || f.kind === 'chest' || f.kind === 'shrine') && (f.x - e.x) * (f.x - e.x) + (f.z - e.z) * (f.z - e.z) < 2.6 * 2.6 && !(f.kind === 'chest' && f.a)) {
-          prompt = `F / RB — ${NPC_LABEL[f.id] ?? (f.kind === 'chest' ? 'Open' : f.kind === 'shrine' ? 'Enter the Well' : 'Talk')}`;
-        }
+        const near = (f.x - e.x) * (f.x - e.x) + (f.z - e.z) * (f.z - e.z) < 2.6 * 2.6;
+        if (near && (f.kind === 'npc' || f.kind === 'shrine' || (f.kind === 'chest' && !f.a))) {
+          prompt = `F / RB — ${NPC_LABEL[f.id] ?? (f.kind === 'chest' ? 'Open' : f.kind === 'shrine' ? 'The Well' : 'Talk')}`;
+        } else if (near && f.kind === 'brazier' && !f.a) prompt = 'F / RB — Light the brazier';
+        else if (near && f.kind === 'waystone' && w.zone.id !== 'citadel') prompt = 'F / RB — Waystone';
       }
     }
     this.set('prompt', prompt, () => {

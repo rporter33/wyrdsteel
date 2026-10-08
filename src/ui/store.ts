@@ -1,7 +1,7 @@
 import { signal } from '@preact/signals';
 
 export type Screen = 'title' | 'newgame' | 'game' | 'loading' | 'load' | 'settings';
-export type Panel = null | 'pause' | 'inventory' | 'skills' | 'settings' | 'controls' | 'smith' | 'carver' | 'well' | 'board' | 'skald' | 'gate' | 'stash' | 'dialogue' | 'death' | 'ending' | 'map' | 'saves' | 'trainer';
+export type Panel = null | 'waystone' | 'pause' | 'inventory' | 'skills' | 'settings' | 'controls' | 'smith' | 'carver' | 'well' | 'board' | 'skald' | 'gate' | 'stash' | 'dialogue' | 'death' | 'ending' | 'map' | 'saves' | 'trainer';
 
 export const screen = signal<Screen>('title');
 export const panel = signal<Panel>(null);
@@ -21,3 +21,6 @@ export function toast(text: string, kind: Toast['kind'] = 'info', action?: Toast
   toasts.value = [...toasts.value.slice(-4), t];
   if (ms > 0) setTimeout(() => (toasts.value = toasts.value.filter((x) => x.id !== t.id)), ms);
 }
+
+/** Story beats waiting to be shown, oldest first. */
+export const dialogue = signal<string[]>([]);

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { World } from '../../core/sim/types';
-import { box, cyl, glow, cone, ico } from '../models/kit';
+import { box, cyl, glow, cone, ico, bakeStatic } from '../models/kit';
 import { PALETTE, toon } from '../materials';
 import { buildNpc } from '../models/npcs';
 import { applyPose } from '../anim/poses';
@@ -52,10 +52,12 @@ export class FeatureViews {
           break;
         }
         case 'npc': {
+          // Posed once, then baked: NPCs stand still, so they cost two draw calls each.
           const r = buildNpc(f.id);
-          r.root.rotation.y = Math.PI;
-          g.add(r.root);
-          v.rig = r;
+          applyPose(r, { speed: 0, phase: 0, pose: null, t: 0, strike: 0, airborne: false, stun: 0, dead: false, aiming: false, hurt: 0 });
+          const baked = bakeStatic(r.root);
+          baked.rotation.y = Math.PI;
+          g.add(baked);
           break;
         }
         case 'brazier': {

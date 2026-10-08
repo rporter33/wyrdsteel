@@ -4,6 +4,8 @@ import type { RoomState } from '../../core/sim/types';
 import { toon, toonVertex } from '../materials';
 
 export interface RoomPalette {
+  /** How wall tiles are drawn. */
+  style?: 'blocks' | 'trees' | 'crystal';
   floor: number;
   floorAlt: number;
   wall: number;
@@ -18,9 +20,10 @@ export interface RoomPalette {
 
 export const PALETTES: Record<string, RoomPalette> = {
   hall: { floor: 0x3a434d, floorAlt: 0x333b44, wall: 0x59636e, wallTop: 0x8a96a3, low: 0x4b5560, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x0b1016, light: 0xdfeeff, ambient: 0x2a3644 },
-  wood: { floor: 0xbfcad3, floorAlt: 0xaebbc6, wall: 0x2b2522, wallTop: 0x4a3f38, low: 0x3d3632, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x8796a3, light: 0xe4f0ff, ambient: 0x52606e },
+  wood: { style: 'trees', floor: 0xbfcad3, floorAlt: 0xaebbc6, wall: 0x2b2522, wallTop: 0x4a3f38, low: 0x3d3632, ice: 0xa8d8f0, pit: 0x05080c, fog: 0x8796a3, light: 0xe4f0ff, ambient: 0x52606e },
   foundry: { floor: 0x3b3430, floorAlt: 0x342e2b, wall: 0x5b4636, wallTop: 0x8a5a36, low: 0x6b5242, ice: 0xa8d8f0, pit: 0x1a0700, fog: 0x1a120d, light: 0xffd9b0, ambient: 0x3a2618 },
-  roots: { floor: 0x5e7486, floorAlt: 0x566a7b, wall: 0x2e3d4a, wallTop: 0x4c6577, low: 0x3b4e5c, ice: 0xbfe8fb, pit: 0x041422, fog: 0x0d1b26, light: 0xc9ecff, ambient: 0x22394a },
+  wyrd: { style: 'crystal', floor: 0x2a2440, floorAlt: 0x241f38, wall: 0x4a3a6a, wallTop: 0x7a5aaa, low: 0x3a2f55, ice: 0xa8d8f0, pit: 0x05030a, fog: 0x120e1e, light: 0xd8c8ff, ambient: 0x2a1f44 },
+  roots: { style: 'crystal', floor: 0x5e7486, floorAlt: 0x566a7b, wall: 0x2e3d4a, wallTop: 0x4c6577, low: 0x3b4e5c, ice: 0xbfe8fb, pit: 0x041422, fog: 0x0d1b26, light: 0xc9ecff, ambient: 0x22394a },
 };
 
 const WALL_H = 2.6;
@@ -86,9 +89,18 @@ export class RoomMesh {
     floor.receiveShadow = false;
     this.group.add(floor);
 
-    if (walls.length) {
-      const box = new THREE.BoxGeometry(1, 1, 1);
-      box.translate(0.5, 0.5, 0.5);
+    // A ground plane under everything, so the world beyond the walls is snowfield or stone, not void.
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(w + 60, h + 60), toon(this.palette.floorAlt, { key: `ground-${this.palette.floorAlt}` }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.set(w / 2, -0.02, h / 2);
+    this.group.add(ground);
+
+    if (walls.length && this.palette.style === 'trees') {
+      this.buildTrees(walls);
+    } else if (walls.length) {
+      const box = this.palette.style === 'crystal' ? new THREE.CylinderGeometry(0.35, 0.6, 1, 5) : new THREE.BoxGeometry(1, 1, 1);
+      if (this.palette.style === 'crystal') box.translate(0.5, 0.5, 0.5);
+      else box.translate(0.5, 0.5, 0.5);
       const mesh = new THREE.InstancedMesh(box, toon(0xffffff, { key: 'wall-white' }), walls.length);
       walls.forEach((wl, i) => {
         this.m.makeScale(1, wl.h, 1).setPosition(wl.x, 0, wl.z);
@@ -105,8 +117,58 @@ export class RoomMesh {
     }
   }
 
+  private trunks: THREE.InstancedMesh | null = null;
+  private canopies: THREE.InstancedMesh | null = null;
+
+  /** Iron-bark trees for wall tiles: dark trunks with snow-heavy crowns. Fallen logs for low walls. */
+  private buildTrees(walls: { x: number; z: number; h: number }[]): void {
+    const c = new THREE.Color();
+    const trunkG = new THREE.CylinderGeometry(0.22, 0.34, 1, 6).translate(0, 0.5, 0);
+    const crownG = new THREE.ConeGeometry(1, 1, 7).translate(0, 0.5, 0);
+    const trunks = new THREE.InstancedMesh(trunkG, toon(0xffffff, { key: 'wall-white' }), walls.length);
+    const crowns = new THREE.InstancedMesh(crownG, toon(0xffffff, { key: 'wall-white' }), walls.length);
+    walls.forEach((wl, i) => {
+      const n = ((wl.x * 73856093) ^ (wl.z * 19349663)) >>> 0;
+      const jx = ((n & 15) / 15 - 0.5) * 0.5;
+      const jz = (((n >> 4) & 15) / 15 - 0.5) * 0.5;
+      const tall = wl.h < 1 ? 0.6 : 3.4 + ((n >> 8) & 7) * 0.35;
+      if (wl.h < 1) {
+        // Fallen log.
+        this.m.makeRotationZ(Math.PI / 2).scale(new THREE.Vector3(1.3, 1.1, 1.3)).setPosition(wl.x + 0.5 + 0.55, 0.3, wl.z + 0.5);
+        trunks.setMatrixAt(i, this.m);
+        c.setHex(0x3d3632);
+        trunks.setColorAt(i, c);
+        this.m.makeScale(0, 0, 0);
+        crowns.setMatrixAt(i, this.m);
+        crowns.setColorAt(i, c);
+        return;
+      }
+      this.m.makeScale(1, tall, 1).setPosition(wl.x + 0.5 + jx, 0, wl.z + 0.5 + jz);
+      trunks.setMatrixAt(i, this.m);
+      c.setHex(this.palette.wall).multiplyScalar(0.9 + ((n >> 12) & 3) * 0.05);
+      trunks.setColorAt(i, c);
+      const r = 0.9 + ((n >> 14) & 3) * 0.15;
+      this.m.makeScale(r, 2.2 + ((n >> 16) & 3) * 0.3, r).setPosition(wl.x + 0.5 + jx, tall - 0.6, wl.z + 0.5 + jz);
+      crowns.setMatrixAt(i, this.m);
+      c.setHex((n >> 18) & 1 ? 0xdfe8ef : 0x2f3a36);
+      crowns.setColorAt(i, c);
+    });
+    for (const m of [trunks, crowns]) {
+      m.instanceMatrix.needsUpdate = true;
+      if (m.instanceColor) m.instanceColor.needsUpdate = true;
+      this.group.add(m);
+    }
+    this.trunks = trunks;
+    this.canopies = crowns;
+    this.wallPos = walls;
+  }
+
   /** Lower walls between the camera (south) and the player so the player is never hidden. */
   cutaway(px: number, pz: number): void {
+    if (this.trunks) {
+      this.cutTrees(px, pz);
+      return;
+    }
     if (!this.walls) return;
     const key = `${Math.floor(px)}:${Math.floor(pz)}`;
     if (key === this.lastCut) return;
@@ -120,6 +182,38 @@ export class RoomMesh {
       this.walls!.setMatrixAt(i, this.m);
     });
     this.walls.instanceMatrix.needsUpdate = true;
+  }
+
+  private cutTrees(px: number, pz: number): void {
+    const key = `${Math.floor(px)}:${Math.floor(pz)}`;
+    if (key === this.lastCut) return;
+    this.lastCut = key;
+    // Trees in front of the player fade to stumps and lose their crowns.
+    const tmp = new THREE.Matrix4();
+    const pos = new THREE.Vector3();
+    const q = new THREE.Quaternion();
+    const sc = new THREE.Vector3();
+    this.wallPos.forEach((wl, i) => {
+      if (wl.h < 1) return;
+      const dz = wl.z - pz;
+      const dx = Math.abs(wl.x + 0.5 - px);
+      const cut = dz > -0.5 && dz < 10 && dx < 9 - dz * 0.25;
+      this.trunks!.getMatrixAt(i, tmp);
+      tmp.decompose(pos, q, sc);
+      const n = ((wl.x * 73856093) ^ (wl.z * 19349663)) >>> 0;
+      const tall = 3.4 + ((n >> 8) & 7) * 0.35;
+      sc.y = cut ? 0.5 : tall;
+      tmp.compose(pos, q, sc);
+      this.trunks!.setMatrixAt(i, tmp);
+      this.canopies!.getMatrixAt(i, tmp);
+      tmp.decompose(pos, q, sc);
+      const r = cut ? 0 : 0.9 + ((n >> 14) & 3) * 0.15;
+      sc.set(r, cut ? 0 : 2.2 + ((n >> 16) & 3) * 0.3, r);
+      tmp.compose(pos, q, sc);
+      this.canopies!.setMatrixAt(i, tmp);
+    });
+    this.trunks!.instanceMatrix.needsUpdate = true;
+    this.canopies!.instanceMatrix.needsUpdate = true;
   }
 
   dispose(): void {

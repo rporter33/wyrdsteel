@@ -15,7 +15,8 @@ import { aiSystem } from '../ai/system';
 import { encounterSystem } from '../level/encounters';
 import { playerSystem } from './systems/players';
 import { onEnemyDeath } from '../progression/drops';
-import { enterNode } from './world';
+import { travel, playStory } from '../level/travel';
+import { roomSystem } from '../level/hazards';
 import { turretSystem } from '../combat/turret';
 
 /**
@@ -24,6 +25,11 @@ import { turretSystem } from '../combat/turret';
  */
 export function step(w: World, f: InputFrame, db: ContentDb): void {
   w.events = [];
+  // The very first tick of a run plays the starting room's story beat (once per character).
+  if (w.tick === 0) {
+    const node = db.zones[w.zone.id]?.nodes.find((n) => n.id === w.zone.node);
+    if (node?.story) playStory(w, node.story);
+  }
   for (const e of w.entities) {
     e.px = e.x;
     e.pz = e.z;
@@ -42,13 +48,14 @@ export function step(w: World, f: InputFrame, db: ContentDb): void {
   deathSystem(w, db, [onEnemyDeath]);
   playerSystem(w, db);
   encounterSystem(w, db);
+  roomSystem(w, db);
   cleanupSystem(w);
   for (const e of w.entities) if (e.hitstop > 0) e.hitstop--;
   w.tick++;
   // Room changes happen between ticks, inside the sim, so they replay identically.
-  if (w.transition) {
-    const to = w.transition.to;
+  if (w.transition && w.transition.at <= w.tick) {
+    const { to, zone } = w.transition;
     w.transition = null;
-    enterNode(w, db, to, 'exit');
+    travel(w, db, to, zone);
   }
 }

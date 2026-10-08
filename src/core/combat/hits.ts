@@ -89,6 +89,15 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
     return 'dodged';
   }
   const tdef = t.kind === 'enemy' ? db.enemies[t.def] : null;
+  // Well of Wyrd, rule of the air: grounded foes shrug off everything but the blow that lifts them.
+  let wyrdZero = false;
+  if (w.room.rule === 'air' && t.kind === 'enemy' && t.y < 0.3) {
+    if (h.hit.tag !== 'launcher' && h.hit.launch <= 0) {
+      w.events.push({ k: 'immune', t: w.tick, dst: t.id });
+      return 'immune';
+    }
+    wyrdZero = true;
+  }
   const fromFront = t.fx * -h.dx + t.fz * -h.dz > 0.35;
   const behind = t.fx * -h.dx + t.fz * -h.dz < -0.3;
 
@@ -138,10 +147,11 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   let armor = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.armor : (tdef?.armor ?? 0);
   if (t.boss) armor += t.boss.plating > 0 ? 400 : 0;
   const taken = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.dmgTakenPct : t.status.freeze > 0 ? 0.25 : 0;
+  if (wyrdZero) mult = 0;
   const finisher = h.hit.tag === 'finisher';
   // The finishing blow ends the kneel: the troll gets up, legs still broken.
   if (finisher) t.stun = Math.min(t.stun, 30);
-  const dmg = finisher ? Math.round(t.hpMax * (t.boss ? 0.08 : 0.35)) : computeDamage({
+  const dmg = finisher ? Math.round(t.hpMax * (t.boss ? 0.08 : 0.35)) : wyrdZero ? 0 : computeDamage({
     base: h.prof.base,
     mult,
     pct,

@@ -218,10 +218,16 @@ export class Effects {
             this.burst(ev.x, 0.6, ev.z, 0xff9a3c, opts.lowFx ? 8 : 40, 10, 0.1);
             this.rig.addTrauma(0.3);
           } else if (ev.what === 'shotdown') this.burst(ev.x, 1.2, ev.z, 0xcff4ff, 10, 5, 0.05);
+          else if (ev.what === 'brazier') this.burst(ev.x, 1.1, ev.z, 0xff9a3c, 24, 4, 0.08, -2, 0.8);
           break;
         case 'telegraph':
           this.telegraph(ev, w);
           break;
+        case 'immune': {
+          const e = ent(ev.dst);
+          if (e) this.number(e.x, e.y + e.h + 0.2, e.z, 'IMMUNE', 'block');
+          break;
+        }
         case 'status':
           if (ev.status === 'freeze') {
             const e = ent(ev.dst);

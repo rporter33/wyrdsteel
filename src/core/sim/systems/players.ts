@@ -8,6 +8,7 @@ import { spawnPickup } from '../pickups';
 import { startAction, canCancel } from './actions';
 import { pickupItem } from '../../loot/inventory';
 import { openChest } from '../../loot/drop';
+import { lightBrazierNear } from '../../level/hazards';
 
 const WAYSTONE_R = 2.2;
 const PICK_R = 1.4;
@@ -129,6 +130,7 @@ function interact(w: World, db: ContentDb, slot: number, e: Entity): void {
     w.events.push({ k: 'finisher', t: w.tick, src: e.id, dst: t.id });
     return;
   }
+  if (lightBrazierNear(w, e.x, e.z, 2.2)) return;
   let best = -1;
   let bd = 2.6 * 2.6;
   w.room.features.forEach((f, i) => {

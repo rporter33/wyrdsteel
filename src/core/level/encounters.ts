@@ -5,6 +5,7 @@ import { blocksMove, tileAt } from './grid';
 import { sin, cos, TAU } from '../math/trig';
 import { msToTicks } from '../sim/constants';
 import { byId } from '../sim/entity';
+import { onRoomCleared } from './travel';
 
 const ACTIVATE_R = 7.5;
 
@@ -98,6 +99,7 @@ export function encounterSystem(w: World, db: ContentDb): void {
     room.cleared = true;
     for (const ex of room.exits) ex.open = true;
     if (!w.zone.cleared.includes(w.zone.node)) w.zone.cleared.push(w.zone.node);
+    onRoomCleared(w, db);
   }
   if (!room.encounters.length) for (const ex of room.exits) ex.open = true;
 }

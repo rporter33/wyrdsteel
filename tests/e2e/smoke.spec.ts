@@ -16,6 +16,15 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   await page.getByTestId('new-game').click();
   await page.getByTestId('class-berserker').click();
   await page.getByTestId('begin').click();
+  // A new game opens in Gladsheim with the intro; read through it.
+  await expect(page.locator('.dialogue')).toBeVisible();
+  for (let i = 0; i < 6 && (await page.locator('.dialogue').count()); i++) await page.locator('.dialogue button').click();
+  await expect(page.locator('.dialogue')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __game: { world: () => { room: { id: string } } } }).__game.world().room.id)).toBe('hub');
+  // The rest of this run happens in the training yard behind the citadel.
+  await page.evaluate(() => (window as unknown as { __game: { goto: (n: string) => void } }).__game.goto('training:training'));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __game: { world: () => { room: { id: string } } } }).__game.world().room.id)).toBe('training');
+  await page.locator('#view').focus();
   await expect.poll(() => tick(page)).toBeGreaterThan(10);
 
   // Keyboard: hold D for half a second, the player moves right.

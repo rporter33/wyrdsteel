@@ -7,6 +7,7 @@ import { Well, Board } from './Npcs';
 import { Controls } from './Controls';
 import { Smith, Carver, Stash } from './Smith';
 import { SettingsView } from './Settings';
+import { Dialogue, Gate, Waystone } from './Story';
 
 export function App() {
   const s = screen.value;
@@ -27,6 +28,9 @@ export function App() {
       {s === 'game' && p === 'smith' && <Smith />}
       {s === 'game' && p === 'carver' && <Carver />}
       {s === 'game' && p === 'stash' && <Stash />}
+      {s === 'game' && p === 'dialogue' && <Dialogue />}
+      {s === 'game' && p === 'gate' && <Gate />}
+      {s === 'game' && p === 'waystone' && <Waystone />}
       <Toasts />
     </>
   );

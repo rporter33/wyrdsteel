@@ -12,7 +12,7 @@ import { SaveManager } from './saves';
 import { App } from '../ui/menus/App';
 import { Hud } from '../ui/hud/hud';
 import { setApi, type SlotInfo } from '../ui/api';
-import { panel, screen, version, toast, type Panel } from '../ui/store';
+import { panel, screen, version, toast, dialogue, type Panel } from '../ui/store';
 import type { SimEvent } from '../core/sim/types';
 import { installDebug } from './debug';
 import { eventToasts } from './feedback';
@@ -160,7 +160,7 @@ function seedFor(): number {
 
 function newGame(name: string, cls: string, slot?: number): void {
   const s = slot ?? slots().find((x) => !x.name)?.slot ?? 0;
-  begin({ seed: seedFor(), players: [{ name, cls }], zone: 'training', node: 'training', difficulty: settings.difficulty, stash: saves?.current.profile.stash ?? [] }, s, 0);
+  begin({ seed: seedFor(), players: [{ name, cls }], zone: 'citadel', node: 'hub', difficulty: settings.difficulty, stash: saves?.current.profile.stash ?? [] }, s, 0);
   void saveNow('new');
 }
 
@@ -254,7 +254,7 @@ const loop = startLoop({
     frames++;
     for (const k of input.takeUi()) {
       if (screen.value !== 'game') continue;
-      if (k === 'Escape') panel.value = panel.value ? null : 'pause';
+      if (k === 'Escape') panel.value = panel.value === 'dialogue' ? 'dialogue' : panel.value ? null : 'pause';
       else if (k === 'KeyI' && !panel.value) panel.value = 'inventory';
       else if (k === 'KeyK' && !panel.value) panel.value = 'skills';
       else if ((k === 'KeyI' || k === 'KeyK') && (panel.value === 'inventory' || panel.value === 'skills')) panel.value = null;
@@ -271,9 +271,14 @@ const loop = startLoop({
       eventToasts(w, db, pendingEvents, 0);
       for (const ev of pendingEvents) {
         if (ev.k === 'interact' && ev.slot === 0 && ev.what === 'npc' && NPC_PANELS[ev.id]) panel.value = NPC_PANELS[ev.id]!;
+        if (ev.k === 'interact' && ev.slot === 0 && ev.what === 'waystone' && w.zone.id !== 'citadel') panel.value = 'waystone';
+        if (ev.k === 'story') {
+          dialogue.value = [...dialogue.value, ev.beat];
+          panel.value = 'dialogue';
+        }
         // Save points: waystones, and arriving somewhere safe.
         if (ev.k === 'waystone' && ev.slot === 0) void saveNow('waystone');
-        if (ev.k === 'exit' && (ev.to === 'training' || ev.to === 'hub')) setTimeout(() => void saveNow('hub'), 50);
+        if (ev.k === 'exit' && ev.to.endsWith('hub')) setTimeout(() => void saveNow('hub'), 50);
       }
       pendingEvents = [];
       hud.show(screen.value === 'game');

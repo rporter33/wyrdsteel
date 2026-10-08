@@ -1,5 +1,31 @@
 [
  {
+  "id": "citadel",
+  "name": "Gladsheim",
+  "desc": "The citadel of the Sworn, warm while the heat-lines hold.",
+  "start": "hub",
+  "level": [
+   1,
+   20
+  ],
+  "palette": "hall",
+  "next": null,
+  "travel": false,
+  "nodes": [
+   {
+    "id": "hub",
+    "room": "hub",
+    "next": [
+     "training:training"
+    ],
+    "level": 1,
+    "align": null,
+    "optional": false,
+    "story": "intro"
+   }
+  ]
+ },
+ {
   "id": "training",
   "name": "Gladsheim Yard",
   "desc": "The training yard behind the citadel.",
@@ -10,12 +36,14 @@
   ],
   "palette": "hall",
   "next": null,
+  "travel": false,
   "nodes": [
    {
     "id": "training",
     "room": "training",
     "next": [
-     "arena"
+     "arena",
+     "citadel:hub"
     ],
     "level": 1,
     "align": null,
@@ -30,6 +58,97 @@
     "level": 3,
     "align": null,
     "optional": false
+   }
+  ]
+ },
+ {
+  "id": "ironwood",
+  "name": "The Iron Wood",
+  "desc": "J\u00e1rnvi\u00f0r: black trunks, white snow, and the first torn heat-line.",
+  "start": "edge",
+  "level": [
+   1,
+   6
+  ],
+  "palette": "wood",
+  "next": "foundry",
+  "travel": true,
+  "nodes": [
+   {
+    "id": "edge",
+    "room": "iw.edge",
+    "next": [
+     "clearing"
+    ],
+    "level": 1,
+    "align": null,
+    "optional": false,
+    "story": "iw.arrive"
+   },
+   {
+    "id": "clearing",
+    "room": "iw.clearing",
+    "next": [
+     "grove",
+     "wyrd"
+    ],
+    "level": 2,
+    "align": null,
+    "optional": false,
+    "story": "iw.surge"
+   },
+   {
+    "id": "wyrd",
+    "room": "wyrd.air",
+    "next": [
+     "grove"
+    ],
+    "level": 2,
+    "align": null,
+    "optional": true,
+    "story": "wyrd.air",
+    "onClear": {
+     "sigil": true
+    }
+   },
+   {
+    "id": "grove",
+    "room": "iw.grove",
+    "next": [
+     "hollow"
+    ],
+    "level": 3,
+    "align": null,
+    "optional": false
+   },
+   {
+    "id": "hollow",
+    "room": "iw.hollow",
+    "next": [
+     "den"
+    ],
+    "level": 4,
+    "align": null,
+    "optional": false
+   },
+   {
+    "id": "den",
+    "room": "iw.den",
+    "next": [
+     "citadel:hub"
+    ],
+    "level": 5,
+    "align": null,
+    "optional": false,
+    "story": "iw.den",
+    "onClear": {
+     "flags": {
+      "zone.ironwood": 1,
+      "align.offer": 1
+     },
+     "story": "troll.wound",
+     "to": "citadel:hub"
+    }
    }
   ]
  }

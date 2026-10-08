@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { toon } from '../materials';
+import { toon, toonVertex as toonVertexMat } from '../materials';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // Primitive kit for procedural models. Everything is low-poly and flat-shaded through the toon
 // ramp; silhouettes come from proportions, not detail.
@@ -57,4 +58,32 @@ export function blobShadow(r: number): THREE.Mesh {
   m.position.y = 0.02;
   m.renderOrder = -1;
   return m;
+}
+
+/**
+ * Merge a static model into at most two meshes (lit and glowing) with baked vertex colours.
+ * NPCs and props don't animate per limb, so they cost two draw calls instead of twenty-five.
+ */
+export function bakeStatic(root: THREE.Object3D): THREE.Group {
+  root.updateMatrixWorld(true);
+  const lit: THREE.BufferGeometry[] = [];
+  const glowG: THREE.BufferGeometry[] = [];
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  root.traverse((o) => {
+    if (!(o instanceof THREE.Mesh)) return;
+    const mat = o.material as THREE.MeshToonMaterial;
+    if ((mat as THREE.Material).transparent) return;
+    const g = (o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone()).applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
+    g.deleteAttribute('uv');
+    const c = mat.color ?? new THREE.Color(0xffffff);
+    const n = g.getAttribute('position').count;
+    const col = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) col.set([c.r, c.g, c.b], i * 3);
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    ((mat.emissiveIntensity ?? 0) > 0 ? glowG : lit).push(g);
+  });
+  const out = new THREE.Group();
+  if (lit.length) out.add(new THREE.Mesh(mergeGeometries(lit, false)!, toonVertexMat()));
+  if (glowG.length) out.add(new THREE.Mesh(mergeGeometries(glowG, false)!, new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
+  return out;
 }

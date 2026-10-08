@@ -314,8 +314,13 @@ export interface RoomDef {
 export interface ZoneNodeDef {
   id: string;
   room: string;
+  /** Exits in reading order of the room's 'D' markers. "zone:node" leaves the zone. */
   next: string[];
   level: number;
+  /** Story beat played the first time the room is entered. */
+  story?: string;
+  /** When the room is cleared: set story flags, play a beat, optionally send everyone somewhere. */
+  onClear?: { flags?: Record<string, number>; story?: string; to?: string; sigil?: boolean };
   /** Alignment-specific routing. */
   align: 'human' | 'cyber' | null;
   optional: boolean;
@@ -326,6 +331,10 @@ export interface ZoneDef {
   name: string;
   desc: string;
   start: string;
+  /** Story flag that must be set before the gate offers this zone. */
+  requires?: string;
+  /** Shown at the gate. */
+  travel?: boolean;
   level: [number, number];
   nodes: ZoneNodeDef[];
   palette: string;

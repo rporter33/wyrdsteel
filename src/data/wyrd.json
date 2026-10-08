@@ -1,1 +1,22 @@
-[]
+[
+ {
+  "id": "air",
+  "name": "Rule of the Air",
+  "desc": "Only airborne foes can be hurt. Launch them, then strike."
+ },
+ {
+  "id": "status",
+  "name": "Rule of the Mark",
+  "desc": "Only foes suffering a status can be hurt. Burn, chill, shock or root them first."
+ },
+ {
+  "id": "nododge",
+  "name": "Rule of Standing",
+  "desc": "Dodging is forbidden. Move, block with timing, and strike between their blows."
+ },
+ {
+  "id": "runefloor",
+  "name": "Rule of the Runes",
+  "desc": "Standing on a lit rune empowers you; foes on a rune are shielded."
+ }
+]

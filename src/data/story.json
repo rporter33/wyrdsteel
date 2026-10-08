@@ -1,1 +1,118 @@
-[]
+[
+ {
+  "id": "intro",
+  "lines": [
+   {
+    "who": "Bragi",
+    "text": "Another Sworn, fresh off the forge-table. Steel in your bones and Midgard in your blood. Welcome to Gladsheim."
+   },
+   {
+    "who": "Ullr",
+    "text": "No time for songs. The heat-lines from Nidavellir have gone cold. Midgard is freezing from the outer wall inward."
+   },
+   {
+    "who": "Ullr",
+    "text": "Something in the Iron Wood is cutting them. The gate will take you there. Find it, and stop it."
+   },
+   {
+    "who": "Bragi",
+    "text": "Brokkr will arm you, the rune-carver will sharpen what he makes, and the board has work if you want charms. Mind the Valkyries: they carry the fallen home, and they keep a toll."
+   }
+  ]
+ },
+ {
+  "id": "iw.arrive",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "The heat-line runs through here. It's been torn open, not worn through."
+   },
+   {
+    "who": "Ullr",
+    "text": "Rime-engines and thralls by the dozen. Something drove them south. Keep moving north and you'll find what."
+   }
+  ]
+ },
+ {
+  "id": "iw.surge",
+  "lines": [
+   {
+    "who": "Ullr",
+    "text": "Feel that wind? The Fimbulwinter surges here. Stand near a burning brazier when it comes, or it will freeze you where you stand."
+   },
+   {
+    "who": "Ullr",
+    "text": "Unlit braziers take a spark: a shot, a burning blow, or your own hand."
+   }
+  ]
+ },
+ {
+  "id": "wyrd.air",
+  "lines": [
+   {
+    "who": "Bragi",
+    "text": "A Well of Wyrd. The Norns keep one rule in each. Here: nothing touching the ground can be hurt."
+   },
+   {
+    "who": "Bragi",
+    "text": "Lift them, then cut them down. Win, and the well gives a sigil and whatever it keeps."
+   }
+  ]
+ },
+ {
+  "id": "iw.den",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "Bones and slag, and something heavy breathing in the dark."
+   },
+   {
+    "who": "Ullr",
+    "text": "An iron troll. Break its legs and it kneels; climb it then. Break its arms and it stops throwing."
+   }
+  ]
+ },
+ {
+  "id": "troll.wound",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "Its last swipe splits your plating and finds the flesh beneath. Cold pours in."
+   },
+   {
+    "who": "Idunn",
+    "text": "Come home, Sworn. My well can mend you as you were: quicker, and still flesh. Or Brokkr can mend you as you could be: steel, and heavier for it."
+   },
+   {
+    "who": "Idunn",
+    "text": "Come to the well when you are ready to choose. Either way, the well remembers, and you may choose again."
+   }
+  ]
+ },
+ {
+  "id": "align.human",
+  "lines": [
+   {
+    "who": "Idunn",
+    "text": "Flesh remembers. You will be faster for it, and you will bleed for it. Go well."
+   },
+   {
+    "who": "Ullr",
+    "text": "The cut came from the forges themselves. Nidavellir. The gate is open to it now."
+   }
+  ]
+ },
+ {
+  "id": "align.cyber",
+  "lines": [
+   {
+    "who": "Brokkr",
+    "text": "There. Steel doesn't feel cold and doesn't feel fear. Hit harder. Try not to forget why."
+   },
+   {
+    "who": "Ullr",
+    "text": "The cut came from the forges themselves. Nidavellir. The gate is open to it now."
+   }
+  ]
+ }
+]

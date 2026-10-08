@@ -301,7 +301,7 @@ export interface World {
   /** The shared stash (profile-wide), carried in the world so stash moves replay like any command. */
   stash: import('../loot/item').Item[];
   /** Pending room transition requested by an exit; applied by the session between ticks. */
-  transition: { to: string; at: number } | null;
+  transition: { to: string; at: number; zone?: string } | null;
 }
 
 export interface ZoneRuntime {
@@ -345,4 +345,6 @@ export type SimEvent =
   | { k: 'interact'; t: number; slot: number; what: string; id: string }
   | { k: 'exit'; t: number; to: string }
   | { k: 'shatter'; t: number; dst: number }
+  | { k: 'story'; t: number; beat: string }
+  | { k: 'immune'; t: number; dst: number }
   | { k: 'finisher'; t: number; src: number; dst: number };

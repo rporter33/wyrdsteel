@@ -26,6 +26,10 @@ export function eventToasts(w: World, db: ContentDb, events: SimEvent[], local: 
         else if (ev.kind === 'rune') toast(`Rune: ${db.runes[ev.ref]?.name ?? ev.ref}`, 'loot', undefined, 2500);
         else if (ev.kind === 'blueprint') toast(`Blueprint learned: ${db.blueprints[ev.ref]?.name ?? ev.ref}`, 'loot');
         break;
+      case 'surge':
+        if (ev.warn) toast('The wind rises. A surge is coming: get to a lit brazier.', 'error', undefined, 3000);
+        else if (!ev.on) toast('The surge passes.', 'info', undefined, 2000);
+        break;
       case 'quest':
         if (ev.slot === local && ev.done) toast(`Charm quest complete: ${db.charms[ev.charm]?.name}. Skill point gained.`, 'loot', undefined, 5000);
         break;

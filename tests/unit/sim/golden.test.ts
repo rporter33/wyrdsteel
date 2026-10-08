@@ -62,3 +62,38 @@ describe('golden replays', () => {
     expect(rifle.summary.hits).toBeGreaterThanOrEqual(5);
   });
 });
+
+describe('zone golden replay', () => {
+  // The bot's inputs through the first rooms of the Iron Wood, recorded once. The test replays the
+  // saved inputs (not the bot), so any change in outcomes shows up as a checkpoint mismatch.
+  it('the Iron Wood opening replays to its committed checkpoints', async () => {
+    const file = join(DIR, 'ironwood-opening.json');
+    if (process.env.REBASELINE || !existsSync(file)) {
+      if (process.env.CI) throw new Error('missing zone golden; run REBASELINE=1 locally and commit');
+      const { starterCharacter } = await import('../../../src/core/loot/inventory');
+      const { botInput, newMemory } = await import('../../../src/core/bot/policies');
+      const c = starterCharacter(db(), 'Bot', 'berserker');
+      c.level = 4;
+      const start = { seed: 404, players: [{ name: 'Bot', cls: 'berserker', character: c }], zone: 'ironwood', node: 'edge' };
+      const w = createWorld(start, db());
+      const rec = new Recorder(start, db().hash, 120);
+      const mem = newMemory();
+      let events = w.events;
+      for (let t = 0; t < 60 * 90 && w.zone.node !== 'grove'; t++) {
+        const f = { tick: w.tick, inputs: [botInput(w, db(), 0, 'tactical', mem, events)] };
+        step(w, f, db());
+        events = w.events;
+        rec.frame(f, w);
+      }
+      mkdirSync(DIR, { recursive: true });
+      writeFileSync(file, JSON.stringify({ replay: rec.build(), final: hashWorld(w), node: w.zone.node }) + '\n');
+    }
+    const saved = JSON.parse(readFileSync(file, 'utf8')) as { replay: Replay; final: string; node: string };
+    expect(saved.replay.simVersion).toBe(SIM_VERSION);
+    const out = runReplay(saved.replay, db());
+    expect(out.mismatch).toBeNull();
+    expect(hashWorld(out.world)).toBe(saved.final);
+    expect(out.world.zone.node).toBe(saved.node);
+    expect(['clearing', 'grove']).toContain(saved.node);
+  });
+});

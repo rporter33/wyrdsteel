@@ -6,6 +6,7 @@ import { allocFor, budgetFor, canRank, respecCost, swapCost, treeFor, unlockedAb
 import { refreshPlayer } from '../progression/rewards';
 import { takeQuest } from '../progression/charms';
 import { applyItemCommand } from '../loot/inventory';
+import { playStory } from '../level/travel';
 
 /**
  * Menu actions applied between ticks. Each returns null on success or a reason it was refused;
@@ -50,6 +51,7 @@ export function applyCommand(w: World, slot: number, cmd: Command, db: ContentDb
       c.alignment = cmd.a;
       c.story['alignment'] = cmd.a === 'human' ? 1 : 2;
       refreshPlayer(w, db, slot);
+      playStory(w, cmd.a === 'human' ? 'align.human' : 'align.cyber');
       return null;
     }
     case 'swapAspect': {
@@ -83,6 +85,15 @@ export function applyCommand(w: World, slot: number, cmd: Command, db: ContentDb
     case 'story':
       c.story[cmd.key] = cmd.value;
       return null;
+    case 'travel': {
+      // Travel happens from the gate, a waystone or the start screen: never mid-fight.
+      if (w.room.encounters.some((e) => e.state === 'active')) return 'Not while fighting';
+      const zone = db.zones[cmd.zone];
+      if (!zone) return 'Unknown destination';
+      if (zone.requires && !c.story[zone.requires]) return 'The way there is not open yet';
+      w.transition = { to: `${cmd.zone}:${cmd.node || zone.start}`, at: w.tick };
+      return null;
+    }
     case 'assist':
       p.assist = Math.max(0, Math.min(1, cmd.value));
       return null;

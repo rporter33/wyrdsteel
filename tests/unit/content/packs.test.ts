@@ -29,9 +29,13 @@ describe('content packs', () => {
           if (blocksMove(r.grid.tiles[i]!)) continue;
           expect(seen[i], `${room.id}#${v} marker '${m.c}' at ${m.x},${m.z} unreachable`).toBe(true);
         }
-        // Edges are solid so nothing walks out of the world.
+        // Edges are solid (doors aside) so nothing walks out of the world.
+        const door = (x: number, z: number) => markersOf(r, 'D').some((m) => Math.floor(m.x) === x && Math.floor(m.z) === z);
         for (let x = 0; x < r.grid.w; x++) {
-          expect(blocksMove(r.grid.tiles[x]!) || markersOf(r, 'D').some((m) => Math.floor(m.x) === x && Math.floor(m.z) === 0)).toBe(true);
+          for (const z of [0, r.grid.h - 1]) expect(blocksMove(r.grid.tiles[z * r.grid.w + x]!) || door(x, z), `${room.id}#${v} edge ${x},${z}`).toBe(true);
+        }
+        for (let z = 0; z < r.grid.h; z++) {
+          for (const x of [0, r.grid.w - 1]) expect(blocksMove(r.grid.tiles[z * r.grid.w + x]!) || door(x, z), `${room.id}#${v} edge ${x},${z}`).toBe(true);
         }
         for (const [k, enc] of Object.entries(room.encounters)) {
           expect(markersOf(r, k).length, `${room.id} encounter ${k} has no marker`).toBeGreaterThan(0);
@@ -46,7 +50,12 @@ describe('content packs', () => {
     for (const z of Object.values(d.zones)) {
       for (const n of z.nodes) {
         expect(d.rooms[n.room], `${z.id}/${n.id}`).toBeDefined();
-        for (const nx of n.next) expect(z.nodes.some((m) => m.id === nx), `${z.id}/${n.id} -> ${nx}`).toBe(true);
+        for (const nx of n.next) {
+          const [zz, nn] = nx.includes(':') ? nx.split(':') : [z.id, nx];
+          expect(d.zones[zz!]?.nodes.some((m) => m.id === nn), `${z.id}/${n.id} -> ${nx}`).toBe(true);
+        }
+        if (n.story) expect(d.story[n.story], n.story).toBeDefined();
+        if (n.onClear?.story) expect(d.story[n.onClear.story], n.onClear.story).toBeDefined();
         const r = buildRoom(d, n.room, 0);
         expect(markersOf(r, 'D').length, `${n.room} exits for ${n.id}`).toBeGreaterThanOrEqual(n.next.length);
       }
