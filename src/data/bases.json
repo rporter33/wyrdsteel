@@ -58,5 +58,305 @@
   "classes": null,
   "armor": 0,
   "ruiner": "ruiner.roots"
+ },
+ {
+  "id": "w.blades.1",
+  "name": "Rusted Seax Pair",
+  "slot": "melee",
+  "kind": "blades",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.blades.2",
+  "name": "Iron-bark Blades",
+  "slot": "melee",
+  "kind": "blades",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.blades.3",
+  "name": "Dvergr Twin Blades",
+  "slot": "melee",
+  "kind": "blades",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.axe.1",
+  "name": "Woodsman's Great-axe",
+  "slot": "melee",
+  "kind": "greataxe",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.axe.2",
+  "name": "Bearded Great-axe",
+  "slot": "melee",
+  "kind": "greataxe",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.axe.3",
+  "name": "Jotun-cleaver",
+  "slot": "melee",
+  "kind": "greataxe",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.sword.1",
+  "name": "Plain Sword",
+  "slot": "melee",
+  "kind": "sword",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.sword.2",
+  "name": "Pattern-welded Sword",
+  "slot": "melee",
+  "kind": "sword",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.sword.3",
+  "name": "Rune-etched Sword",
+  "slot": "melee",
+  "kind": "sword",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.pistols.1",
+  "name": "Scrap Pistols",
+  "slot": "ranged",
+  "kind": "pistols",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.pistols.2",
+  "name": "Forge Pistols",
+  "slot": "ranged",
+  "kind": "pistols",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.pistols.3",
+  "name": "Bifrost Pistols",
+  "slot": "ranged",
+  "kind": "pistols",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.rifle.1",
+  "name": "Watch Rifle",
+  "slot": "ranged",
+  "kind": "rifle",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.rifle.2",
+  "name": "Long Rifle",
+  "slot": "ranged",
+  "kind": "rifle",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.rifle.3",
+  "name": "Heimdall Rifle",
+  "slot": "ranged",
+  "kind": "rifle",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.cannon.1",
+  "name": "Hand Cannon",
+  "slot": "ranged",
+  "kind": "cannon",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.cannon.2",
+  "name": "Siege Cannon",
+  "slot": "ranged",
+  "kind": "cannon",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "w.cannon.3",
+  "name": "Surtr Cannon",
+  "slot": "ranged",
+  "kind": "cannon",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 0,
+  "ruiner": null
+ },
+ {
+  "id": "a.helm.1",
+  "name": "Iron Cap",
+  "slot": "helm",
+  "kind": "helm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 6,
+  "ruiner": null
+ },
+ {
+  "id": "a.helm.2",
+  "name": "Nasal Helm",
+  "slot": "helm",
+  "kind": "helm",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 10,
+  "ruiner": null
+ },
+ {
+  "id": "a.helm.3",
+  "name": "Sworn Greathelm",
+  "slot": "helm",
+  "kind": "helm",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 15,
+  "ruiner": null
+ },
+ {
+  "id": "a.chest.1",
+  "name": "Padded Coat",
+  "slot": "chest",
+  "kind": "chest",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 10,
+  "ruiner": null
+ },
+ {
+  "id": "a.chest.2",
+  "name": "Mail Hauberk",
+  "slot": "chest",
+  "kind": "chest",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 16,
+  "ruiner": null
+ },
+ {
+  "id": "a.chest.3",
+  "name": "Lamellar Cuirass",
+  "slot": "chest",
+  "kind": "chest",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 24,
+  "ruiner": null
+ },
+ {
+  "id": "a.hands.1",
+  "name": "Leather Grips",
+  "slot": "hands",
+  "kind": "hands",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 4,
+  "ruiner": null
+ },
+ {
+  "id": "a.hands.2",
+  "name": "Iron Gauntlets",
+  "slot": "hands",
+  "kind": "hands",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 7,
+  "ruiner": null
+ },
+ {
+  "id": "a.hands.3",
+  "name": "Rune Gauntlets",
+  "slot": "hands",
+  "kind": "hands",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 10,
+  "ruiner": null
+ },
+ {
+  "id": "a.legs.1",
+  "name": "Wool Wraps",
+  "slot": "legs",
+  "kind": "legs",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 5,
+  "ruiner": null
+ },
+ {
+  "id": "a.legs.2",
+  "name": "Mail Chausses",
+  "slot": "legs",
+  "kind": "legs",
+  "ilvl": 6,
+  "classes": null,
+  "armor": 9,
+  "ruiner": null
+ },
+ {
+  "id": "a.legs.3",
+  "name": "Plated Greaves",
+  "slot": "legs",
+  "kind": "legs",
+  "ilvl": 12,
+  "classes": null,
+  "armor": 13,
+  "ruiner": null
  }
 ]

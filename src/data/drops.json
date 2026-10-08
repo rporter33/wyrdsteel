@@ -1,1 +1,70 @@
-[]
+[
+ {
+  "id": "common",
+  "itemChance": 0.09,
+  "bounty": [
+   1,
+   3
+  ],
+  "runeChance": 0.03,
+  "matChance": 0.05,
+  "rarityWeights": [
+   55,
+   31,
+   11,
+   2.7,
+   0.3
+  ]
+ },
+ {
+  "id": "elite",
+  "itemChance": 0.55,
+  "bounty": [
+   8,
+   15
+  ],
+  "runeChance": 0.25,
+  "matChance": 0.3,
+  "rarityWeights": [
+   20,
+   40,
+   28,
+   10,
+   2
+  ]
+ },
+ {
+  "id": "boss",
+  "itemChance": 1,
+  "bounty": [
+   150,
+   220
+  ],
+  "runeChance": 1,
+  "matChance": 1,
+  "rarityWeights": [
+   0,
+   0,
+   40,
+   48,
+   12
+  ]
+ },
+ {
+  "id": "chest",
+  "itemChance": 1,
+  "bounty": [
+   20,
+   40
+  ],
+  "runeChance": 0.5,
+  "matChance": 0.6,
+  "rarityWeights": [
+   10,
+   40,
+   35,
+   13,
+   2
+  ]
+ }
+]

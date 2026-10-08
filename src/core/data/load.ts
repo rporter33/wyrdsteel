@@ -39,6 +39,7 @@ export interface RawPacks {
   zones: Raw[];
   story: Raw[];
   wyrd: Raw[];
+  uniques: Raw[];
 }
 
 const t = (ms: number | undefined, d = 0) => (ms === undefined ? d : msToTicks(ms));
@@ -243,5 +244,6 @@ export function loadContent(raw: RawPacks): ContentDb {
     zones: byId(raw.zones),
     story: byId(raw.story),
     wyrd: byId(raw.wyrd),
+    uniques: byId(raw.uniques),
   };
 }

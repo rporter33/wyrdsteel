@@ -20,6 +20,7 @@ import rooms from './rooms.json';
 import zones from './zones.json';
 import story from './story.json';
 import wyrd from './wyrd.json';
+import uniques from './uniques.json';
 
 export const CONTENT_VERSION = 1;
 
@@ -44,4 +45,5 @@ export const packs: RawPacks = {
   zones,
   story,
   wyrd,
+  uniques,
 };

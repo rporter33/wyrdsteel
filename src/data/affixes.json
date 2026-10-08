@@ -1,1 +1,1376 @@
-[]
+[
+ {
+  "id": "keen.1",
+  "name": "Keen",
+  "kind": "prefix",
+  "group": "crit",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "crit",
+  "range": [
+   0.01,
+   0.02
+  ]
+ },
+ {
+  "id": "keen.2",
+  "name": "Keen",
+  "kind": "prefix",
+  "group": "crit",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "crit",
+  "range": [
+   0.02,
+   0.04
+  ]
+ },
+ {
+  "id": "keen.3",
+  "name": "Keen",
+  "kind": "prefix",
+  "group": "crit",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "crit",
+  "range": [
+   0.04,
+   0.06
+  ]
+ },
+ {
+  "id": "brutal.1",
+  "name": "Brutal",
+  "kind": "prefix",
+  "group": "dmg",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "dmgPct",
+  "range": [
+   0.05,
+   0.08
+  ]
+ },
+ {
+  "id": "brutal.2",
+  "name": "Brutal",
+  "kind": "prefix",
+  "group": "dmg",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "dmgPct",
+  "range": [
+   0.08,
+   0.13
+  ]
+ },
+ {
+  "id": "brutal.3",
+  "name": "Brutal",
+  "kind": "prefix",
+  "group": "dmg",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "dmgPct",
+  "range": [
+   0.13,
+   0.2
+  ]
+ },
+ {
+  "id": "savage.1",
+  "name": "Savage",
+  "kind": "prefix",
+  "group": "melee",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "meleePct",
+  "range": [
+   0.06,
+   0.1
+  ]
+ },
+ {
+  "id": "savage.2",
+  "name": "Savage",
+  "kind": "prefix",
+  "group": "melee",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "meleePct",
+  "range": [
+   0.1,
+   0.16
+  ]
+ },
+ {
+  "id": "savage.3",
+  "name": "Savage",
+  "kind": "prefix",
+  "group": "melee",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "meleePct",
+  "range": [
+   0.16,
+   0.24
+  ]
+ },
+ {
+  "id": "eagle.1",
+  "name": "Eagle-eyed",
+  "kind": "prefix",
+  "group": "ranged",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "ranged",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "rangedPct",
+  "range": [
+   0.06,
+   0.1
+  ]
+ },
+ {
+  "id": "eagle.2",
+  "name": "Eagle-eyed",
+  "kind": "prefix",
+  "group": "ranged",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "ranged",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "rangedPct",
+  "range": [
+   0.1,
+   0.16
+  ]
+ },
+ {
+  "id": "eagle.3",
+  "name": "Eagle-eyed",
+  "kind": "prefix",
+  "group": "ranged",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "ranged",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "rangedPct",
+  "range": [
+   0.16,
+   0.24
+  ]
+ },
+ {
+  "id": "swift.1",
+  "name": "Swift",
+  "kind": "prefix",
+  "group": "speed",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "atkSpeed",
+  "range": [
+   0.03,
+   0.05
+  ]
+ },
+ {
+  "id": "swift.2",
+  "name": "Swift",
+  "kind": "prefix",
+  "group": "speed",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "atkSpeed",
+  "range": [
+   0.05,
+   0.08
+  ]
+ },
+ {
+  "id": "swift.3",
+  "name": "Swift",
+  "kind": "prefix",
+  "group": "speed",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "atkSpeed",
+  "range": [
+   0.08,
+   0.11
+  ]
+ },
+ {
+  "id": "stalwart.1",
+  "name": "Stalwart",
+  "kind": "prefix",
+  "group": "armor",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs"
+  ],
+  "classes": null,
+  "stat": "armor",
+  "range": [
+   4,
+   8
+  ]
+ },
+ {
+  "id": "stalwart.2",
+  "name": "Stalwart",
+  "kind": "prefix",
+  "group": "armor",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs"
+  ],
+  "classes": null,
+  "stat": "armor",
+  "range": [
+   8,
+   16
+  ]
+ },
+ {
+  "id": "stalwart.3",
+  "name": "Stalwart",
+  "kind": "prefix",
+  "group": "armor",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs"
+  ],
+  "classes": null,
+  "stat": "armor",
+  "range": [
+   16,
+   28
+  ]
+ },
+ {
+  "id": "hale.1",
+  "name": "Hale",
+  "kind": "prefix",
+  "group": "hp",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs"
+  ],
+  "classes": null,
+  "stat": "hp",
+  "range": [
+   10,
+   25
+  ]
+ },
+ {
+  "id": "hale.2",
+  "name": "Hale",
+  "kind": "prefix",
+  "group": "hp",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs"
+  ],
+  "classes": null,
+  "stat": "hp",
+  "range": [
+   25,
+   55
+  ]
+ },
+ {
+  "id": "hale.3",
+  "name": "Hale",
+  "kind": "prefix",
+  "group": "hp",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs"
+  ],
+  "classes": null,
+  "stat": "hp",
+  "range": [
+   55,
+   95
+  ]
+ },
+ {
+  "id": "burning.1",
+  "name": "Burning",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onBurn",
+  "range": [
+   8,
+   14
+  ]
+ },
+ {
+  "id": "burning.2",
+  "name": "Burning",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onBurn",
+  "range": [
+   14,
+   22
+  ]
+ },
+ {
+  "id": "burning.3",
+  "name": "Burning",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onBurn",
+  "range": [
+   22,
+   32
+  ]
+ },
+ {
+  "id": "rime.1",
+  "name": "Rime-touched",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onChill",
+  "range": [
+   8,
+   14
+  ]
+ },
+ {
+  "id": "rime.2",
+  "name": "Rime-touched",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onChill",
+  "range": [
+   14,
+   22
+  ]
+ },
+ {
+  "id": "rime.3",
+  "name": "Rime-touched",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onChill",
+  "range": [
+   22,
+   32
+  ]
+ },
+ {
+  "id": "thunder.1",
+  "name": "Thundering",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onShock",
+  "range": [
+   8,
+   14
+  ]
+ },
+ {
+  "id": "thunder.2",
+  "name": "Thundering",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onShock",
+  "range": [
+   14,
+   22
+  ]
+ },
+ {
+  "id": "thunder.3",
+  "name": "Thundering",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 6,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onShock",
+  "range": [
+   22,
+   32
+  ]
+ },
+ {
+  "id": "binding.1",
+  "name": "Binding",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 5,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onRoot",
+  "range": [
+   8,
+   14
+  ]
+ },
+ {
+  "id": "binding.2",
+  "name": "Binding",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 5,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onRoot",
+  "range": [
+   14,
+   22
+  ]
+ },
+ {
+  "id": "binding.3",
+  "name": "Binding",
+  "kind": "prefix",
+  "group": "onhit",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 5,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "onRoot",
+  "range": [
+   22,
+   32
+  ]
+ },
+ {
+  "id": "wolf.1",
+  "name": "of the Wolf",
+  "kind": "suffix",
+  "group": "leech",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 7,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "lifesteal",
+  "range": [
+   0.01,
+   0.015
+  ]
+ },
+ {
+  "id": "wolf.2",
+  "name": "of the Wolf",
+  "kind": "suffix",
+  "group": "leech",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 7,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "lifesteal",
+  "range": [
+   0.015,
+   0.025
+  ]
+ },
+ {
+  "id": "wolf.3",
+  "name": "of the Wolf",
+  "kind": "suffix",
+  "group": "leech",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 7,
+  "slots": [
+   "melee",
+   "ranged"
+  ],
+  "classes": null,
+  "stat": "lifesteal",
+  "range": [
+   0.025,
+   0.035
+  ]
+ },
+ {
+  "id": "haste.1",
+  "name": "of Haste",
+  "kind": "suffix",
+  "group": "move",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "legs"
+  ],
+  "classes": null,
+  "stat": "speedPct",
+  "range": [
+   0.03,
+   0.04
+  ]
+ },
+ {
+  "id": "haste.2",
+  "name": "of Haste",
+  "kind": "suffix",
+  "group": "move",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "legs"
+  ],
+  "classes": null,
+  "stat": "speedPct",
+  "range": [
+   0.04,
+   0.06
+  ]
+ },
+ {
+  "id": "haste.3",
+  "name": "of Haste",
+  "kind": "suffix",
+  "group": "move",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "legs"
+  ],
+  "classes": null,
+  "stat": "speedPct",
+  "range": [
+   0.06,
+   0.08
+  ]
+ },
+ {
+  "id": "ruin.1",
+  "name": "of Ruin",
+  "kind": "suffix",
+  "group": "ruin",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "ruinGain",
+  "range": [
+   0.06,
+   0.1
+  ]
+ },
+ {
+  "id": "ruin.2",
+  "name": "of Ruin",
+  "kind": "suffix",
+  "group": "ruin",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "ruinGain",
+  "range": [
+   0.1,
+   0.15
+  ]
+ },
+ {
+  "id": "ruin.3",
+  "name": "of Ruin",
+  "kind": "suffix",
+  "group": "ruin",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "ruinGain",
+  "range": [
+   0.15,
+   0.22
+  ]
+ },
+ {
+  "id": "hunter.1",
+  "name": "of the Hunter",
+  "kind": "suffix",
+  "group": "weak",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "ranged",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "weakPct",
+  "range": [
+   0.08,
+   0.14
+  ]
+ },
+ {
+  "id": "hunter.2",
+  "name": "of the Hunter",
+  "kind": "suffix",
+  "group": "weak",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "ranged",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "weakPct",
+  "range": [
+   0.14,
+   0.22
+  ]
+ },
+ {
+  "id": "hunter.3",
+  "name": "of the Hunter",
+  "kind": "suffix",
+  "group": "weak",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "ranged",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "weakPct",
+  "range": [
+   0.22,
+   0.32
+  ]
+ },
+ {
+  "id": "fury.1",
+  "name": "of Fury",
+  "kind": "suffix",
+  "group": "critm",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "critMult",
+  "range": [
+   0.08,
+   0.14
+  ]
+ },
+ {
+  "id": "fury.2",
+  "name": "of Fury",
+  "kind": "suffix",
+  "group": "critm",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "critMult",
+  "range": [
+   0.14,
+   0.22
+  ]
+ },
+ {
+  "id": "fury.3",
+  "name": "of Fury",
+  "kind": "suffix",
+  "group": "critm",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "critMult",
+  "range": [
+   0.22,
+   0.32
+  ]
+ },
+ {
+  "id": "warding.1",
+  "name": "of Warding",
+  "kind": "suffix",
+  "group": "ward",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "chest",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "dmgTakenPct",
+  "range": [
+   -0.02,
+   -0.03
+  ]
+ },
+ {
+  "id": "warding.2",
+  "name": "of Warding",
+  "kind": "suffix",
+  "group": "ward",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "chest",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "dmgTakenPct",
+  "range": [
+   -0.03,
+   -0.045
+  ]
+ },
+ {
+  "id": "warding.3",
+  "name": "of Warding",
+  "kind": "suffix",
+  "group": "ward",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "chest",
+   "helm"
+  ],
+  "classes": null,
+  "stat": "dmgTakenPct",
+  "range": [
+   -0.045,
+   -0.065
+  ]
+ },
+ {
+  "id": "plenty.1",
+  "name": "of Plenty",
+  "kind": "suffix",
+  "group": "bounty",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "bountyPct",
+  "range": [
+   0.05,
+   0.08
+  ]
+ },
+ {
+  "id": "plenty.2",
+  "name": "of Plenty",
+  "kind": "suffix",
+  "group": "bounty",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "bountyPct",
+  "range": [
+   0.08,
+   0.13
+  ]
+ },
+ {
+  "id": "plenty.3",
+  "name": "of Plenty",
+  "kind": "suffix",
+  "group": "bounty",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "bountyPct",
+  "range": [
+   0.13,
+   0.2
+  ]
+ },
+ {
+  "id": "wisdom.1",
+  "name": "of Wisdom",
+  "kind": "suffix",
+  "group": "xp",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "xpPct",
+  "range": [
+   0.03,
+   0.05
+  ]
+ },
+ {
+  "id": "wisdom.2",
+  "name": "of Wisdom",
+  "kind": "suffix",
+  "group": "xp",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "xpPct",
+  "range": [
+   0.05,
+   0.08
+  ]
+ },
+ {
+  "id": "wisdom.3",
+  "name": "of Wisdom",
+  "kind": "suffix",
+  "group": "xp",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "xpPct",
+  "range": [
+   0.08,
+   0.12
+  ]
+ },
+ {
+  "id": "stagger.1",
+  "name": "of Staggering",
+  "kind": "suffix",
+  "group": "poise",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "poisePct",
+  "range": [
+   0.08,
+   0.12
+  ]
+ },
+ {
+  "id": "stagger.2",
+  "name": "of Staggering",
+  "kind": "suffix",
+  "group": "poise",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "poisePct",
+  "range": [
+   0.12,
+   0.18
+  ]
+ },
+ {
+  "id": "stagger.3",
+  "name": "of Staggering",
+  "kind": "suffix",
+  "group": "poise",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "hands"
+  ],
+  "classes": null,
+  "stat": "poisePct",
+  "range": [
+   0.18,
+   0.26
+  ]
+ },
+ {
+  "id": "cunning.1",
+  "name": "of Cunning",
+  "kind": "suffix",
+  "group": "cdr",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "hands",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "cdr",
+  "range": [
+   0.03,
+   0.04
+  ]
+ },
+ {
+  "id": "cunning.2",
+  "name": "of Cunning",
+  "kind": "suffix",
+  "group": "cdr",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "hands",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "cdr",
+  "range": [
+   0.04,
+   0.06
+  ]
+ },
+ {
+  "id": "cunning.3",
+  "name": "of Cunning",
+  "kind": "suffix",
+  "group": "cdr",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "helm",
+   "hands",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "cdr",
+  "range": [
+   0.06,
+   0.09
+  ]
+ },
+ {
+  "id": "skald.1",
+  "name": "of the Skald",
+  "kind": "suffix",
+  "group": "status",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "statusPct",
+  "range": [
+   0.05,
+   0.08
+  ]
+ },
+ {
+  "id": "skald.2",
+  "name": "of the Skald",
+  "kind": "suffix",
+  "group": "status",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "statusPct",
+  "range": [
+   0.08,
+   0.13
+  ]
+ },
+ {
+  "id": "skald.3",
+  "name": "of the Skald",
+  "kind": "suffix",
+  "group": "status",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "melee",
+   "ranged",
+   "helm",
+   "chest",
+   "hands",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "statusPct",
+  "range": [
+   0.13,
+   0.2
+  ]
+ },
+ {
+  "id": "vigor.1",
+  "name": "of Vigor",
+  "kind": "suffix",
+  "group": "flask",
+  "tier": 1,
+  "ilvl": 1,
+  "weight": 10,
+  "slots": [
+   "chest",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "flaskHeal",
+  "range": [
+   0.04,
+   0.06
+  ]
+ },
+ {
+  "id": "vigor.2",
+  "name": "of Vigor",
+  "kind": "suffix",
+  "group": "flask",
+  "tier": 2,
+  "ilvl": 6,
+  "weight": 10,
+  "slots": [
+   "chest",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "flaskHeal",
+  "range": [
+   0.06,
+   0.09
+  ]
+ },
+ {
+  "id": "vigor.3",
+  "name": "of Vigor",
+  "kind": "suffix",
+  "group": "flask",
+  "tier": 3,
+  "ilvl": 12,
+  "weight": 10,
+  "slots": [
+   "chest",
+   "legs",
+   "charm"
+  ],
+  "classes": null,
+  "stat": "flaskHeal",
+  "range": [
+   0.09,
+   0.13
+  ]
+ }
+]

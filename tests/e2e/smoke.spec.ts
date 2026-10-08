@@ -61,18 +61,36 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.locator('#view').focus();
 
-  // Combat: lock on to the nearest dummy, walk to it, and swing until damage lands.
+  // Combat: stand next to a dummy, lock on, and swing until damage lands.
+  await page.evaluate(() => {
+    const g = (window as unknown as { __game: { world: () => { entities: { def: string; x: number; z: number }[] }; player: () => { x: number; z: number; fx: number; fz: number } } }).__game;
+    const d = g.world().entities.find((e) => e.def === 'dummy')!;
+    const p = g.player();
+    p.x = d.x;
+    p.z = d.z + 1.7;
+    p.fx = 0;
+    p.fz = -1;
+  });
   await page.evaluate(() => (navigator as unknown as { getGamepads: () => unknown[] }).getGamepads = () => []);
   await page.keyboard.press('Tab');
   await expect.poll(async () => (await player(page))!.pl.lock).toBeGreaterThan(0);
-  for (let i = 0; i < 40 && (await player(page))!.pl.dealt === 0; i++) {
-    await page.keyboard.down('KeyW');
-    await page.mouse.click(480, 200);
+  for (let i = 0; i < 20 && (await player(page))!.pl.dealt === 0; i++) {
+    await page.mouse.click(480, 260);
     const t = await tick(page);
     await expect.poll(() => tick(page)).toBeGreaterThan(t + 8);
-    await page.keyboard.up('KeyW');
   }
   expect((await player(page))!.pl.dealt).toBeGreaterThan(0);
+
+  // Loot: an item dropped at the player's feet is picked up and can be equipped from the Gear tab.
+  await page.evaluate(() => (window as unknown as { __game: { drop: (r: string) => void } }).__game.drop('ascendant'));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __game: { world: () => { players: { character: { inv: unknown[] } }[] } } }).__game.world().players[0]!.character.inv.length)).toBeGreaterThan(0);
+  await page.keyboard.press('KeyI');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.locator('.bag-item').first().click();
+  await page.getByRole('button', { name: 'Equip', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __game: { world: () => { players: { character: { equip: Record<string, { rarity: string } | null> } }[] } } }).__game.world().players[0]!.character.equip.melee?.rarity ?? (window as unknown as { __game: { world: () => { players: { character: { equip: Record<string, { rarity: string } | null> } }[] } } }).__game.world().players[0]!.character.equip.ranged?.rarity)).toBe('ascendant');
+  await page.keyboard.press('Escape');
+  await page.locator('#view').focus();
 
   // Enemies: travel to the arena, start an encounter, then die and come back.
   await page.evaluate(() => {

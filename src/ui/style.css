@@ -56,7 +56,7 @@ button.primary:hover, button.primary:focus-visible { background: #2a5b82; }
 .class-card.selected { border-color: var(--steel); background: #1d3346; box-shadow: inset 0 0 0 1px var(--steel); }
 .field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 13px; color: var(--ink-dim); }
 .field input, select { font: inherit; color: var(--ink); background: #111a24; border: 1px solid var(--panel-edge); border-radius: 6px; padding: 8px 10px; }
-.toast-stack { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; z-index: 20; }
+.toast-stack { position: absolute; right: 16px; top: 96px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; pointer-events: none; z-index: 20; max-width: min(360px, 70vw); }
 .toast.loot { border-color: var(--gold); }
 @media (max-width: 600px) { .panel { padding: 16px; } }
 
@@ -166,3 +166,37 @@ button.close { padding: 4px 10px; }
 table.controls { width: 100%; border-collapse: collapse; font-size: 13px; }
 table.controls th, table.controls td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #1f2b38; }
 table.controls th { color: var(--ink-dim); font-weight: 600; }
+
+/* Gear */
+.gear { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .gear { grid-template-columns: 1fr; } }
+.paperdoll { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.pd-slot { display: flex; flex-direction: column; gap: 2px; text-align: left; font-size: 12px; min-height: 52px; }
+.pd-slot small { color: var(--ink-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+.pd-slot.empty { opacity: 0.5; }
+.statsum { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink-dim); margin: 10px 0; }
+.bag-head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin: 8px 0 6px; }
+.bag-head button { font-size: 12px; padding: 4px 8px; }
+.bag { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; max-height: 240px; overflow: auto; }
+.bag-item { font-size: 12px; text-align: left; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sel { box-shadow: inset 0 0 0 2px var(--gold); }
+.r-worn { color: var(--r-worn); } .r-forged { color: var(--r-forged); } .r-runed { color: var(--r-runed); border-color: #2a4a6a !important; }
+.r-ascendant { color: var(--r-ascendant); border-color: #4a2f6a !important; } .r-relic { color: var(--r-relic); border-color: #6a3f1a !important; }
+.item-card { border: 1px solid var(--panel-edge); border-radius: 8px; padding: 12px; background: #0f1720; margin-bottom: 8px; }
+.ic-name { font-weight: 700; font-size: 15px; }
+.ic-sub { font-size: 12px; color: var(--ink-dim); margin: 2px 0 8px; }
+.ic-main { color: var(--ink); font-size: 14px; }
+.ic-lines { list-style: none; padding: 0; margin: 6px 0; font-size: 13px; color: #9fc8ff; }
+.ic-unique { color: var(--r-relic); font-style: italic; font-size: 13px; }
+.ic-sockets { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px; }
+.sock { border: 1px dashed #3a4a5a; border-radius: 4px; padding: 2px 6px; color: var(--ink-dim); }
+.sock.full { border-style: solid; color: var(--steel); }
+.ic-bad { color: var(--blood); font-size: 12px; margin-top: 6px; }
+.ic-compare { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; }
+.ic-compare .good { color: var(--ok); } .ic-compare .bad { color: #e07070; }
+.socket-pick, .recent { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+.socket-pick button, .recent button { text-align: left; font-size: 12px; }
+.autosalvage { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 12px; color: var(--ink-dim); margin-top: 10px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grow { flex: 1; font-size: 13px; }
+h3 { font-size: 14px; margin: 14px 0 6px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.08em; }

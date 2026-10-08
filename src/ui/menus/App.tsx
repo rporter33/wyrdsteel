@@ -5,6 +5,7 @@ import { Pause } from './Pause';
 import { Character } from './Character';
 import { Well, Board } from './Npcs';
 import { Controls } from './Controls';
+import { Smith, Carver, Stash } from './Smith';
 
 export function App() {
   const s = screen.value;
@@ -18,6 +19,9 @@ export function App() {
       {s === 'game' && panel.value === 'well' && <Well />}
       {s === 'game' && panel.value === 'board' && <Board />}
       {s === 'game' && panel.value === 'controls' && <Controls />}
+      {s === 'game' && panel.value === 'smith' && <Smith />}
+      {s === 'game' && panel.value === 'carver' && <Carver />}
+      {s === 'game' && panel.value === 'stash' && <Stash />}
       <Toasts />
     </>
   );

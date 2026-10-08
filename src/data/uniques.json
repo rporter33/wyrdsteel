@@ -1,0 +1,8 @@
+[
+ { "id": "u.skofnung", "name": "Skofnung", "slot": "melee", "stats": [{ "stat": "meleePct", "amt": 0.25 }, { "stat": "lifesteal", "amt": 0.03 }], "desc": "The sword that will not be drawn in daylight. Heals as it cuts." },
+ { "id": "u.thunderfist", "name": "Járngreipr", "slot": "hands", "stats": [{ "stat": "onShock", "amt": 40 }, { "stat": "airPct", "amt": 0.2 }], "desc": "Thor's iron gloves. Every blow arcs lightning; airborne foes suffer most." },
+ { "id": "u.gleipnir", "name": "Gleipnir", "slot": "legs", "stats": [{ "stat": "onRoot", "amt": 35 }, { "stat": "cdr", "amt": 0.08 }], "desc": "The fetter that held the wolf: woven of impossible things." },
+ { "id": "u.draupnir", "name": "Draupnir", "slot": "charm", "stats": [{ "stat": "bountyPct", "amt": 0.3 }, { "stat": "ruinGain", "amt": 0.2 }], "desc": "The ring that drips eight more every ninth night." },
+ { "id": "u.heimdall", "name": "Gjallarhorn's Eye", "slot": "ranged", "stats": [{ "stat": "weakPct", "amt": 0.4 }, { "stat": "crit", "amt": 0.05 }], "desc": "A sight that sees grass grow; it finds the seam in any armour." },
+ { "id": "u.svalinn", "name": "Svalinn", "slot": "chest", "stats": [{ "stat": "dmgTakenPct", "amt": -0.1 }, { "stat": "hpPct", "amt": 0.1 }], "desc": "The shield that stands before the sun." }
+]

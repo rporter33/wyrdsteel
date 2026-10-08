@@ -298,6 +298,8 @@ export interface World {
   difficulty: 0 | 1 | 2;
   flags: Record<string, number>;
   events: SimEvent[];
+  /** The shared stash (profile-wide), carried in the world so stash moves replay like any command. */
+  stash: import('../loot/item').Item[];
   /** Pending room transition requested by an exit; applied by the session between ticks. */
   transition: { to: string; at: number } | null;
 }

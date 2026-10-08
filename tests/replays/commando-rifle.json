@@ -1,8 +1,8 @@
 {
  "replay": {
   "v": 1,
-  "simVersion": 3,
-  "contentHash": "bf75dca",
+  "simVersion": 4,
+  "contentHash": "8b36d9cd",
   "start": {
    "seed": 202,
    "players": [
@@ -72,26 +72,26 @@
   "checkpoints": [
    {
     "tick": 60,
-    "hash": "cc84c4e5b6db8565"
+    "hash": "324529bac3cb6a3a"
    },
    {
     "tick": 120,
-    "hash": "4c00c1f4d35e7674"
+    "hash": "7ba53be7b4be7067"
    },
    {
     "tick": 180,
-    "hash": "554e5344486cdcc4"
+    "hash": "f396b3d5438e9955"
    },
    {
     "tick": 240,
-    "hash": "f6522536e970aeb6"
+    "hash": "a983d847f97bbdc7"
    }
   ]
  },
- "final": "45708797904e2917",
+ "final": "4ba983b40e9a4134",
  "summary": {
   "hits": 6,
-  "damage": 69,
+  "damage": 62,
   "kills": 0
  }
 }

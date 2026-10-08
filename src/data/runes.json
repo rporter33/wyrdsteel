@@ -1,1 +1,326 @@
-[]
+[
+ {
+  "id": "rune.tyr.1",
+  "name": "Tyr I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "dmgPct",
+    "amt": 0.04
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.tyr.2",
+  "name": "Tyr II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "dmgPct",
+    "amt": 0.08
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.tyr.3",
+  "name": "Tyr III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "dmgPct",
+    "amt": 0.14
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.uruz.1",
+  "name": "Uruz I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "hp",
+    "amt": 20
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.uruz.2",
+  "name": "Uruz II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "hp",
+    "amt": 50
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.uruz.3",
+  "name": "Uruz III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "hp",
+    "amt": 100
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.sowilo.1",
+  "name": "Sowilo I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "crit",
+    "amt": 0.02
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.sowilo.2",
+  "name": "Sowilo II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "crit",
+    "amt": 0.04
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.sowilo.3",
+  "name": "Sowilo III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "crit",
+    "amt": 0.07
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.algiz.1",
+  "name": "Algiz I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "armor",
+    "amt": 8
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.algiz.2",
+  "name": "Algiz II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "armor",
+    "amt": 18
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.algiz.3",
+  "name": "Algiz III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "armor",
+    "amt": 32
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.raido.1",
+  "name": "Raido I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "speedPct",
+    "amt": 0.03
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.raido.2",
+  "name": "Raido II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "speedPct",
+    "amt": 0.05
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.raido.3",
+  "name": "Raido III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "speedPct",
+    "amt": 0.08
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.kaun.1",
+  "name": "Kaun I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "onBurn",
+    "amt": 10
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.kaun.2",
+  "name": "Kaun II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "onBurn",
+    "amt": 20
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.kaun.3",
+  "name": "Kaun III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "onBurn",
+    "amt": 35
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.isa.1",
+  "name": "Isa I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "onChill",
+    "amt": 10
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.isa.2",
+  "name": "Isa II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "onChill",
+    "amt": 20
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.isa.3",
+  "name": "Isa III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "onChill",
+    "amt": 35
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.thurs.1",
+  "name": "Thurisaz I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "onShock",
+    "amt": 10
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.thurs.2",
+  "name": "Thurisaz II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "onShock",
+    "amt": 20
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.thurs.3",
+  "name": "Thurisaz III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "onShock",
+    "amt": 35
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.naud.1",
+  "name": "Naudiz I",
+  "tier": 1,
+  "stats": [
+   {
+    "stat": "onRoot",
+    "amt": 10
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.naud.2",
+  "name": "Naudiz II",
+  "tier": 2,
+  "stats": [
+   {
+    "stat": "onRoot",
+    "amt": 20
+   }
+  ],
+  "onHit": null
+ },
+ {
+  "id": "rune.naud.3",
+  "name": "Naudiz III",
+  "tier": 3,
+  "stats": [
+   {
+    "stat": "onRoot",
+    "amt": 35
+   }
+  ],
+  "onHit": null
+ }
+]

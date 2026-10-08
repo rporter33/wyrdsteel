@@ -1,1 +1,95 @@
-[]
+[
+ {
+  "id": "bp.wolfblades",
+  "name": "Wolfsbane Blades",
+  "base": "w.blades.2",
+  "rarity": "ascendant",
+  "guaranteed": [
+   "brutal.2",
+   "wolf.2"
+  ],
+  "bounty": 350,
+  "mats": {
+   "mat.iron": 12,
+   "mat.rune": 4
+  }
+ },
+ {
+  "id": "bp.cleaver",
+  "name": "Hrimthurs Cleaver",
+  "base": "w.axe.3",
+  "rarity": "ascendant",
+  "guaranteed": [
+   "savage.3",
+   "stagger.3"
+  ],
+  "bounty": 900,
+  "mats": {
+   "mat.iron": 20,
+   "mat.rune": 8,
+   "mat.star": 2
+  }
+ },
+ {
+  "id": "bp.marksrifle",
+  "name": "Marksman's Long Rifle",
+  "base": "w.rifle.2",
+  "rarity": "ascendant",
+  "guaranteed": [
+   "eagle.2",
+   "hunter.2"
+  ],
+  "bounty": 350,
+  "mats": {
+   "mat.iron": 12,
+   "mat.rune": 4
+  }
+ },
+ {
+  "id": "bp.surtrcannon",
+  "name": "Muspel Cannon",
+  "base": "w.cannon.3",
+  "rarity": "ascendant",
+  "guaranteed": [
+   "burning.3",
+   "skald.3"
+  ],
+  "bounty": 900,
+  "mats": {
+   "mat.iron": 20,
+   "mat.rune": 8,
+   "mat.star": 2
+  }
+ },
+ {
+  "id": "bp.thanehelm",
+  "name": "Thane's Greathelm",
+  "base": "a.helm.3",
+  "rarity": "ascendant",
+  "guaranteed": [
+   "hale.3",
+   "cunning.3"
+  ],
+  "bounty": 700,
+  "mats": {
+   "mat.iron": 16,
+   "mat.rune": 6,
+   "mat.star": 1
+  }
+ },
+ {
+  "id": "bp.wardcoat",
+  "name": "Warden's Hauberk",
+  "base": "a.chest.2",
+  "rarity": "runed",
+  "guaranteed": [
+   "stalwart.2",
+   "warding.2"
+  ],
+  "bounty": 200,
+  "mats": {
+   "mat.iron": 10,
+   "mat.rune": 2
+  }
+ }
+]

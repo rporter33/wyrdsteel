@@ -1,7 +1,8 @@
 import type { ContentDb } from '../data/types';
 import { deriveSeed, seedRng, nextInt } from '../rng/xoshiro';
 import { emptyInput } from '../input/frame';
-import { newCharacter, type CharacterState } from '../progression/character';
+import { type CharacterState } from '../progression/character';
+import { starterCharacter } from '../loot/inventory';
 import { computeStats } from '../progression/derive';
 import { buildRoom, markersOf } from '../level/room';
 import { newEntity } from './entity';
@@ -19,6 +20,7 @@ export interface StartSpec {
   cleared?: string[];
   mods?: string[];
   trial?: number;
+  stash?: import('../loot/item').Item[];
 }
 
 export function createWorld(spec: StartSpec, db: ContentDb): World {
@@ -50,10 +52,11 @@ export function createWorld(spec: StartSpec, db: ContentDb): World {
     difficulty: spec.difficulty ?? 1,
     flags: {},
     events: [],
+    stash: spec.stash ? spec.stash.map((i) => ({ ...i })) : [],
     transition: null,
   };
   spec.players.forEach((p, slot) => {
-    const character = p.character ?? newCharacter(p.name, p.cls);
+    const character = p.character ?? starterCharacter(db, p.name, p.cls);
     const ps: PlayerSlot = {
       slot,
       entity: 0,

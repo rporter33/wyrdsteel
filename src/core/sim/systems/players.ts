@@ -4,8 +4,10 @@ import { BTN } from '../../input/frame';
 import { byId } from '../entity';
 import { msToTicks } from '../constants';
 import { resetActiveEncounters, RESPAWN_TICKS, SKIP_AFTER } from '../../level/encounters';
-import { spawnPickup } from '../../progression/drops';
+import { spawnPickup } from '../pickups';
 import { startAction, canCancel } from './actions';
+import { pickupItem } from '../../loot/inventory';
+import { openChest } from '../../loot/drop';
 
 const WAYSTONE_R = 2.2;
 const PICK_R = 1.4;
@@ -110,11 +112,6 @@ function collect(w: World, db: ContentDb, slot: number, e: Entity, it: Entity): 
   it.removeAt = w.tick + 1;
 }
 
-export type ItemPickup = (w: World, db: ContentDb, slot: number, it: Entity) => void;
-let pickupItem: ItemPickup = () => {};
-export function setItemPickup(f: ItemPickup): void {
-  pickupItem = f;
-}
 
 function interact(w: World, db: ContentDb, slot: number, e: Entity): void {
   // Finisher: climb a kneeling heavy. Not mid-action, and each kneel can be climbed once
@@ -147,18 +144,11 @@ function interact(w: World, db: ContentDb, slot: number, e: Entity): void {
     w.events.push({ k: 'interact', t: w.tick, slot, what: f.kind, id: f.id });
     if (f.kind === 'chest' && f.a === 0) {
       f.a = 1;
-      openChest(w, db, slot, f.x, f.z);
+      openChest(w, db, slot, f.x, f.z, w.entities.find((x) => x.id === w.players[slot]!.entity)?.level ?? 1);
     }
   }
 }
 
-export type ChestOpen = (w: World, db: ContentDb, slot: number, x: number, z: number) => void;
-let openChest: ChestOpen = (w, _db, _slot, x, z) => {
-  spawnPickup(w, 'bounty', x, z, 20);
-};
-export function setChestOpen(f: ChestOpen): void {
-  openChest = f;
-}
 
 /** Back at the last waystone with full health and flasks; unfinished fights reset. */
 export function respawn(w: World, db: ContentDb, slot: number): void {

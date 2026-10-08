@@ -245,6 +245,14 @@ export interface BaseItemDef {
   ruiner: string | null;
 }
 
+export interface UniqueDef {
+  id: string;
+  name: string;
+  slot: GearSlot;
+  stats: SkillEffect[];
+  desc: string;
+}
+
 export interface RuneDef {
   id: string;
   name: string;
@@ -365,4 +373,5 @@ export interface ContentDb {
   zones: Record<string, ZoneDef>;
   story: Record<string, StoryBeat>;
   wyrd: Record<string, WyrdRuleDef>;
+  uniques: Record<string, UniqueDef>;
 }
