@@ -12,6 +12,8 @@ export interface HitDef {
   range: number;
   /** cos of the half-angle for sectors. */
   cosArc: number;
+  /** The half-angle itself, radians: telegraphs draw the true sector. */
+  arc: number;
   width: number;
   /** Forward offset of a circle's centre. */
   offset: number;

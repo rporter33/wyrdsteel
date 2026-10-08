@@ -86,7 +86,9 @@ export function strike(w: World, db: ContentDb, e: Entity, actionId: string, t: 
         w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: act.tele.shape, x: e.x + lx * d, z: e.z + lz * d, r: act.tele.r, dx, dz, len: act.tele.r, width: act.tele.width, dur: first });
       }
     } else {
-      w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: act.tele.shape, x: at ? e.act!.ax : e.x, z: at ? e.act!.az : e.z, r: act.tele.r, dx, dz, len: act.tele.r, width: act.tele.width, dur: first });
+      // A cone is drawn as wide as the blow really reaches.
+      const width = act.tele.shape === 'cone' ? (act.hits[0]?.arc ?? 0.6) * 2 : act.tele.width;
+      w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: act.tele.shape, x: at ? e.act!.ax : e.x, z: at ? e.act!.az : e.z, r: act.tele.r, dx, dz, len: act.tele.r, width, dur: first });
     }
   }
 }

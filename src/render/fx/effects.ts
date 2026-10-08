@@ -33,11 +33,13 @@ interface Trail {
   max: number;
 }
 
+/** A telegraph on the ground. Timed in sim ticks, not wall time: when frames drop and the sim
+ * slows, the warning still lasts exactly until the blow lands. */
 interface Decal {
   mesh: THREE.Mesh;
   fill: THREE.Mesh;
-  life: number;
-  max: number;
+  start: number;
+  end: number;
 }
 
 const STATUS_COLOR: Record<string, number> = { burn: 0xff8a3c, chill: 0x9be7ff, freeze: 0xcff4ff, root: 0xf5c542, shock: 0xc6a8ff };
@@ -138,7 +140,10 @@ export class Effects {
     let shape: THREE.BufferGeometry;
     if (ev.shape === 'line') shape = new THREE.PlaneGeometry(ev.width, ev.len).translate(0, ev.len / 2, 0);
     else if (ev.shape === 'ring') shape = new THREE.RingGeometry(Math.max(0.1, ev.r - ev.width), ev.r, 40);
-    else if (ev.shape === 'cone') shape = new THREE.CircleGeometry(ev.r, 24, Math.PI / 2 - 0.6, 1.2);
+    else if (ev.shape === 'cone') {
+      const arc = ev.width > 0 ? Math.min(Math.PI * 2, ev.width) : 1.2;
+      shape = new THREE.CircleGeometry(ev.r, 32, Math.PI / 2 - arc / 2, arc);
+    }
     else shape = new THREE.CircleGeometry(ev.r, 32);
     const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: bold ? 0.36 : 0.18, depthWrite: false, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(shape, mat);
@@ -151,8 +156,7 @@ export class Effects {
     mesh.add(fill);
     fill.position.z = 0.001;
     this.scene.add(mesh);
-    const dur = Math.max(0.1, ev.dur / 60);
-    this.decals.push({ mesh, fill, life: dur, max: dur });
+    this.decals.push({ mesh, fill, start: ev.t, end: ev.t + Math.max(6, ev.dur) });
   }
 
   update(w: World, events: SimEvent[], dt: number, opts: RenderOptions, get: (id: number) => THREE.Object3D | null): void {
@@ -316,10 +320,9 @@ export class Effects {
     });
 
     this.decals = this.decals.filter((d) => {
-      d.life -= dt;
-      const k = 1 - Math.max(0, d.life / d.max);
+      const k = Math.min(1, (w.tick - d.start) / (d.end - d.start));
       d.fill.scale.setScalar(Math.max(0.01, k));
-      if (d.life <= 0) {
+      if (w.tick >= d.end) {
         this.scene.remove(d.mesh);
         d.mesh.geometry.dispose();
         return false;

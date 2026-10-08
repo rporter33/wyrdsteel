@@ -57,6 +57,7 @@ function hit(h: Raw): HitDef {
     shape: h.shape ?? 'sector',
     range: h.range ?? 2,
     cosArc: cos(degToRad(arc)),
+    arc: degToRad(arc),
     width: h.width ?? 1,
     offset: h.offset ?? 0,
     yMin: h.y?.[0] ?? -0.5,
