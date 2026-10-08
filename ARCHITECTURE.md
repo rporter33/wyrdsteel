@@ -121,15 +121,15 @@ attack wins none; no hit exceeds its cap (the largest seen is about 26% of max H
 
 ## Known trade-offs
 
-| Decision | What it costs | Why it's worth it |
+| Trade-off | Why it's acceptable now | When to revisit |
 |---|---|---|
-| Polynomial trig and banned float APIs in the core | Slightly less accurate angles; contributors must use the core math helpers | Bit-identical results on every browser, which co-op lockstep requires |
-| Fixed 60 Hz step with interpolation | Input latency up to one tick; catch-up is capped, so a long stall slows time rather than skipping it | Replays, golden tests and the bot all run the same step the player does |
-| Procedural low-poly art, no asset pipeline | Characters read as blocky; no skeletal animation, so poses are rigid-part keyframes | No licensing questions, tiny downloads, and instancing every model is straightforward |
-| Pivot matrices in a float texture for instancing | A custom shader patch on stock materials, which a three.js upgrade could break; hiding a part means scaling its pivot to zero | Draw calls stay flat as crowds grow: 9–23 calls in the busiest rooms against a budget of 120 |
-| Balance verified by a bot, not people | A perfect telegraph reader with frame-perfect dodges; humans will find the game harder than the bot does | Balance claims are tested on every push, and regressions show up the same day |
-| Boss counters read through broad habits (close, far, dodgy) | Players can learn and game the reads | Readable adaptation the player can notice and answer, which was the point |
-| Saves only at waystones and in the citadel | Quitting mid-room loses that room's progress | No mid-fight state to serialise, and no save-scumming a boss |
-| Local-only saves | Lost if the browser's storage is cleared; no sync between devices | No accounts and no server; export and import cover backups |
-| Service worker precache | The first visit downloads the whole game; a new deploy takes one reload to apply | Offline play and instant later loads |
-| Two of five classes; no co-op yet | Smaller roster than the original | A complete, tested chapter first; the session seam keeps co-op a later phase rather than a rewrite |
+| Polynomial trig and banned float APIs in the core | Bit-identical results on every browser, which co-op lockstep requires; the error is far below anything a player can see | If profiling ever shows the trig helpers as hot, or a platform needs native precision |
+| Fixed 60 Hz step; catch-up capped at five ticks | Replays, golden tests and the bot all run the step the player does; a long stall slows time instead of skipping it | If a target device can't hold 60 steps a second; the step costs ~0.7 ms with 40 enemies, so far from it |
+| Procedural low-poly art, rigid-part animation, no skeletons | No licensing questions, a small download, and every model instances the same way | If an artist joins: a glTF pipeline would replace `src/render/models`, and the instancing would need skinning |
+| Pivot matrices in a float texture for instancing | Draw calls stay flat as crowds grow (9–23 in the busiest rooms, against a budget of 120) | On a three.js upgrade that changes the shader chunks it patches; the smoke test's draw-call assertion and screenshots are the alarm |
+| Balance verified by a bot, not by people | Every balance claim is tested on every push, so regressions show the same day | When real players arrive: the bot reads telegraphs perfectly, so human win rates will be lower and the boss may want softening |
+| Boss counters read broad habits (close, far, dodgy) | Readable adaptation a player can notice and answer, which was the point | If players learn to game the reads; a finer read (which attacks you dodge) fits the same seam |
+| Saves only at waystones and in the citadel | No mid-fight state to serialise, and no save-scumming a boss | If sessions on phones get short enough that losing a room hurts |
+| Local-only saves | No accounts and no server; export and import cover backups and moving machines | If players ask for cross-device play often enough to justify a sync service |
+| Service worker precaches the whole build | Offline play and instant later loads | If the download grows past a few MB, when lazy chunks would be cached on first use instead |
+| Two of five classes; no co-op yet | A complete, tested chapter came first, and the `Session` seam keeps co-op an addition, not a rewrite | Next phase: lockstep co-op over WebRTC, then Defender |
