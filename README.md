@@ -73,7 +73,7 @@ How it is built, how it is tested, and what it gave up: [ARCHITECTURE.md](ARCHIT
 | `src/ui/` | HUD and menus. |
 | `src/game/` | Wires the pieces together; the debug hook. |
 | `tests/` | Unit tests, golden replays, the balance bot, browser tests. |
-| `scripts/assets/` | Fetches the CC0 sources and builds `public/assets/` (textures, skies, characters, clips). Run by hand; the output is committed. |
+| `scripts/assets/` | Fetches the CC0 sources, generates enemy bodies (Meshy API, optional), and builds `public/assets/` (textures, skies, characters, clips). Run by hand; the output is committed. |
 
 ## Legal
 

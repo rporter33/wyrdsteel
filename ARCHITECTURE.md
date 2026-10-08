@@ -101,7 +101,21 @@ name and overridable in Settings or with `?quality=`:
 - **Characters** (`models/characters.ts`): the Sworn and the townsfolk are a CC0 hero body under
   clothing (a per-vertex colour and mask baked from the rest pose and laid over the skin texture)
   and plate, helms and weapons built in code and hung on bones. Enemies are a tinted mannequin with
-  their kit hung the same way, until generated models replace the bodies.
+  their kit hung the same way, until generated bodies replace them; then only weapons, shields and
+  the parts the sim changes (breakable plates, an exposed heart) stay in code.
+
+### Asset pipeline (`scripts/assets`, run by hand; output committed)
+
+- `fetch-itch.mjs` downloads the free Quaternius packs; `build.mjs` packs ambientCG texture sets,
+  downsamples Poly Haven skies, merges and trims the clip libraries onto one skeleton, and reduces
+  and re-encodes the bodies.
+- `generate.mjs` makes enemy bodies with Meshy's text-to-3D API (T-pose, textured). It reads the
+  key from `MESHY_API_KEY`, prints the cost, stops at `--max-credits`, and resumes without paying
+  twice. `build.mjs generated` then binds each body to the shared skeleton (`bind.mjs`): scale to
+  the mannequin's height, refit the skeleton's arms to the body's span, and give each vertex the
+  bone weights of the nearest points on the mannequin's skinned surface. No generator rig and no
+  clip retargeting are needed, so every clip plays on every body. Tested on a CC0 body standing in
+  for a generated one.
 - **Batched effects.** Projectiles, loot gems, loot beams, blob shadows and health bars are each
   one instanced mesh.
 

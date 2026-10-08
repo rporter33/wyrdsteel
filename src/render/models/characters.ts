@@ -17,6 +17,8 @@ export interface CharacterAssets {
   mannequin: THREE.Object3D;
   male: THREE.Object3D;
   female: THREE.Object3D;
+  /** Generated enemy bodies by kind, from characters/generated.json (none until they are made). */
+  generated: Record<string, THREE.Object3D>;
 }
 
 let ready: CharacterAssets | null = null;
@@ -27,9 +29,23 @@ export function characterAssets(): CharacterAssets | null {
   return ready;
 }
 
+/** The generated bodies listed in the manifest, if there is one; a missing one is not an error. */
+async function generatedBodies(): Promise<Record<string, THREE.Object3D>> {
+  const res = await fetch('./assets/characters/generated.json').catch(() => null);
+  if (!res?.ok) return {};
+  const list = (await res.json().catch(() => ({}))) as Record<string, string>;
+  const out: Record<string, THREE.Object3D> = {};
+  await Promise.all(
+    Object.entries(list).map(async ([kind, file]) => {
+      out[kind] = (await model(file)).scene;
+    }),
+  );
+  return out;
+}
+
 export function loadCharacters(): Promise<CharacterAssets | null> {
-  pending ??= Promise.all([model('anims.glb'), model('mannequin.glb'), model('sworn-male.glb'), model('sworn-female.glb')])
-    .then(([a, m, male, female]) => (ready = { lib: new ClipLib(a.animations), mannequin: m.scene, male: male.scene, female: female.scene }))
+  pending ??= Promise.all([model('anims.glb'), model('mannequin.glb'), model('sworn-male.glb'), model('sworn-female.glb'), generatedBodies()])
+    .then(([a, m, male, female, generated]) => (ready = { lib: new ClipLib(a.animations), mannequin: m.scene, male: male.scene, female: female.scene, generated }))
     .catch((e: unknown) => {
       console.warn('Character models unavailable; using procedural ones.', e);
       return null;
@@ -338,15 +354,24 @@ export const IDLE_INPUT: Parameters<Animator['update']>[0] = { speed: 0, pose: n
 /** Humanoid enemies that have a skinned version. */
 export const SKINNED_ENEMIES = new Set(['thrall', 'spiker', 'bulwark', 'frostwright', 'mender', 'troll', 'jotun', 'golem']);
 
-/** A humanoid enemy: the mannequin in the enemy's colours, with its kit and silhouette on its bones. */
+/**
+ * A humanoid enemy. With a generated body (bound to the shared skeleton by the asset build), only
+ * what is not part of a body goes on the bones: weapons, shields, and parts the sim changes (plates
+ * that break, a heart that is exposed). On the stand-in mannequin, its costume is built in code too.
+ */
 export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string[]): SkinnedModel {
   const A = characterAssets()!;
   const color = new THREE.Color(colorHex).getHex();
-  const body = new Body(A.mannequin);
+  const gen = A.generated[kind];
+  const body = new Body(gen ?? A.mannequin);
+  /** Mannequin only: dressing a generated body already has. */
+  const costume = (f: () => void) => {
+    if (!gen) f();
+  };
   const head = body.at('Head');
   const chest = body.at('spine_03');
   const eyes = (c: number, y = 0.1, z = 0.12) => [mesh(new THREE.IcosahedronGeometry(0.022, 0), lum(c, 3), -0.045, y, z), mesh(new THREE.IcosahedronGeometry(0.022, 0), lum(c, 3), 0.045, y, z)];
-  const skin = (main: number, joints: number) => body.dress((n) => (n === 'M_Main' ? cloth(main) : n === 'M_Joints' ? cloth(joints) : undefined));
+  const skin = (main: number, joints: number) => costume(() => body.dress((n) => (n === 'M_Main' ? cloth(main) : n === 'M_Joints' ? cloth(joints) : undefined)));
   let moves = HERO_MOVES;
   let height = 1.8;
   let girth = 1;
@@ -356,8 +381,8 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
     case 'thrall': {
       // Hunched and fast: a riveted mask, red eyes, bone claws.
       skin(color, 0x2a2420);
-      body.put('Head', head, mesh(new THREE.BoxGeometry(0.2, 0.2, 0.06), metal(0x3a3430), 0, 0.08, 0.12), ...eyes(PALETTE.blood, 0.11, 0.155));
-      for (const side of ['l', 'r'] as const) {
+      costume(() => body.put('Head', head, mesh(new THREE.BoxGeometry(0.2, 0.2, 0.06), metal(0x3a3430), 0, 0.08, 0.12), ...eyes(PALETTE.blood, 0.11, 0.155)));
+      if (!gen) for (const side of ['l', 'r'] as const) {
         const sx = side === 'l' ? 1 : -1;
         const claws = new THREE.Group();
         for (let i = 0; i < 3; i++) {
@@ -376,14 +401,14 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
     case 'spiker': {
       // Hooded marksman with a spike launcher and a quiver of spikes.
       skin(color, 0x23282e);
-      body.put('Head', head, mesh(new THREE.ConeGeometry(0.17, 0.36, 7), cloth(0x23282e), 0, 0.16, -0.02), ...eyes(0xffd24a));
+      costume(() => body.put('Head', head, mesh(new THREE.ConeGeometry(0.17, 0.36, 7), cloth(0x23282e), 0, 0.16, -0.02), ...eyes(0xffd24a)));
       const launcher = mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.6, 7).rotateX(Math.PI / 2), metal(PALETTE.iron), 0, 0.02, 0.2);
       body.put('hand_r', body.grip('r'), launcher, mesh(new THREE.IcosahedronGeometry(0.04, 0), lum(0xffd24a, 2), 0, 0.02, 0.5));
       const quiver = new THREE.Group();
       quiver.add(mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.45, 6), cloth(0x3a2a20)));
       for (let i = 0; i < 3; i++) quiver.add(mesh(new THREE.ConeGeometry(0.02, 0.18, 4), metal(PALETTE.steel), (i - 1) * 0.03, 0.3, 0));
       quiver.rotation.z = 0.4;
-      body.put('spine_03', chest.clone().add(new THREE.Vector3(0.05, 0, -0.16)), quiver);
+      costume(() => body.put('spine_03', chest.clone().add(new THREE.Vector3(0.05, 0, -0.16)), quiver));
       moves = GUNNER;
       height = 1.72;
       girth = 0.9;
@@ -397,15 +422,17 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
         h.rotation.z = -sx * 0.8;
         return h;
       };
-      body.put('Head', head, mesh(new THREE.IcosahedronGeometry(0.15, 1).scale(1, 1.05, 1.1), metal(0x4d5862), 0, 0.1, 0.01), horn(1), horn(-1), ...eyes(PALETTE.blood, 0.08, 0.16));
-      body.put('spine_03', chest, mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.36, 8).scale(1, 1, 0.7), metal(0x4d5862), 0, 0.03, 0.02));
+      costume(() => {
+        body.put('Head', head, mesh(new THREE.IcosahedronGeometry(0.15, 1).scale(1, 1.05, 1.1), metal(0x4d5862), 0, 0.1, 0.01), horn(1), horn(-1), ...eyes(PALETTE.blood, 0.08, 0.16));
+        body.put('spine_03', chest, mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.36, 8).scale(1, 1, 0.7), metal(0x4d5862), 0, 0.03, 0.02));
+        for (const side of ['l', 'r'] as const) body.put(`upperarm_${side}`, body.at(`upperarm_${side}`), mesh(new THREE.IcosahedronGeometry(0.12, 1).scale(1.3, 0.8, 1.3), metal(0x4d5862), (side === 'l' ? 1 : -1) * 0.06, 0.07, 0));
+      });
       const shield = new THREE.Group();
       // Strapped along the outside of the forearm: in the clips the forearm's rest-pose up stays up,
       // so the board stands in the forearm's vertical plane and faces away from the body.
       shield.add(mesh(new THREE.BoxGeometry(0.62, 1.0, 0.07), metal(0x4d5862)), mesh(new THREE.BoxGeometry(0.2, 0.2, 0.05), metal(PALETTE.gold), 0, 0, -0.05));
       body.put('lowerarm_l', body.at('lowerarm_l').lerp(body.at('hand_l'), 0.5).add(new THREE.Vector3(0, 0, -0.08)), shield);
       body.put('hand_r', body.grip('r'), mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.3, 5).rotateX(Math.PI / 2), cloth(PALETTE.wood), 0, 0, 0.25), mesh(new THREE.ConeGeometry(0.05, 0.22, 4).rotateX(Math.PI / 2), metal(PALETTE.steel), 0, 0, 0.98));
-      for (const side of ['l', 'r'] as const) body.put(`upperarm_${side}`, body.at(`upperarm_${side}`), mesh(new THREE.IcosahedronGeometry(0.12, 1).scale(1.3, 0.8, 1.3), metal(0x4d5862), (side === 'l' ? 1 : -1) * 0.06, 0.07, 0));
       moves = SHIELD;
       height = 1.95;
       girth = 1.25;
@@ -421,8 +448,10 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
         sh.rotation.z = Math.cos(i * 1.26) * -0.35;
         crown.add(sh);
       }
-      body.put('Head', head, crown, ...eyes(PALETTE.frost));
-      body.put('pelvis', body.at('pelvis'), mesh(new THREE.ConeGeometry(0.34, 0.95, 9, 1, true), cloth(0x6aa9cc), 0, -0.4, 0));
+      costume(() => {
+        body.put('Head', head, crown, ...eyes(PALETTE.frost));
+        body.put('pelvis', body.at('pelvis'), mesh(new THREE.ConeGeometry(0.34, 0.95, 9, 1, true), cloth(0x6aa9cc), 0, -0.4, 0));
+      });
       const orbit = new THREE.Group();
       for (let i = 0; i < 4; i++) orbit.add(mesh(new THREE.OctahedronGeometry(0.07, 0).scale(0.6, 2.2, 0.6), lum(PALETTE.frost, 1.5), Math.cos(i * 1.57) * 0.5, 0, Math.sin(i * 1.57) * 0.5));
       const spin = body.put('root', new THREE.Vector3(0, 2.0, 0), orbit);
@@ -439,9 +468,9 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
     case 'mender': {
       // Hooded healer with a staff and a green lamp.
       skin(color, 0x3a5a40);
-      body.put('Head', head, mesh(new THREE.ConeGeometry(0.16, 0.34, 7), cloth(0x2a4a30), 0, 0.15, -0.02), ...eyes(PALETTE.human));
+      costume(() => body.put('Head', head, mesh(new THREE.ConeGeometry(0.16, 0.34, 7), cloth(0x2a4a30), 0, 0.15, -0.02), ...eyes(PALETTE.human)));
       body.put('hand_r', body.grip('r'), mesh(new THREE.CylinderGeometry(0.022, 0.022, 1.6, 5).rotateX(Math.PI / 2), cloth(PALETTE.wood), 0, 0, 0.1), mesh(new THREE.IcosahedronGeometry(0.1, 1), lum(PALETTE.human, 2.5), 0, 0, 0.92));
-      body.put('pelvis', body.at('pelvis'), mesh(new THREE.ConeGeometry(0.3, 0.8, 9, 1, true), cloth(0x2a4a30), 0, -0.32, 0));
+      costume(() => body.put('pelvis', body.at('pelvis'), mesh(new THREE.ConeGeometry(0.3, 0.8, 9, 1, true), cloth(0x2a4a30), 0, -0.32, 0)));
       moves = CASTER;
       height = 1.6;
       girth = 0.9;
@@ -455,10 +484,12 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
         h.rotation.z = -sx * 0.7;
         return h;
       };
-      body.put('Head', head, mesh(new THREE.IcosahedronGeometry(0.15, 1), metal(0x4a4f55), 0, 0.08, 0.02), horn(1), horn(-1), ...eyes(0xffd24a, 0.08, 0.16));
-      const cans = new THREE.Group();
-      for (let i = 0; i < 3; i++) cans.add(mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.32, 7), cloth(0x7a5a2a), -0.15 + i * 0.15, 0, 0));
-      body.put('spine_03', chest.clone().add(new THREE.Vector3(0, 0.02, -0.2)), cans);
+      costume(() => {
+        body.put('Head', head, mesh(new THREE.IcosahedronGeometry(0.15, 1), metal(0x4a4f55), 0, 0.08, 0.02), horn(1), horn(-1), ...eyes(0xffd24a, 0.08, 0.16));
+        const cans = new THREE.Group();
+        for (let i = 0; i < 3; i++) cans.add(mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.32, 7), cloth(0x7a5a2a), -0.15 + i * 0.15, 0, 0));
+        body.put('spine_03', chest.clone().add(new THREE.Vector3(0, 0.02, -0.2)), cans);
+      });
       const plates: Record<string, THREE.Group> = {};
       for (const side of ['l', 'r'] as const) {
         const sx = side === 'l' ? 1 : -1;
@@ -477,13 +508,13 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
     }
     case 'jotun': {
       // Hrungnir: a stone war-engine with a forge heart behind a chest slab, and a whetstone maul.
-      body.dress((n) => (n === 'M_Main' ? surface(0x5b6168, { rough: 0.9 }) : n === 'M_Joints' ? surface(0x2f3338, { rough: 0.9 }) : undefined));
+      costume(() => body.dress((n) => (n === 'M_Main' ? surface(0x5b6168, { rough: 0.9 }) : n === 'M_Joints' ? surface(0x2f3338, { rough: 0.9 }) : undefined)));
       const horn = (sx: number) => {
         const h = mesh(new THREE.ConeGeometry(0.05, 0.32, 6), cloth(PALETTE.bone), sx * 0.15, 0.2, 0.02);
         h.rotation.z = -sx * 0.6;
         return h;
       };
-      body.put('Head', head, horn(1), horn(-1), ...eyes(PALETTE.ember, 0.08, 0.14));
+      costume(() => body.put('Head', head, horn(1), horn(-1), ...eyes(PALETTE.ember, 0.08, 0.14)));
       const heart = body.put('spine_03', chest.clone().add(new THREE.Vector3(0, 0.04, 0.12)), mesh(new THREE.IcosahedronGeometry(0.07, 1), lum(PALETTE.ember, 2.6)));
       const slab = body.put('spine_03', chest.clone().add(new THREE.Vector3(0, 0.1, 0.15)), mesh(new THREE.BoxGeometry(0.34, 0.2, 0.05), metal(0x8a8f95), 0, -0.08, 0));
       const pads = (['l', 'r'] as const).map((side) => body.put(`upperarm_${side}`, body.at(`upperarm_${side}`), mesh(new THREE.BoxGeometry(0.2, 0.1, 0.2), metal(0x8a8f95), (side === 'l' ? 1 : -1) * 0.06, 0.07, 0)));
@@ -506,8 +537,10 @@ export function buildSkinnedEnemy(kind: string, colorHex: string, elites: string
     }
     case 'golem': {
       // Mokkurkalfi: a clay giant with a small, frightened mare's heart.
-      body.dress((n) => (n === 'M_Main' ? surface(0x9a7a5a, { rough: 0.95 }) : n === 'M_Joints' ? surface(0x6b4f36, { rough: 0.95 }) : undefined));
-      body.put('Head', head, ...eyes(0xffd24a, 0.07, 0.13));
+      costume(() => {
+        body.dress((n) => (n === 'M_Main' ? surface(0x9a7a5a, { rough: 0.95 }) : n === 'M_Joints' ? surface(0x6b4f36, { rough: 0.95 }) : undefined));
+        body.put('Head', head, ...eyes(0xffd24a, 0.07, 0.13));
+      });
       const heart = body.put('spine_03', chest.clone().add(new THREE.Vector3(0, 0.03, 0.13)), mesh(new THREE.IcosahedronGeometry(0.035, 1), lum(0xf5c542, 2.2)));
       moves = HEAVY;
       height = 3.6;

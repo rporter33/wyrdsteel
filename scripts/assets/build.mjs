@@ -13,6 +13,7 @@ import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { dedup, meshopt, prune, resample, textureCompress, mergeDocuments, unpartition, simplify, weld } from '@gltf-transform/functions';
 import { MeshoptDecoder, MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer';
+import { bindToSkeleton } from './bind.mjs';
 
 const CACHE = '.asset-cache';
 const OUT = 'public/assets';
@@ -326,8 +327,56 @@ async function characters() {
   }
 }
 
+/** The skinned mannequin whose skeleton every character shares, from the animation library. */
+function referenceBody() {
+  const q = join(CACHE, 'quaternius');
+  const dirs = readdirSync(q).filter((f) => f.endsWith('.zip')).map((z) => unzipPack(join(q, z)));
+  const ref = dirs.map((d) => findFile(d, 'UAL2_Standard.glb')).find(Boolean);
+  if (!ref) throw new Error('animation library not found; fetch the Quaternius packs first');
+  return ref;
+}
+
+/** Bind one T-posed character to the shared skeleton, trim it for the crowd, and write it. */
+async function bindOne(src, out, ratio = 0.5) {
+  const ref = await io.read(referenceBody());
+  const gen = await io.read(src.endsWith('.gltf') ? fixImagePaths(src) : src);
+  bindToSkeleton(ref, gen);
+  await ref.transform(
+    unpartition(),
+    weld(),
+    simplify({ simplifier: MeshoptSimplifier, ratio, error: 0.002 }),
+    textureCompress({ encoder: sharp, targetFormat: 'webp', resize: [1024, 1024], quality: 85 }),
+  );
+  await write(ref, out);
+}
+
+/**
+ * Generated characters (from generate.mjs, cached in .asset-cache/generated/<kind>.glb) bound to
+ * the shared skeleton, plus a manifest the game reads to know which enemies have one.
+ */
+async function generated() {
+  const dir = join(CACHE, 'generated');
+  const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.glb')) : [];
+  if (!files.length) throw new Error('no generated models in .asset-cache/generated; run scripts/assets/generate.mjs');
+  mkdirSync(join(OUT, 'characters'), { recursive: true });
+  const manifest = {};
+  for (const f of files) {
+    const kind = basename(f, '.glb');
+    console.log(`binding ${kind}`);
+    await bindOne(join(dir, f), join(OUT, 'characters', `gen-${kind}.glb`));
+    manifest[kind] = `gen-${kind}.glb`;
+  }
+  writeFileSync(join(OUT, 'characters', 'generated.json'), JSON.stringify(manifest, null, 2) + '\n');
+}
+
 const which = process.argv.slice(2);
+if (which[0] === 'bind') {
+  // node scripts/assets/build.mjs bind <in.glb|.gltf> <out.glb>: test the binder on any T-posed body.
+  await bindOne(which[1], which[2]);
+  process.exit(0);
+}
 const all = !which.length;
 if (all || which.includes('materials')) await materials();
 if (all || which.includes('env')) await skies();
 if (all || which.includes('characters')) await characters();
+if (which.includes('generated')) await generated();
