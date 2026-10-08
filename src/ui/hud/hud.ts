@@ -1,6 +1,18 @@
 import type { ContentDb } from '../../core/data/types';
 import type { World } from '../../core/sim/types';
 import { boundAbilities } from '../../core/combat/attack';
+import { XP_TABLE, LEVEL_CAP } from '../../core/progression/rewards';
+
+const NPC_LABEL: Record<string, string> = {
+  smith: 'Brokkr — smithy',
+  carver: 'Rune-carver',
+  well: "Idunn's Well — skills",
+  board: 'Quest board',
+  skald: 'Bragi — codex',
+  gate: 'Wyrd gate — travel',
+  trainer: 'Training yard',
+  stash: 'Stash',
+};
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, parent?: HTMLElement): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -32,6 +44,11 @@ export class Hud {
   private dpsWindow: { t: number; d: number }[] = [];
   private lastDealt = 0;
   private hint: HTMLElement;
+  private lvl: HTMLElement;
+  private xpFill: HTMLElement;
+  private bounty: HTMLElement;
+  private zoneEl: HTMLElement;
+  private prompt: HTMLElement;
   private last: Record<string, string | number> = {};
   showPerf = false;
 
@@ -62,6 +79,13 @@ export class Hud {
     this.targetParts = el('div', 'tparts', this.target);
     this.dps = el('div', 'hud-dps', this.root);
     this.hint = el('div', 'hud-hint', this.root);
+    const prog = el('div', 'hud-prog', this.root);
+    this.lvl = el('div', 'lvl', prog);
+    const xp = el('div', 'xp', prog);
+    this.xpFill = el('div', '', xp);
+    this.bounty = el('div', 'bounty', prog);
+    this.zoneEl = el('div', 'zone', prog);
+    this.prompt = el('div', 'hud-prompt', this.root);
     this.perf = el('div', 'perf', this.root);
     this.root.style.display = 'none';
   }
@@ -119,9 +143,37 @@ export class Hud {
         slotEl.root.classList.toggle('ready', frac === 0 && !!def);
       });
     }
+    const c = p.character;
+    this.set('lvl', `${c.name}:${c.level}`, () => (this.lvl.textContent = `${c.name} · Level ${c.level}`));
+    const lo = XP_TABLE[c.level] ?? 0;
+    const hi = XP_TABLE[c.level + 1] ?? lo + 1;
+    const xpFrac = c.level >= LEVEL_CAP ? 1 : (c.xp - lo) / Math.max(1, hi - lo);
+    this.set('xp', Math.round(xpFrac * 200), () => (this.xpFill.style.width = `${xpFrac * 100}%`));
+    this.set('bounty', c.bounty, () => (this.bounty.textContent = `◆ ${c.bounty} bounty`));
+    const zone = db.zones[w.zone.id];
+    const room = db.rooms[w.room.id];
+    const active = w.room.encounters.find((x) => x.state === 'active');
+    const zoneText = `${zone?.name ?? ''}${room ? ' — ' + room.name : ''}${active ? ` · wave ${active.wave + 1}/${active.waves.length}` : w.room.cleared ? ' · cleared' : ''}`;
+    this.set('zone', zoneText, () => (this.zoneEl.textContent = zoneText));
+    // Context prompt: finisher on a kneeling heavy, or a nearby NPC.
+    let prompt = '';
+    for (const t of w.entities) {
+      if (t.kind === 'enemy' && !t.dead && t.stunKind === 2 && t.parts && (t.x - e.x) * (t.x - e.x) + (t.z - e.z) * (t.z - e.z) < (t.r + 1.6) * (t.r + 1.6)) prompt = 'F / RB — Finisher';
+    }
+    if (!prompt) {
+      for (const f of w.room.features) {
+        if ((f.kind === 'npc' || f.kind === 'chest' || f.kind === 'shrine') && (f.x - e.x) * (f.x - e.x) + (f.z - e.z) * (f.z - e.z) < 2.6 * 2.6 && !(f.kind === 'chest' && f.a)) {
+          prompt = `F / RB — ${NPC_LABEL[f.id] ?? (f.kind === 'chest' ? 'Open' : f.kind === 'shrine' ? 'Enter the Well' : 'Talk')}`;
+        }
+      }
+    }
+    this.set('prompt', prompt, () => {
+      this.prompt.textContent = prompt;
+      this.prompt.style.display = prompt ? 'block' : 'none';
+    });
     // Target panel: the locked target, else the soft target.
     const tid = e.pl.lock || e.pl.soft;
-    const t = tid ? w.entities.find((x) => x.id === tid && !x.dead) : null;
+    const t = tid && !e.dead ? w.entities.find((x) => x.id === tid && !x.dead) : null;
     this.set('target', t ? `${t.id}:${Math.ceil(t.hp)}:${(t.parts ?? []).map((pp) => (pp.broken ? 1 : 0)).join('')}:${e.pl.lock}` : '', () => {
       this.target.style.display = t ? 'block' : 'none';
       if (!t) return;

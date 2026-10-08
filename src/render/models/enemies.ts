@@ -109,9 +109,11 @@ export function buildEnemy(model: string, colorHex: string, elites: string[]): E
       // Breakable plates: shoulders and shins. Hidden when the sim reports the part broken.
       const plates: Record<string, THREE.Object3D[]> = { armL: [], armR: [], legL: [], legR: [] };
       const plate = (g: THREE.Group, key: string, y: number) => {
-        const p = box(0.42, 0.28, 0.42, 0x8a8f95, y);
-        g.add(p);
-        plates[key]!.push(p);
+        const piv = new THREE.Group();
+        piv.name = `plate:${key}`;
+        piv.add(box(0.42, 0.28, 0.42, 0x8a8f95, y));
+        g.add(piv);
+        plates[key]!.push(piv);
       };
       plate(rig.armL, 'armL', -0.05);
       plate(rig.armR, 'armR', -0.05);
@@ -119,7 +121,7 @@ export function buildEnemy(model: string, colorHex: string, elites: string[]): E
       plate(rig.legR, 'legR', -1.05);
       radius = 1.05;
       update = (e) => {
-        for (const p of e.parts ?? []) for (const o of plates[p.id] ?? []) o.visible = !p.broken;
+        for (const p of e.parts ?? []) for (const o of plates[p.id] ?? []) o.scale.setScalar(p.broken ? 0 : 1);
         const kneel = (e.parts ?? []).filter((p) => p.id.startsWith('leg') && p.broken).length;
         if (kneel > 0 && rig) rig.hips.position.y -= 0.5;
       };

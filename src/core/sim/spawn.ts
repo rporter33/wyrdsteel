@@ -21,6 +21,6 @@ export function spawnEnemy(w: World, db: ContentDb, defId: string, x: number, z:
   e.fz = 1;
   e.fx = 0;
   if (def.parts.length) e.parts = def.parts.map((p) => ({ id: p.id, hp: Math.round(p.hp * (1 + 0.1 * (level - 1))), hpMax: Math.round(p.hp * (1 + 0.1 * (level - 1))), broken: false }));
-  e.ai = { st: 'idle', t: 0, target: 0, token: false, cd: 30, cd2: 120, homeX: x, homeZ: z, aggro: false, a: 0, b: 0, c: 0, enc: -1 };
+  e.ai = { st: 'idle', t: 0, target: 0, token: 0, cds: def.attacks.map((a) => a.cd >> 1), gcd: 30, homeX: x, homeZ: z, aggro: false, a: 0, b: 0, c: 0, enc: -1, link: 0, side: e.id % 2 === 0 ? 1 : -1 };
   return e;
 }

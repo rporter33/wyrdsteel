@@ -24,7 +24,7 @@ describe('core purity', () => {
     it(`${rel(f)} uses only deterministic APIs`, () => {
       const src = stripComments(read(f));
       for (const [re, what] of BANNED) {
-        if (what.startsWith('Map/Set') && /\/\/ pure-cache/.test(read(f))) continue;
+        if (what.startsWith('Map/Set') && /^\/\/ pure-cache:/.test(read(f))) continue;
         expect(re.test(src), `${rel(f)} uses ${what}`).toBe(false);
       }
     });

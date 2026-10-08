@@ -1,1 +1,44 @@
-[]
+[
+ {
+  "id": "frostbound",
+  "name": "Frostbound",
+  "desc": "Chills anything close, and its blows build frost.",
+  "hpMult": 1.6,
+  "dmgMult": 1.15
+ },
+ {
+  "id": "volatile",
+  "name": "Volatile",
+  "desc": "Bursts a second after it dies. Step away.",
+  "hpMult": 1.4,
+  "dmgMult": 1.1
+ },
+ {
+  "id": "warded",
+  "name": "Warded",
+  "desc": "Ignores statuses until its poise breaks.",
+  "hpMult": 1.6,
+  "dmgMult": 1.1
+ },
+ {
+  "id": "linked",
+  "name": "Linked",
+  "desc": "Two foes share one life: damage to either hurts both.",
+  "hpMult": 1.3,
+  "dmgMult": 1.0
+ },
+ {
+  "id": "hasted",
+  "name": "Hasted",
+  "desc": "Moves and attacks faster.",
+  "hpMult": 1.4,
+  "dmgMult": 1.1
+ },
+ {
+  "id": "reinforcing",
+  "name": "Reinforcing",
+  "desc": "Calls three thralls at half health.",
+  "hpMult": 1.7,
+  "dmgMult": 1.1
+ }
+]

@@ -32,6 +32,16 @@ export function installDebug(d: DebugDeps): void {
     newGame: d.newGame,
     perf: () => ({ ...d.loop, ...d.gfx.info() }),
     replay: () => d.session()?.recorder.build() ?? null,
+    /** Debug-only travel: queues a room change the sim applies at the end of the next tick. */
+    goto: (node: string) => {
+      const w = d.session()?.world;
+      if (w) w.transition = { to: node, at: w.tick };
+    },
+    god: () => {
+      const w = d.session()?.world;
+      const e = w?.entities.find((x) => x.id === w.players[0]?.entity);
+      if (e) e.hp = e.hpMax = 99999;
+    },
   };
   (window as unknown as { __game: typeof hook }).__game = hook;
 }

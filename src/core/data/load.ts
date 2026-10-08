@@ -66,6 +66,7 @@ function hit(h: Raw): HitDef {
     guardBreak: !!h.guardBreak,
     tag: h.tag ?? 'light',
     cap: h.cap ?? 0.35,
+    at: h.at ?? 'self',
   };
 }
 
@@ -145,6 +146,7 @@ function projectile(p: Raw): ProjectileDef {
     stop: t(p.stopMs, 1),
     color: p.color ?? '#ffffff',
     fragile: !!p.fragile,
+    trigger: !!p.trigger,
   };
 }
 
@@ -187,8 +189,18 @@ function enemy(e: Raw): EnemyDef {
     weight: e.weight ?? 'light',
     xp: e.xp,
     bounty: e.bounty ?? 1,
-    attacks: e.attacks ?? [],
+    attacks: (e.attacks ?? []).map((a: Raw) => ({
+      action: a.action,
+      min: a.min ?? 0,
+      max: a.max ?? 2,
+      cd: t(a.cdMs, 1500),
+      kind: a.kind ?? 'melee',
+      weight: a.weight ?? 1,
+      needsPart: a.needsPart ?? null,
+    })),
     range: e.range ?? 1.6,
+    keep: e.keep ?? [0, e.range ?? 1.6],
+    aggro: e.aggro ?? 11,
     guard: e.guard ?? 'none',
     parts: e.parts ?? [],
     resist: e.resist ?? {},

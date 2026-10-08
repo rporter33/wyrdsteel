@@ -7,6 +7,7 @@ import { RoomMesh, PALETTES } from './level/roomMesh';
 import { EntityViews } from './views/entities';
 import { Effects } from './fx/effects';
 import { FeatureViews } from './views/features';
+import { Valkyrie } from './fx/valkyrie';
 
 export interface RenderOptions {
   lowFx: boolean;
@@ -22,6 +23,7 @@ export class GameRenderer {
   readonly views: EntityViews;
   readonly fx: Effects;
   readonly features: FeatureViews;
+  readonly valkyrie: Valkyrie;
   private room: RoomMesh | null = null;
   private roomKey = '';
   private hemi = new THREE.HemisphereLight(0xdfeeff, 0x1a222c, 1.1);
@@ -36,8 +38,9 @@ export class GameRenderer {
     this.views = new EntityViews(db);
     this.fx = new Effects(this.scene, this.rig);
     this.features = new FeatureViews();
+    this.valkyrie = new Valkyrie(document.getElementById('hud') ?? document.body);
     this.sun.position.set(-6, 14, 8);
-    this.scene.add(this.hemi, this.sun, this.views.group, this.features.group);
+    this.scene.add(this.hemi, this.sun, this.views.group, this.features.group, this.valkyrie.root);
     this.scene.fog = new THREE.Fog(0x0b1016, 26, 60);
   }
 
@@ -69,6 +72,7 @@ export class GameRenderer {
   frame(w: World, alpha: number, dtMs: number, events: SimEvent[], focusSlot: number, palette: string): void {
     this.ensureRoom(w, palette);
     const dt = dtMs / 1000;
+    this.views.camera = this.rig.camera;
     this.views.sync(w, alpha, dt);
     this.features.sync(w, dt);
     const p = w.players[focusSlot];
@@ -89,6 +93,7 @@ export class GameRenderer {
       this.rig.settings.shake = this.opts.shake;
       this.rig.update({ x, z }, { x: lx, z: lz }, dt, this.canvas.clientWidth / Math.max(1, this.canvas.clientHeight));
       this.room?.cutaway(x, z);
+      this.valkyrie.update(e.dead, x, z, dt);
     }
     this.fx.update(w, events, dt, this.opts, (id) => this.views.get(id));
     this.renderer.render(this.scene, this.rig.camera);

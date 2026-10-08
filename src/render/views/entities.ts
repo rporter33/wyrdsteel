@@ -4,17 +4,20 @@ import type { Entity, World } from '../../core/sim/types';
 import { buildHumanoid, type Rig } from '../models/humanoid';
 import { buildWeapon } from '../models/weapons';
 import { blobShadow, glow } from '../models/kit';
+void blobShadow;
 import { applyPose } from '../anim/poses';
 import { PALETTE, toon } from '../materials';
-import { buildEnemy, type EnemyModel } from '../models/enemies';
 import { buildNpc } from '../models/npcs';
+import { CrowdRenderer, type Proxy } from './crowd';
 
 interface View {
   id: number;
   kind: string;
   obj: THREE.Object3D;
   rig: Rig | null;
-  enemy: EnemyModel | null;
+  proxy: Proxy | null;
+  crowdKey: string;
+  shadowR: number;
   phase: number;
   melee: THREE.Object3D | null;
   meleeL: THREE.Object3D | null;
@@ -39,16 +42,49 @@ export const CLASS_STYLE: Record<string, { body: number; trim: number; cape: num
 };
 
 /** Keeps one scene object per sim entity, keyed by id, and moves it to the interpolated position. */
+const SHADOW_CAP = 160;
+
 export class EntityViews {
   readonly group = new THREE.Group();
   private views = new Map<number, View>();
   private frame = 0;
+  private crowd = new CrowdRenderer();
+  private shadows: THREE.InstancedMesh;
+  private barBg: THREE.InstancedMesh;
+  private barFill: THREE.InstancedMesh;
+  private readonly m4 = new THREE.Matrix4();
+  private readonly v3 = new THREE.Vector3();
+  private readonly s3 = new THREE.Vector3();
+  private readonly qFlat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+  camera: THREE.Camera | null = null;
 
-  constructor(private readonly db: ContentDb) {}
+  constructor(private readonly db: ContentDb) {
+    this.group.add(this.crowd.group);
+    const blob = blobShadow(0.5);
+    this.shadows = new THREE.InstancedMesh(blob.geometry, blob.material as THREE.Material, SHADOW_CAP);
+    this.shadows.count = 0;
+    this.shadows.frustumCulled = false;
+    this.shadows.renderOrder = -1;
+    const bar = new THREE.PlaneGeometry(1, 1).translate(0.5, 0, 0);
+    this.barBg = new THREE.InstancedMesh(bar, new THREE.MeshBasicMaterial({ color: 0x0b0f14, transparent: true, opacity: 0.8, depthTest: false }), 64);
+    this.barFill = new THREE.InstancedMesh(bar, new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }), 64);
+    this.barFill.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(64 * 3), 3);
+    for (const b of [this.barBg, this.barFill]) {
+      b.count = 0;
+      b.frustumCulled = false;
+      b.renderOrder = 20;
+    }
+    this.group.add(this.shadows, this.barBg, this.barFill);
+  }
 
   clear(): void {
-    for (const v of this.views.values()) this.group.remove(v.obj);
+    for (const v of this.views.values()) this.drop(v);
     this.views.clear();
+  }
+
+  private drop(v: View): void {
+    this.group.remove(v.obj);
+    if (v.proxy) this.crowd.release(v.crowdKey, v.proxy);
   }
 
   sync(w: World, alpha: number, dt: number): void {
@@ -65,10 +101,53 @@ export class EntityViews {
     }
     for (const [id, v] of this.views) {
       if (v.seen !== this.frame) {
-        this.group.remove(v.obj);
+        this.drop(v);
         this.views.delete(id);
       }
     }
+    this.writeShadowsAndBars(w);
+  }
+
+  private writeShadowsAndBars(w: World): void {
+    let n = 0;
+    let b = 0;
+    const camQ = this.camera ? this.camera.quaternion : new THREE.Quaternion();
+    const red = new THREE.Color(0xd04848);
+    const gold = new THREE.Color(0xf5c542);
+    const blue = new THREE.Color(0x9fd8ff);
+    for (const v of this.views.values()) {
+      if (v.shadowR <= 0 || n >= SHADOW_CAP) continue;
+      const o = v.obj.position;
+      this.v3.set(o.x, 0.03, o.z);
+      const sc = v.shadowR * 2.6 * (1 - Math.min(0.6, o.y * 0.15));
+      this.s3.set(sc, sc, 1);
+      this.m4.compose(this.v3, this.qFlat, this.s3);
+      this.shadows.setMatrixAt(n++, this.m4);
+      // Enemy health bars: shown once hurt, always for elites.
+      const e = w.entities.find((x) => x.id === v.id);
+      if (!e || e.kind !== 'enemy' || e.dead || b >= 64) continue;
+      const def = this.db.enemies[e.def];
+      if (!def || def.brain === 'dummy') continue;
+      if (e.hp >= e.hpMax && !e.elite && e.shield <= 0) continue;
+      const width = Math.min(2.4, 0.8 + e.r);
+      const y = o.y + e.h + 0.45;
+      this.v3.set(o.x - width / 2, y, o.z);
+      this.s3.set(width, 0.13, 1);
+      this.m4.compose(this.v3, camQ, this.s3);
+      this.barBg.setMatrixAt(b, this.m4);
+      const frac = Math.max(0, e.hp / e.hpMax);
+      this.s3.set(width * frac, 0.1, 1);
+      this.m4.compose(this.v3, camQ, this.s3);
+      this.barFill.setMatrixAt(b, this.m4);
+      this.barFill.setColorAt(b, e.shield > 0 ? blue : e.elite ? gold : red);
+      b++;
+    }
+    this.shadows.count = n;
+    this.shadows.instanceMatrix.needsUpdate = true;
+    this.barBg.count = this.barFill.count = b;
+    this.barBg.instanceMatrix.needsUpdate = true;
+    this.barFill.instanceMatrix.needsUpdate = true;
+    if (this.barFill.instanceColor) this.barFill.instanceColor.needsUpdate = true;
   }
 
   get(id: number): THREE.Object3D | null {
@@ -76,7 +155,7 @@ export class EntityViews {
   }
 
   private create(e: Entity, w: World): View {
-    const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, enemy: null, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, flash: [], seen: 0, deadAt: -1 };
+    const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, proxy: null, crowdKey: '', shadowR: 0, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, flash: [], seen: 0, deadAt: -1 };
     if (e.kind === 'player') {
       const slot = w.players.find((p) => p.entity === e.id);
       const cls = slot?.character.cls ?? 'berserker';
@@ -94,7 +173,8 @@ export class EntityViews {
         cyber: align === 'cyber' ? 2 : align === 'human' ? 0 : 1,
       });
       v.rig = rig;
-      v.obj.add(rig.root, blobShadow(0.45));
+      v.shadowR = 0.45;
+      v.obj.add(rig.root);
       const stats = slot?.stats;
       const meleeKind = stats?.meleeKind ?? 'sword';
       const rangedKind = stats?.rangedKind ?? 'pistols';
@@ -113,9 +193,17 @@ export class EntityViews {
       rig.root.traverse((o) => o instanceof THREE.Mesh && v.flash.push(o));
     } else if (e.kind === 'enemy') {
       const def = this.db.enemies[e.def];
-      v.enemy = buildEnemy(def?.model ?? e.def, def?.color ?? '#888888', e.elite ?? []);
-      v.rig = v.enemy.rig;
-      v.obj.add(v.enemy.root, blobShadow(e.r));
+      const got = this.crowd.acquire(def?.model ?? e.def, def?.color ?? '#888888', e.elite ?? []);
+      if (got) {
+        v.proxy = got.proxy;
+        v.crowdKey = got.key;
+        v.rig = got.proxy.model.rig;
+        // Elite rings are transparent, so they are drawn per enemy rather than instanced.
+        got.proxy.model.root.traverse((o) => {
+          if (o instanceof THREE.Mesh && (o.material as THREE.Material).transparent) v.obj.add(o.clone());
+        });
+      }
+      v.shadowR = e.r;
     } else if (e.kind === 'projectile') {
       const def = this.db.projectiles[e.def];
       const c = new THREE.Color(def?.color ?? '#ffffff').getHex();
@@ -136,7 +224,8 @@ export class EntityViews {
     } else if (e.kind === 'npc') {
       const n = buildNpc(e.def);
       v.rig = n;
-      v.obj.add(n.root, blobShadow(0.45));
+      v.shadowR = 0.45;
+      v.obj.add(n.root);
     } else {
       v.obj.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), toon(0x888888)));
     }
@@ -158,6 +247,10 @@ export class EntityViews {
       return;
     }
     const facing = Math.atan2(e.fx, e.fz);
+    if (v.proxy) {
+      v.proxy.holder.position.copy(v.obj.position);
+      v.proxy.holder.rotation.y = 0;
+    }
     if (v.rig) {
       v.rig.root.rotation.y = facing;
       const speed = Math.hypot(e.vx, e.vz);
@@ -186,11 +279,14 @@ export class EntityViews {
         aiming,
         hurt: Math.max(0, 1 - (w.tick - e.hurtAt) / 8),
       });
-      v.enemy?.update?.(e, w);
     }
-    // Hit flash: brief emissive pop on the whole model.
-    const flash = w.tick - e.hurtAt < 4;
-    if (v.enemy) v.enemy.flash(flash);
-    if (e.iframes && e.kind === 'player') v.obj.visible = (Math.floor(w.tick / 2) % 2 === 0) || true;
+    if (v.proxy) {
+      if (!v.rig) v.proxy.model.root.rotation.y = facing;
+      v.proxy.model.update?.(e, w);
+      v.proxy.flash = w.tick - e.hurtAt < 4 ? 1 : 0;
+      // Burrowed enemies sink out of sight.
+      if (e.ai && (e.ai.st === 'travel' || e.ai.st === 'burrowed')) v.proxy.holder.position.y = -3;
+      this.crowd.write(v.crowdKey, v.proxy);
+    }
   }
 }

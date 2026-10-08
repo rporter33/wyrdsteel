@@ -5,7 +5,8 @@ import { byId } from '../entity';
 import { BTN } from '../../input/frame';
 
 export function startAction(w: World, e: Entity, def: ActionDef, dx: number, dz: number, target = 0, node = ''): void {
-  e.act = { id: def.id, t: 0, hit: [], node, dx, dz, target, moved: 0 };
+  const tg = target ? byId(w, target) : null;
+  e.act = { id: def.id, t: 0, ax: tg ? tg.x : e.x + dx * 3, az: tg ? tg.z : e.z + dz * 3, hit: [], node, dx, dz, target, moved: 0 };
   e.fx = dx;
   e.fz = dz;
 }

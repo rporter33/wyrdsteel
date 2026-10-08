@@ -33,6 +33,9 @@ export interface Status {
 export interface Act {
   id: string;
   t: number;
+  /** Anchor for target-placed hits (ground circles, eruptions): fixed when the action starts. */
+  ax: number;
+  az: number;
   /** Entities already hit by each hit window, so one swing hits a target once. */
   hit: number[];
   node: string;
@@ -80,18 +83,23 @@ export interface AiComp {
   st: string;
   t: number;
   target: number;
-  token: boolean;
-  cd: number;
-  /** Second cooldown slot (special attack). */
-  cd2: number;
+  /** Attack token held: 0 none, 1 melee, 2 ranged, 3 heavy. */
+  token: number;
+  /** Cooldown per attack in the enemy's attack list, plus a global recovery. */
+  cds: number[];
+  gcd: number;
   homeX: number;
   homeZ: number;
   aggro: boolean;
-  /** Small scratch registers some archetypes use (tether target, burrow point, pattern index). */
+  /** Scratch registers some archetypes use (tether target, burrow timer, fuse). */
   a: number;
   b: number;
   c: number;
   enc: number;
+  /** Partner for the Linked elite affix. */
+  link: number;
+  /** Strafe direction while waiting for a token: 1 or -1. */
+  side: number;
 }
 
 /** An attacker's rolled damage and bonuses, captured when a blow or shot starts. */
@@ -222,6 +230,11 @@ export interface RoomState {
   h: number;
   /** Row-major tile codes; see level/grid.ts. */
   tiles: number[];
+  /** Bumped whenever a tile changes (cracked ice), so derived caches rebuild. */
+  ver: number;
+  /** Entrance point ('P' marker). */
+  spawnX: number;
+  spawnZ: number;
   /** Tick-varying hazard state per room feature (vents, geysers, braziers). */
   features: Feature[];
   encounters: EncounterState[];

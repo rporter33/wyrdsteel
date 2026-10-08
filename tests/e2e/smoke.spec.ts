@@ -61,6 +61,25 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   }
   expect((await player(page))!.pl.dealt).toBeGreaterThan(0);
 
+  // Enemies: travel to the arena, start an encounter, then die and come back.
+  await page.evaluate(() => {
+    const g = (window as unknown as { __game: { goto: (n: string) => void } }).__game;
+    g.goto('arena');
+  });
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __game: { world: () => { room: { id: string } } } }).__game.world().room.id)).toBe('arena');
+  const enemies = () => page.evaluate(() => (window as unknown as { __game: { world: () => { entities: { kind: string }[] } } }).__game.world().entities.filter((e) => e.kind === 'enemy').length);
+  await page.keyboard.down('KeyW');
+  await page.keyboard.down('KeyA');
+  await expect.poll(enemies, { timeout: 20_000 }).toBeGreaterThan(0);
+  await page.keyboard.up('KeyW');
+  await page.keyboard.up('KeyA');
+  await page.evaluate(() => {
+    const p = (window as unknown as { __game: { player: () => { hp: number } } }).__game.player();
+    p.hp = 0;
+  });
+  await expect.poll(async () => (await player(page)) as unknown as { dead: boolean }).toMatchObject({ dead: true });
+  await expect.poll(async () => ((await player(page)) as unknown as { dead: boolean }).dead, { timeout: 15_000 }).toBe(false);
+
   await page.screenshot({ path: 'test-results/smoke-game.png' });
   expect(errors).toEqual([]);
 });

@@ -11,6 +11,11 @@ import { hitSystem } from '../combat/hits';
 import { projectileSystem } from '../combat/projectiles';
 import { statusSystem } from '../combat/status';
 import { emitSystem } from '../combat/emit';
+import { aiSystem } from '../ai/system';
+import { encounterSystem } from '../level/encounters';
+import { playerSystem } from './systems/players';
+import { onEnemyDeath } from '../progression/drops';
+import { enterNode } from './world';
 
 /**
  * The only function that advances the world. Systems run in a fixed order; each reads the state
@@ -24,6 +29,7 @@ export function step(w: World, f: InputFrame, db: ContentDb): void {
     e.py = e.y;
   }
   controlSystem(w, f, db);
+  aiSystem(w, db);
   actionSystem(w, db);
   emitSystem(w, db);
   motionSystem(w, db);
@@ -31,8 +37,16 @@ export function step(w: World, f: InputFrame, db: ContentDb): void {
   projectileSystem(w, db);
   statusSystem(w);
   vitalsSystem(w, db);
-  deathSystem(w, db, []);
+  deathSystem(w, db, [onEnemyDeath]);
+  playerSystem(w, db);
+  encounterSystem(w, db);
   cleanupSystem(w);
   for (const e of w.entities) if (e.hitstop > 0) e.hitstop--;
   w.tick++;
+  // Room changes happen between ticks, inside the sim, so they replay identically.
+  if (w.transition) {
+    const to = w.transition.to;
+    w.transition = null;
+    enterNode(w, db, to, 'exit');
+  }
 }

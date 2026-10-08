@@ -11,6 +11,7 @@ import { setApi } from '../ui/api';
 import { panel, screen, version } from '../ui/store';
 import type { SimEvent } from '../core/sim/types';
 import { installDebug } from './debug';
+import { eventToasts } from './feedback';
 import { AudioEngine } from '../audio/engine';
 import { playEvents } from '../audio/sfx';
 import * as THREE from 'three';
@@ -115,6 +116,7 @@ const loop = startLoop({
     if (session) {
       gfx.frame(session.world, alpha, dt, pendingEvents, 0, db.rooms[session.world.room.id]?.palette ?? 'hall');
       playEvents(audio, session.world, pendingEvents, pan);
+      eventToasts(session.world, db, pendingEvents, 0);
       pendingEvents = [];
       hud.setHint(session.world.room.id === 'training' ? SANDBOX_HINT : '');
       hud.show(screen.value === 'game');

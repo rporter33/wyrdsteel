@@ -50,7 +50,8 @@ export function profile(w: World, db: ContentDb, src: Entity, ranged: boolean): 
   let base = def ? def.dmg + def.dmgPerLevel * (lvl - 1) : 10;
   base *= DIFF_DMG[w.difficulty]!;
   for (const el of src.elite ?? []) base *= db.elites[el]?.dmgMult ?? 1;
-  return { base, pct: 0, critChance: 0, critMult: 1, poiseMult: 1, statusPct: 0, lifesteal: 0, level: lvl, onHit: [], weakPct: 0, airPct: 0, ruinGain: 0 };
+  const onHit: Profile['onHit'] = (src.elite ?? []).includes('frostbound') ? [{ k: 'chill', amt: 30 }] : [];
+  return { base, pct: 0, critChance: 0, critMult: 1, poiseMult: 1, statusPct: 0, lifesteal: 0, level: lvl, onHit, weakPct: 0, airPct: 0, ruinGain: 0 };
 }
 
 export interface HitSpec {
@@ -134,7 +135,8 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   let armor = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.armor : (tdef?.armor ?? 0);
   if (t.boss) armor += t.boss.plating > 0 ? 400 : 0;
   const taken = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.dmgTakenPct : t.status.freeze > 0 ? 0.25 : 0;
-  const dmg = computeDamage({
+  const finisher = h.hit.tag === 'finisher';
+  const dmg = finisher ? Math.round(t.hpMax * (t.boss ? 0.08 : 0.35)) : computeDamage({
     base: h.prof.base,
     mult,
     pct,
@@ -155,6 +157,14 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   }
   t.hp -= dmg - absorbed;
   t.hurtAt = w.tick;
+  // Linked elites share one life: damage to either lands on both.
+  if (t.ai?.link) {
+    const partner = byId(w, t.ai.link);
+    if (partner && !partner.dead) {
+      partner.hp -= dmg - absorbed;
+      partner.hurtAt = w.tick;
+    }
+  }
   t.lastHit = src.kind === 'projectile' && src.proj ? src.proj.owner : src.id;
   t.lastHow = (airborne ? HOW_AIR : 0) | (behind ? HOW_BEHIND : 0) | (t.status.burn || t.status.chill || t.status.freeze || t.status.root ? HOW_STATUS : 0) | (weak > 1 ? HOW_WEAK : 0) | (h.ranged ? HOW_RANGED : 0);
   if (t.pl) {
@@ -217,7 +227,8 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   if (t.poise <= 0 && !armored) breakPoise(w, t, weight);
 
   // Statuses: the blow's own, plus the attacker's on-hit runes.
-  const resist = (k: StatusId) => (tdef?.resist[k] ?? 0) + (t.kind === 'player' ? 0.2 : 0);
+  const warded = (t.elite ?? []).includes('warded');
+  const resist = (k: StatusId) => (warded ? 1 : (tdef?.resist[k] ?? 0) + (t.kind === 'player' ? 0.2 : 0));
   const applied: (StatusId | 'freeze')[] = [];
   const boss = !!t.boss || weight === 'heavy';
   if (h.hit.status) {
@@ -247,6 +258,8 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
 
 function breakPoise(w: World, t: Entity, weight: string): void {
   t.poise = t.poiseMax;
+  // Breaking a Warded elite's poise strips the ward.
+  if (t.elite?.includes('warded')) t.elite = t.elite.filter((x) => x !== 'warded');
   t.poiseAt = w.tick + msToTicks(1500);
   if (weight === 'heavy' || t.boss) return;
   const down = weight === 'medium' && t.kind !== 'player';
@@ -314,8 +327,8 @@ export function inShape(a: Entity, t: Entity, hd: HitDef): boolean {
   const vx = t.x - a.x;
   const vz = t.z - a.z;
   if (hd.shape === 'circle') {
-    const cx = a.x + fx * hd.offset;
-    const cz = a.z + fz * hd.offset;
+    const cx = hd.at === 'target' && a.act ? a.act.ax : a.x + fx * hd.offset;
+    const cz = hd.at === 'target' && a.act ? a.act.az : a.z + fz * hd.offset;
     const dx = t.x - cx;
     const dz = t.z - cz;
     const r = hd.range + t.r;

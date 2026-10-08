@@ -1,11 +1,412 @@
 [
-  { "id": "dummy", "name": "Training Dummy", "brain": "dummy", "hp": 900, "dmg": 0, "speed": 0, "radius": 0.45, "height": 1.9, "poise": 45, "weight": "medium", "xp": 0, "model": "dummy", "color": "#b89a6a" },
-  { "id": "dummy.shield", "name": "Shield Dummy", "brain": "dummy", "hp": 900, "dmg": 0, "speed": 0, "radius": 0.6, "height": 1.95, "poise": 70, "weight": "medium", "guard": "front", "xp": 0, "model": "bulwark", "color": "#6b5a4a" },
-  { "id": "dummy.troll", "name": "Troll Effigy", "brain": "dummy", "hp": 3000, "dmg": 0, "speed": 0, "radius": 1.05, "height": 3.1, "poise": 999, "weight": "heavy", "xp": 0, "model": "troll", "color": "#6b6f5a",
-    "parts": [
-      { "id": "armL", "name": "Left arm", "hp": 260, "fwd": 0, "right": -0.95, "y": 2.2, "r": 0.45, "weak": 1.5, "effect": "noThrow" },
-      { "id": "armR", "name": "Right arm", "hp": 260, "fwd": 0, "right": 0.95, "y": 2.2, "r": 0.45, "weak": 1.5, "effect": "noThrow" },
-      { "id": "legL", "name": "Left leg", "hp": 320, "fwd": 0.2, "right": -0.45, "y": 0.6, "r": 0.45, "weak": 1.4, "effect": "kneel" },
-      { "id": "legR", "name": "Right leg", "hp": 320, "fwd": 0.2, "right": 0.45, "y": 0.6, "r": 0.45, "weak": 1.4, "effect": "kneel" }
-    ] }
+ {
+  "id": "dummy",
+  "name": "Training Dummy",
+  "brain": "dummy",
+  "hp": 900,
+  "dmg": 0,
+  "speed": 0,
+  "radius": 0.45,
+  "height": 1.9,
+  "poise": 45,
+  "weight": "medium",
+  "xp": 0,
+  "model": "dummy",
+  "color": "#b89a6a"
+ },
+ {
+  "id": "dummy.shield",
+  "name": "Shield Dummy",
+  "brain": "dummy",
+  "hp": 900,
+  "dmg": 0,
+  "speed": 0,
+  "radius": 0.6,
+  "height": 1.95,
+  "poise": 70,
+  "weight": "medium",
+  "guard": "front",
+  "xp": 0,
+  "model": "bulwark",
+  "color": "#6b5a4a"
+ },
+ {
+  "id": "dummy.troll",
+  "name": "Troll Effigy",
+  "brain": "dummy",
+  "hp": 3000,
+  "dmg": 0,
+  "speed": 0,
+  "radius": 1.05,
+  "height": 3.1,
+  "poise": 999,
+  "weight": "heavy",
+  "xp": 0,
+  "model": "troll",
+  "color": "#6b6f5a",
+  "parts": [
+   {
+    "id": "armL",
+    "name": "Left arm",
+    "hp": 260,
+    "fwd": 0,
+    "right": -0.95,
+    "y": 2.2,
+    "r": 0.45,
+    "weak": 1.5,
+    "effect": "noThrow"
+   },
+   {
+    "id": "armR",
+    "name": "Right arm",
+    "hp": 260,
+    "fwd": 0,
+    "right": 0.95,
+    "y": 2.2,
+    "r": 0.45,
+    "weak": 1.5,
+    "effect": "noThrow"
+   },
+   {
+    "id": "legL",
+    "name": "Left leg",
+    "hp": 320,
+    "fwd": 0.2,
+    "right": -0.45,
+    "y": 0.6,
+    "r": 0.45,
+    "weak": 1.4,
+    "effect": "kneel"
+   },
+   {
+    "id": "legR",
+    "name": "Right leg",
+    "hp": 320,
+    "fwd": 0.2,
+    "right": 0.45,
+    "y": 0.6,
+    "r": 0.45,
+    "weak": 1.4,
+    "effect": "kneel"
+   }
+  ]
+ },
+ {
+  "id": "thrall",
+  "name": "Thrall",
+  "brain": "thrall",
+  "hp": 55,
+  "dmg": 7,
+  "speed": 4.6,
+  "radius": 0.4,
+  "height": 1.45,
+  "poise": 14,
+  "weight": "light",
+  "xp": 6,
+  "bounty": 2,
+  "range": 1.7,
+  "keep": [
+   0,
+   1.7
+  ],
+  "model": "thrall",
+  "color": "#9a6a50",
+  "attacks": [
+   {
+    "action": "thrall.claw",
+    "min": 0,
+    "max": 2.0,
+    "cdMs": 1800,
+    "kind": "melee",
+    "weight": 3
+   },
+   {
+    "action": "thrall.lunge",
+    "min": 2.0,
+    "max": 4.2,
+    "cdMs": 4500,
+    "kind": "melee",
+    "weight": 2
+   }
+  ]
+ },
+ {
+  "id": "spiker",
+  "name": "Spiker",
+  "brain": "spiker",
+  "hp": 45,
+  "dmg": 8,
+  "speed": 4.2,
+  "radius": 0.4,
+  "height": 1.7,
+  "poise": 12,
+  "weight": "light",
+  "xp": 8,
+  "bounty": 3,
+  "range": 10,
+  "keep": [
+   6,
+   11
+  ],
+  "model": "spiker",
+  "color": "#7a8a4a",
+  "attacks": [
+   {
+    "action": "spiker.shot",
+    "min": 3,
+    "max": 13,
+    "cdMs": 2200,
+    "kind": "ranged",
+    "weight": 3
+   },
+   {
+    "action": "spiker.volley",
+    "min": 4,
+    "max": 12,
+    "cdMs": 6500,
+    "kind": "ranged",
+    "weight": 2
+   }
+  ]
+ },
+ {
+  "id": "bulwark",
+  "name": "Bulwark",
+  "brain": "bulwark",
+  "hp": 140,
+  "dmg": 12,
+  "speed": 3.0,
+  "radius": 0.6,
+  "height": 1.95,
+  "poise": 60,
+  "weight": "medium",
+  "guard": "front",
+  "xp": 16,
+  "bounty": 6,
+  "range": 2.2,
+  "keep": [
+   0,
+   2.2
+  ],
+  "model": "bulwark",
+  "color": "#8a7a6a",
+  "attacks": [
+   {
+    "action": "bulwark.bash",
+    "min": 0,
+    "max": 2.4,
+    "cdMs": 2600,
+    "kind": "melee",
+    "weight": 3
+   },
+   {
+    "action": "bulwark.charge",
+    "min": 3.5,
+    "max": 8,
+    "cdMs": 7000,
+    "kind": "melee",
+    "weight": 2
+   }
+  ]
+ },
+ {
+  "id": "frostwright",
+  "name": "Frostwright",
+  "brain": "frostwright",
+  "hp": 90,
+  "dmg": 10,
+  "speed": 3.2,
+  "radius": 0.45,
+  "height": 1.8,
+  "poise": 25,
+  "weight": "light",
+  "xp": 18,
+  "bounty": 6,
+  "range": 8,
+  "keep": [
+   5,
+   9
+  ],
+  "model": "frostwright",
+  "color": "#7aaad0",
+  "resist": {
+   "chill": 0.8
+  },
+  "attacks": [
+   {
+    "action": "fw.circle",
+    "min": 2,
+    "max": 11,
+    "cdMs": 4200,
+    "kind": "ranged",
+    "weight": 2
+   },
+   {
+    "action": "fw.shards",
+    "min": 3,
+    "max": 12,
+    "cdMs": 5200,
+    "kind": "ranged",
+    "weight": 2
+   }
+  ]
+ },
+ {
+  "id": "mender",
+  "name": "Mender",
+  "brain": "mender",
+  "hp": 60,
+  "dmg": 5,
+  "speed": 4.0,
+  "radius": 0.4,
+  "height": 1.55,
+  "poise": 18,
+  "weight": "light",
+  "xp": 14,
+  "bounty": 5,
+  "range": 8,
+  "keep": [
+   6,
+   10
+  ],
+  "model": "mender",
+  "color": "#6aa06a",
+  "attacks": [
+   {
+    "action": "mender.zap",
+    "min": 3,
+    "max": 11,
+    "cdMs": 2600,
+    "kind": "ranged",
+    "weight": 1
+   }
+  ]
+ },
+ {
+  "id": "troll",
+  "name": "Iron Troll",
+  "brain": "troll",
+  "hp": 520,
+  "dmg": 22,
+  "speed": 3.4,
+  "radius": 1.05,
+  "height": 3.1,
+  "poise": 999,
+  "weight": "heavy",
+  "xp": 80,
+  "bounty": 25,
+  "range": 3.4,
+  "keep": [
+   0,
+   3.4
+  ],
+  "aggro": 13,
+  "model": "troll",
+  "color": "#8a8f6a",
+  "drop": "elite",
+  "parts": [
+   {
+    "id": "armL",
+    "name": "Left arm",
+    "hp": 110,
+    "fwd": 0,
+    "right": -0.95,
+    "y": 2.2,
+    "r": 0.45,
+    "weak": 1.5,
+    "effect": "noThrow"
+   },
+   {
+    "id": "armR",
+    "name": "Right arm",
+    "hp": 110,
+    "fwd": 0,
+    "right": 0.95,
+    "y": 2.2,
+    "r": 0.45,
+    "weak": 1.5,
+    "effect": "noThrow"
+   },
+   {
+    "id": "legL",
+    "name": "Left leg",
+    "hp": 140,
+    "fwd": 0.2,
+    "right": -0.45,
+    "y": 0.6,
+    "r": 0.45,
+    "weak": 1.4,
+    "effect": "kneel"
+   },
+   {
+    "id": "legR",
+    "name": "Right leg",
+    "hp": 140,
+    "fwd": 0.2,
+    "right": 0.45,
+    "y": 0.6,
+    "r": 0.45,
+    "weak": 1.4,
+    "effect": "kneel"
+   }
+  ],
+  "attacks": [
+   {
+    "action": "troll.swipe",
+    "min": 0,
+    "max": 3.8,
+    "cdMs": 3000,
+    "kind": "heavy",
+    "weight": 3
+   },
+   {
+    "action": "troll.slam",
+    "min": 0,
+    "max": 3.2,
+    "cdMs": 6000,
+    "kind": "heavy",
+    "weight": 2
+   },
+   {
+    "action": "troll.grenade",
+    "min": 5,
+    "max": 14,
+    "cdMs": 5500,
+    "kind": "heavy",
+    "weight": 2,
+    "needsPart": "arm"
+   }
+  ]
+ },
+ {
+  "id": "burrower",
+  "name": "Burrower",
+  "brain": "burrower",
+  "hp": 110,
+  "dmg": 16,
+  "speed": 4.4,
+  "radius": 0.55,
+  "height": 1.0,
+  "poise": 30,
+  "weight": "medium",
+  "xp": 22,
+  "bounty": 7,
+  "range": 2.2,
+  "keep": [
+   0,
+   2.2
+  ],
+  "model": "burrower",
+  "color": "#7a5a9a",
+  "attacks": [
+   {
+    "action": "burrower.bite",
+    "min": 0,
+    "max": 2.4,
+    "cdMs": 2000,
+    "kind": "melee",
+    "weight": 1
+   }
+  ]
+ }
 ]

@@ -6,6 +6,7 @@ import { computeStats } from '../progression/stats';
 import { buildRoom, markersOf } from '../level/room';
 import { newEntity } from './entity';
 import { spawnEnemy } from './spawn';
+import { placeShade } from './systems/players';
 import { MAX_PLAYERS } from './constants';
 import { TEAM_PLAYERS, type Entity, type Feature, type PlayerSlot, type RoomState, type World } from './types';
 
@@ -68,7 +69,7 @@ export function createWorld(spec: StartSpec, db: ContentDb): World {
 }
 
 function emptyRoom(): RoomState {
-  return { id: '', variant: 0, w: 1, h: 1, tiles: [3], features: [], encounters: [], cleared: false, exits: [], surgeAt: -1, surgeEnd: -1, rule: '' };
+  return { id: '', variant: 0, w: 1, h: 1, tiles: [3], ver: 0, spawnX: 0, spawnZ: 0, features: [], encounters: [], cleared: false, exits: [], surgeAt: -1, surgeEnd: -1, rule: '' };
 }
 
 /** Resolve a zone node to its room. Training and hub rooms can be entered by room id directly. */
@@ -96,6 +97,9 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
     w: built.grid.w,
     h: built.grid.h,
     tiles: built.grid.tiles,
+    ver: 0,
+    spawnX: 0,
+    spawnZ: 0,
     features: [],
     encounters: [],
     cleared,
@@ -183,6 +187,8 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
   const starts = markersOf(built, 'P');
   const entryIdx = fromExit ? Math.max(0, starts.findIndex(() => true)) : 0;
   const start = starts[entryIdx] ?? { x: room.w / 2, z: room.h / 2 };
+  room.spawnX = start.x;
+  room.spawnZ = start.z;
   w.players.forEach((p, i) => {
     let e = w.entities.find((x) => x.id === p.entity);
     if (!e) e = spawnPlayer(w, p);
@@ -194,6 +200,7 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
     e.vx = e.vz = e.vy = 0;
     e.act = null;
   });
+  placeShade(w);
 }
 
 function npcFor(c: string): string {

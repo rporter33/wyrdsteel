@@ -1,1 +1,36 @@
-[]
+[
+ {
+  "id": "training",
+  "name": "Gladsheim Yard",
+  "desc": "The training yard behind the citadel.",
+  "start": "training",
+  "level": [
+   1,
+   3
+  ],
+  "palette": "hall",
+  "next": null,
+  "nodes": [
+   {
+    "id": "training",
+    "room": "training",
+    "next": [
+     "arena"
+    ],
+    "level": 1,
+    "align": null,
+    "optional": false
+   },
+   {
+    "id": "arena",
+    "room": "arena",
+    "next": [
+     "training"
+    ],
+    "level": 3,
+    "align": null,
+    "optional": false
+   }
+  ]
+ }
+]

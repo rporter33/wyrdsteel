@@ -28,6 +28,8 @@ export interface HitDef {
   tag: 'light' | 'heavy' | 'launcher' | 'air' | 'ability' | 'ruiner' | 'finisher' | 'enemy';
   /** Fraction of the target's max HP one hit may deal to a player. */
   cap: number;
+  /** Circle centred on the attacker ('self') or on the point targeted at action start ('target'). */
+  at: 'self' | 'target';
 }
 
 export interface ActionDef {
@@ -49,7 +51,7 @@ export interface ActionDef {
   shoot: { at: number[]; proj: string; count: number; spreadCos: number; spreadSin: number; dmg: number } | null;
   slam: boolean;
   /** Telegraph shown from action start until the first hit window, for enemy attacks. */
-  tele: { shape: 'circle' | 'line' | 'ring' | 'cone'; r: number; width: number } | null;
+  tele: { shape: 'circle' | 'line' | 'ring' | 'cone'; r: number; width: number; at?: 'target' } | null;
   /** Dash to a point (enemy charges, player gap closers): distance over the window. */
   dash: { from: number; to: number; dist: number } | null;
   buff: { stat: string; amt: number; dur: number } | null;
@@ -93,6 +95,8 @@ export interface ProjectileDef {
   color: string;
   /** Shootable (enemy shards can be shot down). */
   fragile: boolean;
+  /** Stationary shots that go off when a hostile steps close (mines). */
+  trigger: boolean;
 }
 
 export interface AbilityDef {
@@ -162,6 +166,19 @@ export interface PartDef {
   effect: string;
 }
 
+export interface AttackDef {
+  action: string;
+  /** Distance band this attack is chosen in. */
+  min: number;
+  max: number;
+  /** Cooldown, ticks. */
+  cd: number;
+  kind: 'melee' | 'ranged' | 'heavy';
+  weight: number;
+  /** Disabled once this part is broken (a troll with a broken arm stops throwing). */
+  needsPart: string | null;
+}
+
 export interface EnemyDef {
   id: string;
   name: string;
@@ -178,8 +195,11 @@ export interface EnemyDef {
   weight: 'light' | 'medium' | 'heavy';
   xp: number;
   bounty: number;
-  attacks: string[];
+  attacks: AttackDef[];
+  /** Preferred fighting distance band. */
   range: number;
+  keep: [number, number];
+  aggro: number;
   /** 'front' = blocks light melee and projectiles from the front. */
   guard: 'none' | 'front';
   parts: PartDef[];

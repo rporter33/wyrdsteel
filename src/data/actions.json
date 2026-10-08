@@ -1,80 +1,1518 @@
 [
-  { "id": "dodge.roll", "pose": "roll", "ms": 400, "move": 0, "turn": 0, "dash": [0, 300, 4.2], "iframesMs": [50, 230], "cancelMs": 300 },
-  { "id": "flask.drink", "pose": "cast", "ms": 450, "move": 0.5, "turn": 360 },
-
-  { "id": "b.l1", "pose": "slashR", "ms": 320, "move": 0.15, "turn": 120, "lunge": [20, 120, 1.2], "cancelMs": 200,
-    "hits": [{ "ms": [90, 140], "range": 2.3, "arc": 65, "dmg": 0.8, "poise": 8, "knock": 1.5, "stopMs": 45, "tag": "light" }] },
-  { "id": "b.l2", "pose": "slashL", "ms": 320, "move": 0.15, "turn": 120, "lunge": [20, 120, 1.2], "cancelMs": 200,
-    "hits": [{ "ms": [90, 140], "range": 2.3, "arc": 65, "dmg": 0.85, "poise": 8, "knock": 1.5, "stopMs": 45, "tag": "light" }] },
-  { "id": "b.l3", "pose": "twin", "ms": 380, "move": 0.1, "turn": 90, "lunge": [20, 140, 1.4], "cancelMs": 260,
-    "hits": [{ "ms": [100, 140], "range": 2.4, "arc": 70, "dmg": 0.6, "poise": 8, "stopMs": 35, "tag": "light" },
-             { "ms": [170, 210], "range": 2.4, "arc": 70, "dmg": 0.6, "poise": 10, "knock": 2, "stopMs": 50, "tag": "light" }] },
-  { "id": "b.l4", "pose": "spin", "ms": 560, "move": 0.2, "turn": 0, "cancelMs": 460,
-    "hits": [{ "ms": [150, 260], "shape": "circle", "range": 2.6, "dmg": 1.6, "poise": 30, "knock": 6, "stopMs": 80, "tag": "heavy" }] },
-  { "id": "b.h1", "pose": "overhead", "ms": 640, "turn": 60, "lunge": [80, 220, 1.6], "armorMs": [120, 360], "cancelMs": 480,
-    "hits": [{ "ms": [300, 360], "range": 2.6, "arc": 45, "dmg": 2.2, "poise": 45, "knock": 3, "guardBreak": true, "stopMs": 110, "tag": "heavy" }] },
-  { "id": "b.h2", "pose": "thrust", "ms": 520, "turn": 30, "dash": [120, 260, 3.2], "cancelMs": 400,
-    "hits": [{ "ms": [180, 300], "shape": "line", "range": 2.8, "width": 1.3, "dmg": 1.6, "poise": 30, "knock": 4, "guardBreak": true, "stopMs": 80, "tag": "heavy" }] },
-  { "id": "b.h3", "pose": "slam", "ms": 700, "turn": 0, "armorMs": [100, 420], "cancelMs": 560,
-    "hits": [{ "ms": [340, 400], "shape": "circle", "range": 3.0, "dmg": 2.4, "poise": 60, "knock": 7, "guardBreak": true, "stopMs": 120, "tag": "heavy" }] },
-  { "id": "b.up", "pose": "uppercut", "ms": 560, "turn": 60, "lunge": [40, 150, 1.0], "jump": [210, 12.5, true], "cancelMs": 300,
-    "hits": [{ "ms": [160, 230], "range": 2.4, "arc": 60, "dmg": 1.0, "poise": 20, "launch": 12, "stopMs": 70, "tag": "launcher" }] },
-  { "id": "b.a1", "pose": "slashR", "ms": 300, "air": true, "hover": 0.08, "turn": 120, "jump": [0, 2.0], "cancelMs": 190,
-    "hits": [{ "ms": [80, 140], "range": 2.4, "arc": 70, "y": [-1.6, 2.2], "dmg": 0.8, "poise": 6, "launch": 4.5, "stopMs": 50, "tag": "air" }] },
-  { "id": "b.a2", "pose": "slashL", "ms": 300, "air": true, "hover": 0.08, "turn": 120, "jump": [0, 2.0], "cancelMs": 190,
-    "hits": [{ "ms": [80, 140], "range": 2.4, "arc": 70, "y": [-1.6, 2.2], "dmg": 0.85, "poise": 6, "launch": 4.5, "stopMs": 50, "tag": "air" }] },
-  { "id": "b.a3", "pose": "twin", "ms": 360, "air": true, "hover": 0.08, "turn": 90, "jump": [0, 2.0], "cancelMs": 240,
-    "hits": [{ "ms": [100, 170], "range": 2.5, "arc": 75, "y": [-1.6, 2.2], "dmg": 1.1, "poise": 10, "launch": 5, "stopMs": 60, "tag": "air" }] },
-  { "id": "b.slam", "pose": "slam", "ms": 520, "air": true, "slam": true, "turn": 0, "cancelMs": 460,
-    "hits": [{ "ms": [60, 300], "shape": "circle", "range": 2.8, "y": [-3, 2], "dmg": 1.8, "poise": 40, "down": true, "knock": 3, "stopMs": 90, "tag": "heavy" }] },
-
-  { "id": "s.l1", "pose": "slashR", "ms": 400, "move": 0.1, "turn": 100, "lunge": [30, 150, 1.2], "cancelMs": 260,
-    "hits": [{ "ms": [120, 180], "range": 2.6, "arc": 75, "dmg": 1.0, "poise": 12, "knock": 2, "stopMs": 55, "tag": "light" }] },
-  { "id": "s.l2", "pose": "slashL", "ms": 400, "move": 0.1, "turn": 100, "lunge": [30, 150, 1.2], "cancelMs": 260,
-    "hits": [{ "ms": [120, 180], "range": 2.6, "arc": 75, "dmg": 1.05, "poise": 12, "knock": 2, "stopMs": 55, "tag": "light" }] },
-  { "id": "s.l3", "pose": "thrust", "ms": 520, "turn": 60, "lunge": [40, 220, 2.0], "cancelMs": 400,
-    "hits": [{ "ms": [180, 260], "shape": "line", "range": 2.9, "width": 1.1, "dmg": 1.5, "poise": 25, "knock": 5, "stopMs": 80, "tag": "heavy" }] },
-  { "id": "s.h1", "pose": "overhead", "ms": 680, "turn": 60, "lunge": [80, 240, 1.4], "armorMs": [120, 380], "cancelMs": 520,
-    "hits": [{ "ms": [320, 380], "range": 2.7, "arc": 50, "dmg": 2.4, "poise": 50, "knock": 3, "guardBreak": true, "stopMs": 110, "tag": "heavy" }] },
-  { "id": "s.up", "pose": "uppercut", "ms": 580, "turn": 60, "lunge": [40, 150, 1.0], "jump": [220, 12, true], "cancelMs": 320,
-    "hits": [{ "ms": [170, 240], "range": 2.5, "arc": 60, "dmg": 1.1, "poise": 22, "launch": 11.5, "stopMs": 70, "tag": "launcher" }] },
-  { "id": "s.a1", "pose": "slashR", "ms": 360, "air": true, "hover": 0.1, "turn": 100, "jump": [0, 2.0], "cancelMs": 240,
-    "hits": [{ "ms": [100, 170], "range": 2.6, "arc": 75, "y": [-1.6, 2.2], "dmg": 1.0, "poise": 8, "launch": 4.5, "stopMs": 55, "tag": "air" }] },
-  { "id": "s.a2", "pose": "slashL", "ms": 360, "air": true, "hover": 0.1, "turn": 100, "jump": [0, 2.0], "cancelMs": 240,
-    "hits": [{ "ms": [100, 170], "range": 2.6, "arc": 75, "y": [-1.6, 2.2], "dmg": 1.05, "poise": 8, "launch": 4.5, "stopMs": 55, "tag": "air" }] },
-  { "id": "s.slam", "pose": "slam", "ms": 560, "air": true, "slam": true, "turn": 0, "cancelMs": 480,
-    "hits": [{ "ms": [60, 320], "shape": "circle", "range": 2.8, "y": [-3, 2], "dmg": 2.0, "poise": 45, "down": true, "knock": 3, "stopMs": 90, "tag": "heavy" }] },
-
-  { "id": "g.l1", "pose": "slashR", "ms": 560, "move": 0.05, "turn": 80, "lunge": [40, 200, 1.0], "armorMs": [140, 300], "cancelMs": 400,
-    "hits": [{ "ms": [220, 300], "range": 3.1, "arc": 95, "dmg": 1.5, "poise": 20, "knock": 3.5, "stopMs": 80, "tag": "light" }] },
-  { "id": "g.l2", "pose": "slashL", "ms": 600, "move": 0.05, "turn": 80, "lunge": [40, 200, 1.0], "armorMs": [140, 320], "cancelMs": 430,
-    "hits": [{ "ms": [240, 320], "range": 3.1, "arc": 95, "dmg": 1.6, "poise": 22, "knock": 3.5, "stopMs": 80, "tag": "light" }] },
-  { "id": "g.l3", "pose": "spin", "ms": 760, "move": 0.15, "turn": 0, "armorMs": [100, 520], "cancelMs": 640,
-    "hits": [{ "ms": [260, 420], "shape": "circle", "range": 3.3, "dmg": 2.4, "poise": 40, "knock": 7, "stopMs": 110, "tag": "heavy" }] },
-  { "id": "g.h1", "pose": "overhead", "ms": 900, "turn": 40, "lunge": [100, 300, 1.2], "armorMs": [120, 560], "cancelMs": 720,
-    "hits": [{ "ms": [480, 560], "range": 3.0, "arc": 45, "dmg": 3.6, "poise": 80, "knock": 4, "guardBreak": true, "stopMs": 140, "tag": "heavy" }] },
-  { "id": "g.up", "pose": "uppercut", "ms": 680, "turn": 60, "lunge": [40, 180, 1.0], "jump": [280, 12, true], "cancelMs": 400,
-    "hits": [{ "ms": [230, 300], "range": 2.8, "arc": 70, "dmg": 1.5, "poise": 30, "launch": 12, "stopMs": 90, "tag": "launcher" }] },
-  { "id": "g.a1", "pose": "overhead", "ms": 460, "air": true, "hover": 0.1, "turn": 80, "jump": [0, 2.2], "cancelMs": 330,
-    "hits": [{ "ms": [160, 240], "range": 2.9, "arc": 80, "y": [-1.6, 2.2], "dmg": 1.4, "poise": 14, "launch": 5, "stopMs": 70, "tag": "air" }] },
-  { "id": "g.slam", "pose": "slam", "ms": 620, "air": true, "slam": true, "turn": 0, "cancelMs": 540,
-    "hits": [{ "ms": [60, 340], "shape": "circle", "range": 3.4, "y": [-3, 2], "dmg": 2.8, "poise": 60, "down": true, "knock": 4, "stopMs": 110, "tag": "heavy" }] },
-
-  { "id": "zerk.leap", "pose": "leap", "ms": 760, "turn": 0, "dash": [80, 520, 6.5], "jump": [80, 9], "iframesMs": [80, 420], "cancelMs": 700,
-    "hits": [{ "ms": [560, 640], "shape": "circle", "range": 3.2, "y": [-2, 2.5], "dmg": 2.0, "poise": 60, "knock": 6, "guardBreak": true, "stopMs": 90, "tag": "heavy" }] },
-  { "id": "zerk.whirl", "pose": "spin", "ms": 1100, "move": 0.55, "turn": 0, "armorMs": [0, 1100], "cancelMs": 1000,
-    "hits": [{ "ms": [100, 160], "shape": "circle", "range": 2.6, "dmg": 0.7, "poise": 12, "knock": 2, "stopMs": 25, "tag": "ability" },
-             { "ms": [300, 360], "shape": "circle", "range": 2.6, "dmg": 0.7, "poise": 12, "knock": 2, "stopMs": 25, "tag": "ability" },
-             { "ms": [500, 560], "shape": "circle", "range": 2.6, "dmg": 0.7, "poise": 12, "knock": 2, "stopMs": 25, "tag": "ability" },
-             { "ms": [700, 760], "shape": "circle", "range": 2.6, "dmg": 0.7, "poise": 12, "knock": 2, "stopMs": 25, "tag": "ability" },
-             { "ms": [900, 960], "shape": "circle", "range": 2.8, "dmg": 1.2, "poise": 25, "knock": 6, "stopMs": 60, "tag": "ability" }] },
-  { "id": "zerk.howl", "pose": "howl", "ms": 700, "turn": 0, "buff": { "stat": "dmgPct", "amt": 0.3, "ms": 8000 },
-    "hits": [{ "ms": [200, 260], "shape": "circle", "range": 5, "dmg": 0.3, "poise": 50, "knock": 5, "stopMs": 30, "tag": "ability" }] },
-  { "id": "zerk.rend", "pose": "thrust", "ms": 620, "turn": 40, "lunge": [60, 200, 2.5], "cancelMs": 500,
-    "hits": [{ "ms": [220, 300], "shape": "line", "range": 3.0, "width": 1.4, "dmg": 2.8, "poise": 35, "knock": 2, "status": { "k": "burn", "amt": 70 }, "stopMs": 100, "tag": "ability" }] },
-
-  { "id": "cmdo.grenade", "pose": "throw", "ms": 520, "turn": 0, "cancelMs": 420, "shoot": { "ms": [260], "proj": "grenade", "dmg": 2.2 } },
-  { "id": "cmdo.mine", "pose": "throw", "ms": 400, "turn": 0, "cancelMs": 320, "shoot": { "ms": [200], "proj": "mine", "dmg": 1.8 } },
-  { "id": "cmdo.slug", "pose": "shoot", "ms": 820, "turn": 30, "armorMs": [0, 820], "cancelMs": 720, "shoot": { "ms": [560], "proj": "slug", "dmg": 4.0 } },
-  { "id": "cmdo.volley", "pose": "shoot", "ms": 600, "turn": 0, "cancelMs": 500, "shoot": { "ms": [200], "proj": "round", "count": 5, "spread": 8, "dmg": 1.1 } }
+ {
+  "id": "dodge.roll",
+  "pose": "roll",
+  "ms": 400,
+  "move": 0,
+  "turn": 0,
+  "dash": [
+   0,
+   300,
+   4.2
+  ],
+  "iframesMs": [
+   50,
+   230
+  ],
+  "cancelMs": 300
+ },
+ {
+  "id": "flask.drink",
+  "pose": "cast",
+  "ms": 450,
+  "move": 0.5,
+  "turn": 360
+ },
+ {
+  "id": "b.l1",
+  "pose": "slashR",
+  "ms": 320,
+  "move": 0.15,
+  "turn": 120,
+  "lunge": [
+   20,
+   120,
+   1.2
+  ],
+  "cancelMs": 200,
+  "hits": [
+   {
+    "ms": [
+     90,
+     140
+    ],
+    "range": 2.3,
+    "arc": 65,
+    "dmg": 0.8,
+    "poise": 8,
+    "knock": 1.5,
+    "stopMs": 45,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "b.l2",
+  "pose": "slashL",
+  "ms": 320,
+  "move": 0.15,
+  "turn": 120,
+  "lunge": [
+   20,
+   120,
+   1.2
+  ],
+  "cancelMs": 200,
+  "hits": [
+   {
+    "ms": [
+     90,
+     140
+    ],
+    "range": 2.3,
+    "arc": 65,
+    "dmg": 0.85,
+    "poise": 8,
+    "knock": 1.5,
+    "stopMs": 45,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "b.l3",
+  "pose": "twin",
+  "ms": 380,
+  "move": 0.1,
+  "turn": 90,
+  "lunge": [
+   20,
+   140,
+   1.4
+  ],
+  "cancelMs": 260,
+  "hits": [
+   {
+    "ms": [
+     100,
+     140
+    ],
+    "range": 2.4,
+    "arc": 70,
+    "dmg": 0.6,
+    "poise": 8,
+    "stopMs": 35,
+    "tag": "light"
+   },
+   {
+    "ms": [
+     170,
+     210
+    ],
+    "range": 2.4,
+    "arc": 70,
+    "dmg": 0.6,
+    "poise": 10,
+    "knock": 2,
+    "stopMs": 50,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "b.l4",
+  "pose": "spin",
+  "ms": 560,
+  "move": 0.2,
+  "turn": 0,
+  "cancelMs": 460,
+  "hits": [
+   {
+    "ms": [
+     150,
+     260
+    ],
+    "shape": "circle",
+    "range": 2.6,
+    "dmg": 1.6,
+    "poise": 30,
+    "knock": 6,
+    "stopMs": 80,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "b.h1",
+  "pose": "overhead",
+  "ms": 640,
+  "turn": 60,
+  "lunge": [
+   80,
+   220,
+   1.6
+  ],
+  "armorMs": [
+   120,
+   360
+  ],
+  "cancelMs": 480,
+  "hits": [
+   {
+    "ms": [
+     300,
+     360
+    ],
+    "range": 2.6,
+    "arc": 45,
+    "dmg": 2.2,
+    "poise": 45,
+    "knock": 3,
+    "guardBreak": true,
+    "stopMs": 110,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "b.h2",
+  "pose": "thrust",
+  "ms": 520,
+  "turn": 30,
+  "dash": [
+   120,
+   260,
+   3.2
+  ],
+  "cancelMs": 400,
+  "hits": [
+   {
+    "ms": [
+     180,
+     300
+    ],
+    "shape": "line",
+    "range": 2.8,
+    "width": 1.3,
+    "dmg": 1.6,
+    "poise": 30,
+    "knock": 4,
+    "guardBreak": true,
+    "stopMs": 80,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "b.h3",
+  "pose": "slam",
+  "ms": 700,
+  "turn": 0,
+  "armorMs": [
+   100,
+   420
+  ],
+  "cancelMs": 560,
+  "hits": [
+   {
+    "ms": [
+     340,
+     400
+    ],
+    "shape": "circle",
+    "range": 3.0,
+    "dmg": 2.4,
+    "poise": 60,
+    "knock": 7,
+    "guardBreak": true,
+    "stopMs": 120,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "b.up",
+  "pose": "uppercut",
+  "ms": 560,
+  "turn": 60,
+  "lunge": [
+   40,
+   150,
+   1.0
+  ],
+  "jump": [
+   210,
+   12.5,
+   true
+  ],
+  "cancelMs": 300,
+  "hits": [
+   {
+    "ms": [
+     160,
+     230
+    ],
+    "range": 2.4,
+    "arc": 60,
+    "dmg": 1.0,
+    "poise": 20,
+    "launch": 12,
+    "stopMs": 70,
+    "tag": "launcher"
+   }
+  ]
+ },
+ {
+  "id": "b.a1",
+  "pose": "slashR",
+  "ms": 300,
+  "air": true,
+  "hover": 0.08,
+  "turn": 120,
+  "jump": [
+   0,
+   2.0
+  ],
+  "cancelMs": 190,
+  "hits": [
+   {
+    "ms": [
+     80,
+     140
+    ],
+    "range": 2.4,
+    "arc": 70,
+    "y": [
+     -1.6,
+     2.2
+    ],
+    "dmg": 0.8,
+    "poise": 6,
+    "launch": 4.5,
+    "stopMs": 50,
+    "tag": "air"
+   }
+  ]
+ },
+ {
+  "id": "b.a2",
+  "pose": "slashL",
+  "ms": 300,
+  "air": true,
+  "hover": 0.08,
+  "turn": 120,
+  "jump": [
+   0,
+   2.0
+  ],
+  "cancelMs": 190,
+  "hits": [
+   {
+    "ms": [
+     80,
+     140
+    ],
+    "range": 2.4,
+    "arc": 70,
+    "y": [
+     -1.6,
+     2.2
+    ],
+    "dmg": 0.85,
+    "poise": 6,
+    "launch": 4.5,
+    "stopMs": 50,
+    "tag": "air"
+   }
+  ]
+ },
+ {
+  "id": "b.a3",
+  "pose": "twin",
+  "ms": 360,
+  "air": true,
+  "hover": 0.08,
+  "turn": 90,
+  "jump": [
+   0,
+   2.0
+  ],
+  "cancelMs": 240,
+  "hits": [
+   {
+    "ms": [
+     100,
+     170
+    ],
+    "range": 2.5,
+    "arc": 75,
+    "y": [
+     -1.6,
+     2.2
+    ],
+    "dmg": 1.1,
+    "poise": 10,
+    "launch": 5,
+    "stopMs": 60,
+    "tag": "air"
+   }
+  ]
+ },
+ {
+  "id": "b.slam",
+  "pose": "slam",
+  "ms": 520,
+  "air": true,
+  "slam": true,
+  "turn": 0,
+  "cancelMs": 460,
+  "hits": [
+   {
+    "ms": [
+     60,
+     300
+    ],
+    "shape": "circle",
+    "range": 2.8,
+    "y": [
+     -3,
+     2
+    ],
+    "dmg": 1.8,
+    "poise": 40,
+    "down": true,
+    "knock": 3,
+    "stopMs": 90,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "s.l1",
+  "pose": "slashR",
+  "ms": 400,
+  "move": 0.1,
+  "turn": 100,
+  "lunge": [
+   30,
+   150,
+   1.2
+  ],
+  "cancelMs": 260,
+  "hits": [
+   {
+    "ms": [
+     120,
+     180
+    ],
+    "range": 2.6,
+    "arc": 75,
+    "dmg": 1.0,
+    "poise": 12,
+    "knock": 2,
+    "stopMs": 55,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "s.l2",
+  "pose": "slashL",
+  "ms": 400,
+  "move": 0.1,
+  "turn": 100,
+  "lunge": [
+   30,
+   150,
+   1.2
+  ],
+  "cancelMs": 260,
+  "hits": [
+   {
+    "ms": [
+     120,
+     180
+    ],
+    "range": 2.6,
+    "arc": 75,
+    "dmg": 1.05,
+    "poise": 12,
+    "knock": 2,
+    "stopMs": 55,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "s.l3",
+  "pose": "thrust",
+  "ms": 520,
+  "turn": 60,
+  "lunge": [
+   40,
+   220,
+   2.0
+  ],
+  "cancelMs": 400,
+  "hits": [
+   {
+    "ms": [
+     180,
+     260
+    ],
+    "shape": "line",
+    "range": 2.9,
+    "width": 1.1,
+    "dmg": 1.5,
+    "poise": 25,
+    "knock": 5,
+    "stopMs": 80,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "s.h1",
+  "pose": "overhead",
+  "ms": 680,
+  "turn": 60,
+  "lunge": [
+   80,
+   240,
+   1.4
+  ],
+  "armorMs": [
+   120,
+   380
+  ],
+  "cancelMs": 520,
+  "hits": [
+   {
+    "ms": [
+     320,
+     380
+    ],
+    "range": 2.7,
+    "arc": 50,
+    "dmg": 2.4,
+    "poise": 50,
+    "knock": 3,
+    "guardBreak": true,
+    "stopMs": 110,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "s.up",
+  "pose": "uppercut",
+  "ms": 580,
+  "turn": 60,
+  "lunge": [
+   40,
+   150,
+   1.0
+  ],
+  "jump": [
+   220,
+   12,
+   true
+  ],
+  "cancelMs": 320,
+  "hits": [
+   {
+    "ms": [
+     170,
+     240
+    ],
+    "range": 2.5,
+    "arc": 60,
+    "dmg": 1.1,
+    "poise": 22,
+    "launch": 11.5,
+    "stopMs": 70,
+    "tag": "launcher"
+   }
+  ]
+ },
+ {
+  "id": "s.a1",
+  "pose": "slashR",
+  "ms": 360,
+  "air": true,
+  "hover": 0.1,
+  "turn": 100,
+  "jump": [
+   0,
+   2.0
+  ],
+  "cancelMs": 240,
+  "hits": [
+   {
+    "ms": [
+     100,
+     170
+    ],
+    "range": 2.6,
+    "arc": 75,
+    "y": [
+     -1.6,
+     2.2
+    ],
+    "dmg": 1.0,
+    "poise": 8,
+    "launch": 4.5,
+    "stopMs": 55,
+    "tag": "air"
+   }
+  ]
+ },
+ {
+  "id": "s.a2",
+  "pose": "slashL",
+  "ms": 360,
+  "air": true,
+  "hover": 0.1,
+  "turn": 100,
+  "jump": [
+   0,
+   2.0
+  ],
+  "cancelMs": 240,
+  "hits": [
+   {
+    "ms": [
+     100,
+     170
+    ],
+    "range": 2.6,
+    "arc": 75,
+    "y": [
+     -1.6,
+     2.2
+    ],
+    "dmg": 1.05,
+    "poise": 8,
+    "launch": 4.5,
+    "stopMs": 55,
+    "tag": "air"
+   }
+  ]
+ },
+ {
+  "id": "s.slam",
+  "pose": "slam",
+  "ms": 560,
+  "air": true,
+  "slam": true,
+  "turn": 0,
+  "cancelMs": 480,
+  "hits": [
+   {
+    "ms": [
+     60,
+     320
+    ],
+    "shape": "circle",
+    "range": 2.8,
+    "y": [
+     -3,
+     2
+    ],
+    "dmg": 2.0,
+    "poise": 45,
+    "down": true,
+    "knock": 3,
+    "stopMs": 90,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "g.l1",
+  "pose": "slashR",
+  "ms": 560,
+  "move": 0.05,
+  "turn": 80,
+  "lunge": [
+   40,
+   200,
+   1.0
+  ],
+  "armorMs": [
+   140,
+   300
+  ],
+  "cancelMs": 400,
+  "hits": [
+   {
+    "ms": [
+     220,
+     300
+    ],
+    "range": 3.1,
+    "arc": 95,
+    "dmg": 1.5,
+    "poise": 20,
+    "knock": 3.5,
+    "stopMs": 80,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "g.l2",
+  "pose": "slashL",
+  "ms": 600,
+  "move": 0.05,
+  "turn": 80,
+  "lunge": [
+   40,
+   200,
+   1.0
+  ],
+  "armorMs": [
+   140,
+   320
+  ],
+  "cancelMs": 430,
+  "hits": [
+   {
+    "ms": [
+     240,
+     320
+    ],
+    "range": 3.1,
+    "arc": 95,
+    "dmg": 1.6,
+    "poise": 22,
+    "knock": 3.5,
+    "stopMs": 80,
+    "tag": "light"
+   }
+  ]
+ },
+ {
+  "id": "g.l3",
+  "pose": "spin",
+  "ms": 760,
+  "move": 0.15,
+  "turn": 0,
+  "armorMs": [
+   100,
+   520
+  ],
+  "cancelMs": 640,
+  "hits": [
+   {
+    "ms": [
+     260,
+     420
+    ],
+    "shape": "circle",
+    "range": 3.3,
+    "dmg": 2.4,
+    "poise": 40,
+    "knock": 7,
+    "stopMs": 110,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "g.h1",
+  "pose": "overhead",
+  "ms": 900,
+  "turn": 40,
+  "lunge": [
+   100,
+   300,
+   1.2
+  ],
+  "armorMs": [
+   120,
+   560
+  ],
+  "cancelMs": 720,
+  "hits": [
+   {
+    "ms": [
+     480,
+     560
+    ],
+    "range": 3.0,
+    "arc": 45,
+    "dmg": 3.6,
+    "poise": 80,
+    "knock": 4,
+    "guardBreak": true,
+    "stopMs": 140,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "g.up",
+  "pose": "uppercut",
+  "ms": 680,
+  "turn": 60,
+  "lunge": [
+   40,
+   180,
+   1.0
+  ],
+  "jump": [
+   280,
+   12,
+   true
+  ],
+  "cancelMs": 400,
+  "hits": [
+   {
+    "ms": [
+     230,
+     300
+    ],
+    "range": 2.8,
+    "arc": 70,
+    "dmg": 1.5,
+    "poise": 30,
+    "launch": 12,
+    "stopMs": 90,
+    "tag": "launcher"
+   }
+  ]
+ },
+ {
+  "id": "g.a1",
+  "pose": "overhead",
+  "ms": 460,
+  "air": true,
+  "hover": 0.1,
+  "turn": 80,
+  "jump": [
+   0,
+   2.2
+  ],
+  "cancelMs": 330,
+  "hits": [
+   {
+    "ms": [
+     160,
+     240
+    ],
+    "range": 2.9,
+    "arc": 80,
+    "y": [
+     -1.6,
+     2.2
+    ],
+    "dmg": 1.4,
+    "poise": 14,
+    "launch": 5,
+    "stopMs": 70,
+    "tag": "air"
+   }
+  ]
+ },
+ {
+  "id": "g.slam",
+  "pose": "slam",
+  "ms": 620,
+  "air": true,
+  "slam": true,
+  "turn": 0,
+  "cancelMs": 540,
+  "hits": [
+   {
+    "ms": [
+     60,
+     340
+    ],
+    "shape": "circle",
+    "range": 3.4,
+    "y": [
+     -3,
+     2
+    ],
+    "dmg": 2.8,
+    "poise": 60,
+    "down": true,
+    "knock": 4,
+    "stopMs": 110,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "zerk.leap",
+  "pose": "leap",
+  "ms": 760,
+  "turn": 0,
+  "dash": [
+   80,
+   520,
+   6.5
+  ],
+  "jump": [
+   80,
+   9
+  ],
+  "iframesMs": [
+   80,
+   420
+  ],
+  "cancelMs": 700,
+  "hits": [
+   {
+    "ms": [
+     560,
+     640
+    ],
+    "shape": "circle",
+    "range": 3.2,
+    "y": [
+     -2,
+     2.5
+    ],
+    "dmg": 2.0,
+    "poise": 60,
+    "knock": 6,
+    "guardBreak": true,
+    "stopMs": 90,
+    "tag": "heavy"
+   }
+  ]
+ },
+ {
+  "id": "zerk.whirl",
+  "pose": "spin",
+  "ms": 1100,
+  "move": 0.55,
+  "turn": 0,
+  "armorMs": [
+   0,
+   1100
+  ],
+  "cancelMs": 1000,
+  "hits": [
+   {
+    "ms": [
+     100,
+     160
+    ],
+    "shape": "circle",
+    "range": 2.6,
+    "dmg": 0.7,
+    "poise": 12,
+    "knock": 2,
+    "stopMs": 25,
+    "tag": "ability"
+   },
+   {
+    "ms": [
+     300,
+     360
+    ],
+    "shape": "circle",
+    "range": 2.6,
+    "dmg": 0.7,
+    "poise": 12,
+    "knock": 2,
+    "stopMs": 25,
+    "tag": "ability"
+   },
+   {
+    "ms": [
+     500,
+     560
+    ],
+    "shape": "circle",
+    "range": 2.6,
+    "dmg": 0.7,
+    "poise": 12,
+    "knock": 2,
+    "stopMs": 25,
+    "tag": "ability"
+   },
+   {
+    "ms": [
+     700,
+     760
+    ],
+    "shape": "circle",
+    "range": 2.6,
+    "dmg": 0.7,
+    "poise": 12,
+    "knock": 2,
+    "stopMs": 25,
+    "tag": "ability"
+   },
+   {
+    "ms": [
+     900,
+     960
+    ],
+    "shape": "circle",
+    "range": 2.8,
+    "dmg": 1.2,
+    "poise": 25,
+    "knock": 6,
+    "stopMs": 60,
+    "tag": "ability"
+   }
+  ]
+ },
+ {
+  "id": "zerk.howl",
+  "pose": "howl",
+  "ms": 700,
+  "turn": 0,
+  "buff": {
+   "stat": "dmgPct",
+   "amt": 0.3,
+   "ms": 8000
+  },
+  "hits": [
+   {
+    "ms": [
+     200,
+     260
+    ],
+    "shape": "circle",
+    "range": 5,
+    "dmg": 0.3,
+    "poise": 50,
+    "knock": 5,
+    "stopMs": 30,
+    "tag": "ability"
+   }
+  ]
+ },
+ {
+  "id": "zerk.rend",
+  "pose": "thrust",
+  "ms": 620,
+  "turn": 40,
+  "lunge": [
+   60,
+   200,
+   2.5
+  ],
+  "cancelMs": 500,
+  "hits": [
+   {
+    "ms": [
+     220,
+     300
+    ],
+    "shape": "line",
+    "range": 3.0,
+    "width": 1.4,
+    "dmg": 2.8,
+    "poise": 35,
+    "knock": 2,
+    "status": {
+     "k": "burn",
+     "amt": 70
+    },
+    "stopMs": 100,
+    "tag": "ability"
+   }
+  ]
+ },
+ {
+  "id": "cmdo.grenade",
+  "pose": "throw",
+  "ms": 520,
+  "turn": 0,
+  "cancelMs": 420,
+  "shoot": {
+   "ms": [
+    260
+   ],
+   "proj": "grenade",
+   "dmg": 2.2
+  }
+ },
+ {
+  "id": "cmdo.mine",
+  "pose": "throw",
+  "ms": 400,
+  "turn": 0,
+  "cancelMs": 320,
+  "shoot": {
+   "ms": [
+    200
+   ],
+   "proj": "mine",
+   "dmg": 1.8
+  }
+ },
+ {
+  "id": "cmdo.slug",
+  "pose": "shoot",
+  "ms": 820,
+  "turn": 30,
+  "armorMs": [
+   0,
+   820
+  ],
+  "cancelMs": 720,
+  "shoot": {
+   "ms": [
+    560
+   ],
+   "proj": "slug",
+   "dmg": 4.0
+  }
+ },
+ {
+  "id": "cmdo.volley",
+  "pose": "shoot",
+  "ms": 600,
+  "turn": 0,
+  "cancelMs": 500,
+  "shoot": {
+   "ms": [
+    200
+   ],
+   "proj": "round",
+   "count": 5,
+   "spread": 8,
+   "dmg": 1.1
+  }
+ },
+ {
+  "id": "finisher.climb",
+  "pose": "leap",
+  "ms": 1100,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   1100
+  ],
+  "jump": [
+   60,
+   7
+  ],
+  "cancelMs": 1000,
+  "hits": [
+   {
+    "ms": [
+     700,
+     760
+    ],
+    "shape": "circle",
+    "range": 3.2,
+    "y": [
+     -3,
+     4
+    ],
+    "dmg": 1,
+    "poise": 0,
+    "stopMs": 180,
+    "tag": "finisher"
+   }
+  ]
+ },
+ {
+  "id": "thrall.claw",
+  "pose": "slashR",
+  "ms": 800,
+  "turn": 15,
+  "lunge": [
+   100,
+   380,
+   0.8
+  ],
+  "tele": {
+   "shape": "cone",
+   "r": 2.0,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     380,
+     430
+    ],
+    "range": 1.9,
+    "arc": 60,
+    "dmg": 1.0,
+    "poise": 12,
+    "stopMs": 40,
+    "tag": "enemy",
+    "cap": 0.2
+   },
+   {
+    "ms": [
+     540,
+     580
+    ],
+    "range": 1.9,
+    "arc": 60,
+    "dmg": 0.8,
+    "poise": 10,
+    "stopMs": 40,
+    "tag": "enemy",
+    "cap": 0.2
+   }
+  ]
+ },
+ {
+  "id": "thrall.lunge",
+  "pose": "thrust",
+  "ms": 950,
+  "turn": 0,
+  "dash": [
+   420,
+   580,
+   3.4
+  ],
+  "tele": {
+   "shape": "line",
+   "r": 3.6,
+   "width": 1.0
+  },
+  "hits": [
+   {
+    "ms": [
+     430,
+     580
+    ],
+    "shape": "line",
+    "range": 1.6,
+    "width": 1.2,
+    "dmg": 1.3,
+    "poise": 20,
+    "knock": 3,
+    "stopMs": 50,
+    "tag": "enemy",
+    "cap": 0.25
+   }
+  ]
+ },
+ {
+  "id": "spiker.shot",
+  "pose": "shoot",
+  "ms": 800,
+  "turn": 30,
+  "shoot": {
+   "ms": [
+    420
+   ],
+   "proj": "spike",
+   "dmg": 1.0
+  }
+ },
+ {
+  "id": "spiker.volley",
+  "pose": "shoot",
+  "ms": 1150,
+  "turn": 20,
+  "shoot": {
+   "ms": [
+    500,
+    620,
+    740
+   ],
+   "proj": "spike",
+   "dmg": 0.8
+  }
+ },
+ {
+  "id": "bulwark.bash",
+  "pose": "thrust",
+  "ms": 950,
+  "turn": 10,
+  "lunge": [
+   200,
+   500,
+   1.2
+  ],
+  "tele": {
+   "shape": "cone",
+   "r": 2.4,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     500,
+     560
+    ],
+    "range": 2.3,
+    "arc": 50,
+    "dmg": 1.3,
+    "poise": 35,
+    "knock": 7,
+    "stopMs": 70,
+    "tag": "enemy",
+    "cap": 0.25
+   }
+  ]
+ },
+ {
+  "id": "bulwark.charge",
+  "pose": "thrust",
+  "ms": 1500,
+  "turn": 0,
+  "armorMs": [
+   0,
+   1100
+  ],
+  "dash": [
+   700,
+   1100,
+   7
+  ],
+  "tele": {
+   "shape": "line",
+   "r": 7.5,
+   "width": 1.4
+  },
+  "hits": [
+   {
+    "ms": [
+     700,
+     1100
+    ],
+    "shape": "line",
+    "range": 1.4,
+    "width": 1.6,
+    "dmg": 1.6,
+    "poise": 45,
+    "knock": 8,
+    "stopMs": 70,
+    "tag": "enemy",
+    "cap": 0.3
+   }
+  ]
+ },
+ {
+  "id": "fw.circle",
+  "pose": "cast",
+  "ms": 1300,
+  "turn": 0,
+  "tele": {
+   "shape": "circle",
+   "r": 2.6,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     800,
+     900
+    ],
+    "shape": "circle",
+    "at": "target",
+    "range": 2.6,
+    "y": [
+     -1,
+     3
+    ],
+    "dmg": 1.2,
+    "poise": 20,
+    "status": {
+     "k": "chill",
+     "amt": 70
+    },
+    "stopMs": 40,
+    "tag": "enemy",
+    "cap": 0.25
+   }
+  ]
+ },
+ {
+  "id": "fw.shards",
+  "pose": "cast",
+  "ms": 1000,
+  "turn": 20,
+  "shoot": {
+   "ms": [
+    450,
+    550,
+    650
+   ],
+   "proj": "shard",
+   "dmg": 0.7
+  }
+ },
+ {
+  "id": "fw.burst",
+  "pose": "howl",
+  "ms": 300,
+  "turn": 0,
+  "hits": [
+   {
+    "ms": [
+     60,
+     120
+    ],
+    "shape": "circle",
+    "range": 3.2,
+    "dmg": 2.2,
+    "poise": 60,
+    "knock": 6,
+    "status": {
+     "k": "chill",
+     "amt": 100
+    },
+    "stopMs": 60,
+    "tag": "enemy",
+    "cap": 0.3
+   }
+  ]
+ },
+ {
+  "id": "mender.zap",
+  "pose": "cast",
+  "ms": 900,
+  "turn": 20,
+  "shoot": {
+   "ms": [
+    450
+   ],
+   "proj": "zap",
+   "dmg": 0.8
+  }
+ },
+ {
+  "id": "troll.swipe",
+  "pose": "slashR",
+  "ms": 1300,
+  "turn": 20,
+  "tele": {
+   "shape": "cone",
+   "r": 3.8,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     650,
+     760
+    ],
+    "range": 3.8,
+    "arc": 75,
+    "dmg": 1.4,
+    "poise": 50,
+    "knock": 9,
+    "stopMs": 90,
+    "tag": "enemy",
+    "cap": 0.3
+   }
+  ]
+ },
+ {
+  "id": "troll.slam",
+  "pose": "overhead",
+  "ms": 1500,
+  "turn": 0,
+  "tele": {
+   "shape": "circle",
+   "r": 3.4,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     800,
+     880
+    ],
+    "shape": "circle",
+    "range": 3.4,
+    "dmg": 1.8,
+    "poise": 70,
+    "knock": 8,
+    "stopMs": 110,
+    "tag": "enemy",
+    "cap": 0.35
+   }
+  ]
+ },
+ {
+  "id": "troll.grenade",
+  "pose": "throw",
+  "ms": 1200,
+  "turn": 30,
+  "tele": {
+   "shape": "circle",
+   "r": 3.0,
+   "width": 0,
+   "at": "target"
+  },
+  "shoot": {
+   "ms": [
+    650
+   ],
+   "proj": "boulder",
+   "dmg": 1.6
+  }
+ },
+ {
+  "id": "burrower.erupt",
+  "pose": "uppercut",
+  "ms": 1100,
+  "turn": 0,
+  "tele": {
+   "shape": "circle",
+   "r": 2.0,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     700,
+     780
+    ],
+    "shape": "circle",
+    "at": "target",
+    "range": 2.0,
+    "y": [
+     -1,
+     3
+    ],
+    "dmg": 1.4,
+    "poise": 40,
+    "knock": 5,
+    "stopMs": 70,
+    "tag": "enemy",
+    "cap": 0.3
+   }
+  ]
+ },
+ {
+  "id": "burrower.bite",
+  "pose": "thrust",
+  "ms": 800,
+  "turn": 15,
+  "lunge": [
+   150,
+   400,
+   1.0
+  ],
+  "tele": {
+   "shape": "cone",
+   "r": 2.2,
+   "width": 0
+  },
+  "hits": [
+   {
+    "ms": [
+     420,
+     480
+    ],
+    "range": 2.2,
+    "arc": 50,
+    "dmg": 1.1,
+    "poise": 20,
+    "stopMs": 50,
+    "tag": "enemy",
+    "cap": 0.25
+   }
+  ]
+ }
 ]

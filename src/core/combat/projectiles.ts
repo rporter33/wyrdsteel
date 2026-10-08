@@ -96,9 +96,10 @@ export function projectileSystem(w: World, db: ContentDb): void {
       continue;
     }
     if (def.speed === 0) {
+      if (!def.trigger) continue;
       // Mines: wait for a hostile to step close.
       for (const t of w.entities) {
-        if (t.dead || t.team === p.team || t.kind !== 'enemy') continue;
+        if (t.dead || t.team === p.team || t.team === 2 || (t.kind !== 'enemy' && t.kind !== 'player')) continue;
         if ((t.x - p.x) * (t.x - p.x) + (t.z - p.z) * (t.z - p.z) < 1.6 * 1.6) {
           explode(w, db, p);
           kill(w, p);
