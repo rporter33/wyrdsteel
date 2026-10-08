@@ -115,6 +115,27 @@ export function playEvents(a: AudioEngine, w: World, events: SimEvent[], pan: (x
       case 'telegraph':
         if (a.gate('tele', 120)) a.tone({ type: 'sine', f0: 300, f1: 420, dur: 0.18, gain: 0.05 });
         break;
+      case 'boss':
+        if (ev.what === 'phase' && ev.value !== '1') {
+          a.tone({ type: 'sawtooth', f0: 70, f1: 32, dur: 1.4, gain: 0.35 });
+          a.noiseBurst({ dur: 1.2, gain: 0.25, f0: 400, f1: 90, type: 'lowpass' });
+        } else if (ev.what === 'phase') a.tone({ type: 'sawtooth', f0: 55, f1: 45, dur: 1.6, gain: 0.25 });
+        else if (ev.what === 'broken') {
+          a.noiseBurst({ dur: 0.6, gain: 0.35, f0: 3200, f1: 500, q: 0.7 });
+          a.tone({ type: 'triangle', f0: 300, f1: 90, dur: 0.5, gain: 0.2 });
+        } else if (ev.what === 'plated') [180, 220, 260].forEach((f, i) => a.tone({ type: 'triangle', f0: f, dur: 0.12, gain: 0.12, delay: i * 0.09 }));
+        else if (ev.what === 'exposed') {
+          a.noiseBurst({ dur: 1.2, gain: 0.22, f0: 1500, f1: 6000, type: 'highpass' });
+          a.tone({ type: 'sine', f0: 200, f1: 620, dur: 0.9, gain: 0.12 });
+        } else if (ev.what === 'channel') a.tone({ type: 'sine', f0: 110, f1: 140, dur: 1.2, gain: 0.12 });
+        else if (ev.what === 'interrupt') a.noiseBurst({ dur: 0.3, gain: 0.3, f0: 2500, f1: 400, q: 1 });
+        else if (ev.what === 'collapse') a.noiseBurst({ dur: 2, gain: 0.35, f0: 300, f1: 60, type: 'lowpass' });
+        else if (ev.what === 'defeated') {
+          a.tone({ type: 'sawtooth', f0: 90, f1: 20, dur: 2.6, gain: 0.35 });
+          a.noiseBurst({ dur: 2.4, gain: 0.3, f0: 600, f1: 50, type: 'lowpass' });
+          [523, 659, 784].forEach((f, i) => a.tone({ type: 'triangle', f0: f, dur: 1.2, gain: 0.08, delay: 1.6 + i * 0.25 }));
+        }
+        break;
       case 'playerDown':
         [392, 330, 262].forEach((f, i) => a.tone({ type: 'sine', f0: f, dur: 0.6, gain: 0.1, delay: i * 0.18 }));
         break;

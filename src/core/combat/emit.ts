@@ -5,6 +5,10 @@ import { spawnEnemy } from '../sim/spawn';
 import { AIM_UNIT } from '../input/frame';
 import { spawnTurret } from './turret';
 
+export function lobDist(x: number, z: number, ax: number, az: number): number {
+  return Math.min(14, Math.sqrt((ax - x) * (ax - x) + (az - z) * (az - z)));
+}
+
 /** Scripted side effects of actions at their marked ticks: shots, summons, buffs, heals. */
 export function emitSystem(w: World, db: ContentDb): void {
   const n = w.entities.length;
@@ -24,8 +28,8 @@ export function emitSystem(w: World, db: ContentDb): void {
           const inp = w.players[e.pl.slot]!.lastInput;
           arcDist = inp.ax || inp.az ? Math.min(12, Math.sqrt(inp.ax * inp.ax + inp.az * inp.az) * AIM_UNIT) : 7;
         } else {
-          const tg = w.entities.find((x) => x.id === e.act!.target);
-          arcDist = tg ? Math.min(14, Math.sqrt((tg.x - e.x) * (tg.x - e.x) + (tg.z - e.z) * (tg.z - e.z))) : 8;
+          // Enemies lob at the point they telegraphed when the throw began, not wherever you are now.
+          arcDist = lobDist(e.x, e.z, e.act.ax, e.act.az);
         }
       }
       for (let k = 0; k < sh.count; k++) {

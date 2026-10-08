@@ -39,6 +39,6 @@
     "fire": { "proj": "bullet", "intervalMs": 150, "count": 1, "spread": 2, "moveMult": 0.85, "range": 18 } },
   { "id": "rifle", "name": "Rifle", "hand": "ranged", "classes": ["commando"], "dmg": [9, 13],
     "fire": { "proj": "round", "intervalMs": 240, "count": 1, "spread": 0, "moveMult": 0.7, "range": 24 } },
-  { "id": "cannon", "name": "Cannon", "hand": "ranged", "classes": ["commando"], "dmg": [24, 32],
+  { "id": "cannon", "name": "Cannon", "hand": "ranged", "classes": ["commando"], "dmg": [19, 26],
     "fire": { "proj": "shell", "intervalMs": 950, "count": 1, "spread": 0, "moveMult": 0.5, "range": 20 } }
 ]

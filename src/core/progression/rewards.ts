@@ -40,8 +40,14 @@ export function refreshPlayer(w: World, db: ContentDb, slot: number, refill = fa
   }
 }
 
+/**
+ * Tuned with the chapter bot: walking each zone's critical path lands a player at about the next
+ * zone's level (Iron Wood ~6, Foundry ~10, Roots ~14 before its boss).
+ */
+const XP_SCALE = 1.5;
+
 export function xpFor(db: ContentDb, def: string, level: number, elite: boolean): number {
   const d = db.enemies[def];
   if (!d) return 0;
-  return Math.round(d.xp * (1 + 0.15 * (level - 1)) * (elite ? 2.5 : 1));
+  return Math.round(d.xp * XP_SCALE * (1 + 0.15 * (level - 1)) * (elite ? 2.5 : 1));
 }

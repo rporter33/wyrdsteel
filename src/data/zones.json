@@ -64,7 +64,7 @@
  {
   "id": "ironwood",
   "name": "The Iron Wood",
-  "desc": "J\u00e1rnvi\u00f0r: black trunks, white snow, and the first torn heat-line.",
+  "desc": "Járnviðr: black trunks, white snow, and the first torn heat-line.",
   "start": "edge",
   "level": [
    1,
@@ -329,11 +329,45 @@
     "story": "r.caldera",
     "onClear": {
      "flags": {
-      "zone.roots": 1
+      "zone.roots": 1,
+      "chapter": 1
      },
      "story": "r.done",
-     "to": "citadel:hub"
+     "to": "citadel:hub",
+     "delayMs": 4000
     }
+   }
+  ]
+ },
+ {
+  "id": "rematch",
+  "name": "Hvergelmir Caldera (rematch)",
+  "desc": "Hrungnir's stone remembers. Face it again, stronger, with whatever you have become.",
+  "start": "caldera",
+  "level": [
+   16,
+   16
+  ],
+  "palette": "roots",
+  "next": null,
+  "travel": true,
+  "requires": "zone.roots",
+  "nodes": [
+   {
+    "id": "caldera",
+    "room": "r.caldera",
+    "next": [],
+    "level": 16,
+    "align": null,
+    "optional": false,
+    "onClear": {
+     "flags": {
+      "zone.rematch": 1
+     },
+     "to": "citadel:hub",
+     "delayMs": 4000
+    },
+    "story": "rematch"
    }
   ]
  }

@@ -128,11 +128,15 @@ export function buildEnemy(model: string, colorHex: string, elites: string[]): E
       break;
     }
     case 'burrower': {
+      // Each segment hangs on its own pivot so the wriggle survives instancing.
       const seg = new THREE.Group();
+      const segs: THREE.Group[] = [];
       for (let i = 0; i < 6; i++) {
-        const s = ico(0.42 - i * 0.04, i === 0 ? 0x5a4a6a : color, 0);
-        s.position.set(0, 0.4, -i * 0.5);
-        seg.add(s);
+        const piv = new THREE.Group();
+        piv.position.set(0, 0.4, -i * 0.5);
+        piv.add(ico(0.42 - i * 0.04, i === 0 ? 0x5a4a6a : color, 0));
+        seg.add(piv);
+        segs.push(piv);
       }
       const maw = glow(0.15, PALETTE.ember, 2);
       maw.position.set(0, 0.45, 0.35);
@@ -141,39 +145,63 @@ export function buildEnemy(model: string, colorHex: string, elites: string[]): E
       update = (e, w) => {
         const burrowed = e.ai?.st === 'burrowed' || e.ai?.st === 'travel';
         seg.position.y = burrowed ? -1.2 : e.ai?.st === 'emerge' ? -1.2 + Math.min(1, (e.ai.t ?? 0) / 20) * 1.2 : 0;
-        seg.children.forEach((c, i) => (c.position.x = Math.sin(w.tick / 6 - i) * 0.12));
+        segs.forEach((c, i) => (c.position.x = Math.sin(w.tick / 6 - i) * 0.12));
         seg.rotation.y = Math.atan2(e.fx, e.fz);
       };
       radius = 0.55;
       break;
     }
     case 'jotun': {
-      // Hrungnir: a stone war-engine with a forge heart and a whetstone maul.
+      // Hrungnir: a stone war-engine with a forge heart, slab plates and a whetstone maul.
       rig = buildHumanoid({ body: 0x5b6168, trim: 0x2f3338, skin: 0x5b6168, eye: PALETTE.ember, bulk: 3, height: 5.2, helm: 'horned', cape: null, cyber: 0 });
-      const heart = glow(0.35, PALETTE.ember, 2.5);
-      heart.position.set(0, 0.55 * rig.scale, 0.52);
+      const heart = new THREE.Group();
+      heart.position.set(0, 0.55 * rig.scale, 0.5);
+      heart.add(glow(0.35, PALETTE.ember, 2.5));
       rig.torso.add(heart);
-      const whet = box(0.5, 0.5, 1.8, 0x8a8f95, 0, 0, 0.8);
-      rig.handR.add(whet);
+      // Plates: chest slab and pauldrons, gone while the plating is broken.
+      const plates = new THREE.Group();
+      plates.add(box(1.5, 0.9, 0.25, 0x8a8f95, 0.55 * rig.scale, 0, 0.62));
+      rig.torso.add(plates);
+      const pads: THREE.Group[] = [];
+      for (const arm of [rig.armL, rig.armR]) {
+        const pad = new THREE.Group();
+        pad.add(box(0.8, 0.35, 0.8, 0x8a8f95, 0.05));
+        arm.add(pad);
+        pads.push(pad);
+      }
+      rig.handR.add(box(0.5, 0.5, 1.8, 0x8a8f95, 0, 0, 0.8));
       radius = 1.9;
       update = (e, w) => {
-        const exposed = (e.boss?.exposed ?? 0) > 0;
-        heart.scale.setScalar(exposed ? 1.6 + Math.sin(w.tick / 3) * 0.2 : 1);
-        const plating = e.boss?.plating ?? 0;
-        rig!.torso.children[0]!.scale.setScalar(1 + plating * 0.0006);
+        const b = e.boss;
+        const exposed = (b?.exposed ?? 0) > 0;
+        heart.scale.setScalar(exposed ? 1.8 + Math.sin(w.tick / 3) * 0.25 : 1);
+        const plated = (b?.plating ?? 0) > 0 ? 1 : 0;
+        // The chest slab swings open while the heart vents.
+        plates.scale.setScalar(plated || exposed ? 1 : 0);
+        plates.rotation.x = exposed ? -1.2 : 0;
+        for (const pad of pads) pad.scale.setScalar(plated);
       };
       break;
     }
     case 'golem': {
+      // Mokkurkalfi: a clay giant with a small, frightened mare's heart.
       rig = buildHumanoid({ body: 0x9a7a5a, trim: 0x6b4f36, skin: 0x9a7a5a, eye: 0xffd24a, bulk: 2.2, height: 3.6, helm: 'bare', cape: null, cyber: 0 });
+      const heart = new THREE.Group();
+      heart.position.set(0, 0.5 * rig.scale, 0.42);
+      heart.add(glow(0.16, 0xf5c542, 2));
+      rig.torso.add(heart);
       radius = 1.2;
+      update = (e, w) => {
+        heart.scale.setScalar(e.ai?.st === 'channel' ? 1.5 + Math.sin(w.tick / 2) * 0.3 : 1);
+      };
       break;
     }
     case 'generator': {
       // Shield pylon: an iron column with a gold core and three fins.
       root.add(cyl(0.45, 0.6, 1.5, PALETTE.iron, 8, 0.75));
-      const core = glow(0.32, PALETTE.gold, 2.2);
+      const core = new THREE.Group();
       core.position.y = 1.75;
+      core.add(glow(0.32, PALETTE.gold, 2.2));
       root.add(core);
       for (let i = 0; i < 3; i++) {
         const fin = box(0.08, 1.0, 0.5, 0x5b4636, 1.0);

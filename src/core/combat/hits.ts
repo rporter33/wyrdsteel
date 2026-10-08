@@ -7,6 +7,7 @@ import { computeDamage, juggleLift } from './damage';
 import { addBuildup } from './status';
 import { msToTicks } from '../sim/constants';
 import { shielded, crackIce } from '../level/hazards';
+import { interruptChannel } from '../ai/bossState';
 
 /** Bits recorded on the victim describing how the killing blow landed (charm quests read them). */
 export const HOW_AIR = 1;
@@ -78,7 +79,10 @@ function partWorld(t: Entity, fwd: number, right: number): [number, number] {
 export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitResult {
   const src = h.src;
   if (t.dead) return 'immune';
-  if (t.boss && t.boss.invuln > 0) return 'immune';
+  if (t.boss && t.boss.invuln > 0) {
+    w.events.push({ k: 'immune', t: w.tick, dst: t.id });
+    return 'immune';
+  }
   if (t.ai && (t.ai.st === 'burrowed' || t.ai.st === 'travel')) return 'immune';
   if (t.iframes > 0) {
     // Perfect dodge: the hit arrives in the first moments of a dodge's i-frames.
@@ -161,7 +165,6 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   const ownerSlot = src.pl ? w.players[src.pl.slot] : null;
   if (ownerSlot?.stats.flags.includes('cap.inferno') && t.status.burn > 0) pct += 0.2;
   let armor = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.armor : (tdef?.armor ?? 0);
-  if (t.boss) armor += t.boss.plating > 0 ? 400 : 0;
   const taken = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.dmgTakenPct : t.status.freeze > 0 ? 0.25 : 0;
   // Under the rule of the mark, an unmarked foe only takes the status, not the damage.
   if (wyrdZero || wyrdMarkOnly) mult = 0;
@@ -187,7 +190,18 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
     absorbed = Math.min(t.shield, dmg);
     t.shield -= absorbed;
   }
-  t.hp -= dmg - absorbed;
+  let toHp = dmg - absorbed;
+  // Stone hide: shots chip a boss until its heart is exposed; then everything lands in full.
+  if (t.boss && h.ranged && t.boss.exposed === 0) toHp = Math.max(1, Math.round(toHp * (db.bosses[t.def]?.rangedTaken ?? 1)));
+  // Boss plating takes the blow; only a fraction bleeds through until the plates break.
+  if (t.boss && t.boss.plating > 0 && toHp > 0) {
+    const into = Math.min(t.boss.plating, toHp);
+    t.boss.plating -= into;
+    toHp -= Math.round(into * (1 - (db.bosses[t.def]?.bleed ?? 0.25)));
+    if (t.boss.plating <= 0) w.events.push({ k: 'boss', t: w.tick, what: 'broken', value: '' });
+  }
+  t.hp -= toHp;
+  if (t.boss && t.hp < t.boss.floor) t.hp = t.boss.floor;
   t.hurtAt = w.tick;
   // Linked elites share one life: damage to either lands on both.
   if (t.ai?.link) {
@@ -293,6 +307,11 @@ function breakPoise(w: World, t: Entity, weight: string): void {
   // Breaking a Warded elite's poise strips the ward.
   if (t.elite?.includes('warded')) t.elite = t.elite.filter((x) => x !== 'warded');
   t.poiseAt = w.tick + msToTicks(1500);
+  // Heavies shrug off staggers, except mid-channel: that is what breaks a guardian's spell.
+  if (t.ai?.st === 'channel') {
+    interruptChannel(w, t);
+    return;
+  }
   if (weight === 'heavy' || t.boss) return;
   const down = weight === 'medium' && t.kind !== 'player';
   t.stun = Math.max(t.stun, down ? msToTicks(1200) : msToTicks(t.kind === 'player' ? 300 : 450));

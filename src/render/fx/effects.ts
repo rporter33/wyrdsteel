@@ -240,6 +240,31 @@ export class Effects {
           this.rig.addTrauma(0.5);
           break;
         }
+        case 'boss': {
+          const b = w.entities.find((x) => x.boss);
+          if (!b) break;
+          if (ev.what === 'phase' && ev.value !== '1') {
+            this.burst(b.x, 2.5, b.z, 0xff9a3c, opts.lowFx ? 12 : 70, 14, 0.14, 3, 1);
+            this.rig.addTrauma(0.6);
+          } else if (ev.what === 'broken') {
+            this.burst(b.x, 3, b.z, 0x8a8f95, opts.lowFx ? 10 : 50, 9, 0.16, 2, 1);
+            this.number(b.x, b.y + b.h + 0.4, b.z, 'PLATES BROKEN', 'crit');
+          } else if (ev.what === 'plated') {
+            this.number(b.x, b.y + b.h + 0.4, b.z, 'RE-PLATED', 'block');
+          } else if (ev.what === 'exposed') {
+            this.burst(b.x, 3.2, b.z, 0xffd27a, opts.lowFx ? 10 : 40, 6, 0.1, 4, 1.2);
+            this.number(b.x, b.y + b.h + 0.4, b.z, 'HEART EXPOSED', 'crit');
+          } else if (ev.what === 'interrupt') {
+            const g = w.entities.find((x) => x.ai?.a === b.id && x.def !== b.def);
+            if (g) this.number(g.x, g.y + g.h + 0.3, g.z, 'BROKEN SPELL', 'st');
+          } else if (ev.what === 'collapse') {
+            this.rig.addTrauma(0.7);
+          } else if (ev.what === 'defeated') {
+            this.burst(b.x, 2.5, b.z, 0xffd27a, opts.lowFx ? 20 : 120, 16, 0.18, 5, 1.6);
+            this.rig.addTrauma(0.9);
+          }
+          break;
+        }
       }
     }
 

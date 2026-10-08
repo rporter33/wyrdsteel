@@ -1,6 +1,7 @@
 import type { ContentDb } from '../data/types';
 import type { World } from '../sim/types';
 import { enterNode } from '../sim/world';
+import { msToTicks } from '../sim/constants';
 
 /** "zone:node" leaves the zone; a bare node stays in it. */
 export function parseTarget(w: World, to: string): { zone: string; node: string } {
@@ -44,5 +45,5 @@ export function onRoomCleared(w: World, db: ContentDb): void {
     }
   }
   if (oc.story) playStory(w, oc.story);
-  if (oc.to) w.transition = { to: oc.to, at: w.tick + 1 };
+  if (oc.to) w.transition = { to: oc.to, at: w.tick + Math.max(1, msToTicks(oc.delayMs ?? 0)) };
 }

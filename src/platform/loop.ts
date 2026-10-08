@@ -19,6 +19,8 @@ export function startLoop(h: LoopHooks, maxCatchUp = 5): { stop(): void; stats: 
   let fpsN = 0;
   const frame = (now: number) => {
     if (!running) return;
+    // Schedule first: an exception in one frame must not stop the game for good.
+    requestAnimationFrame(frame);
     const dt = Math.min(250, now - last);
     last = now;
     fpsAcc += dt;
@@ -43,7 +45,6 @@ export function startLoop(h: LoopHooks, maxCatchUp = 5): { stop(): void; stats: 
       if (n > 0) stats.simMs = (performance.now() - t0) / n;
     }
     h.render(h.paused() ? 1 : acc / TICK_MS, dt);
-    requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
   return {

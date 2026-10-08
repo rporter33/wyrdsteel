@@ -20,7 +20,8 @@ export function preparedCharacter(cls: string, level: number, align: 'human' | '
   c.level = level;
   c.xp = XP_TABLE[level]!;
   c.alignment = align;
-  const weights = [0, 2, 5, 3, 0];
+  // Found gear, not crafted: mostly forged, some runed, the odd worn or ascendant piece.
+  const weights = [2, 5, 3, 1, 0];
   const w = createWorld({ seed, players: [{ name: 'Bot', cls, character: c }], zone: 'training', node: 'training' }, d);
   const p = w.players[0]!;
   const melee = Object.values(d.bases).filter((b) => b.slot === 'melee' && d.classes[cls]!.melee.includes(b.kind) && b.ilvl <= level).pop()!;

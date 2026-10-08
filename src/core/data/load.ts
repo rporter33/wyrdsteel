@@ -5,6 +5,7 @@ import { cos, sin, degToRad } from '../math/trig';
 import { hashString } from '../rng/xoshiro';
 import type {
   ActionDef,
+  BossDef,
   AbilityDef,
   ClassDef,
   ContentDb,
@@ -41,6 +42,7 @@ export interface RawPacks {
   wyrd: Raw[];
   uniques: Raw[];
   codex: Raw[];
+  bosses: Raw[];
 }
 
 const t = (ms: number | undefined, d = 0) => (ms === undefined ? d : msToTicks(ms));
@@ -213,6 +215,28 @@ function enemy(e: Raw): EnemyDef {
   };
 }
 
+function boss(b: Raw): BossDef {
+  return {
+    id: b.id,
+    title: b.title,
+    guardian: b.guardian ?? '',
+    phases: b.phases,
+    plating: b.plating ?? 0,
+    bleed: b.bleed ?? 0.25,
+    rangedTaken: b.rangedTaken ?? 1,
+    replate: t(b.replateMs),
+    channel: t(b.channelMs),
+    transition: t(b.transitionMs),
+    exposed: t(b.exposedMs),
+    overheat: b.overheat ?? 3,
+    span: t(b.spanMs, 300),
+    patterns: b.patterns.map((p: Raw) => ({ id: p.id, actions: p.actions, vs: p.vs ?? [], phases: p.phases ?? [1, 2], min: p.min ?? 0, max: p.max ?? 99 })),
+    final: b.final,
+    arena: b.arena ?? [],
+    lines: b.lines ?? {},
+  };
+}
+
 function byId<T extends { id: string }>(xs: T[]): Record<string, T> {
   const out: Record<string, T> = {};
   for (const x of xs) out[x.id] = x;
@@ -247,5 +271,6 @@ export function loadContent(raw: RawPacks): ContentDb {
     wyrd: byId(raw.wyrd),
     uniques: byId(raw.uniques),
     codex: raw.codex,
+    bosses: byId(raw.bosses.map(boss)),
   };
 }

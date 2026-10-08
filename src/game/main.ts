@@ -14,7 +14,7 @@ import { Hud } from '../ui/hud/hud';
 import { setApi, type SlotInfo } from '../ui/api';
 import { panel, screen, version, toast, dialogue, type Panel } from '../ui/store';
 import type { SimEvent } from '../core/sim/types';
-import { installDebug } from './debug';
+import { installDebug, type Autopilot } from './debug';
 import { eventToasts } from './feedback';
 import { MenuPad, installArrowKeys } from '../ui/focus';
 import { AudioEngine } from '../audio/engine';
@@ -242,13 +242,23 @@ const menuPad = new MenuPad();
 installArrowKeys(() => (panel.value ? menuRoot : null));
 const NPC_PANELS: Record<string, Panel> = { well: 'well', board: 'board', smith: 'smith', carver: 'carver', skald: 'skald', gate: 'gate', stash: 'stash', trainer: 'trainer' };
 
+// Debug only (?debug=1): the balance bot can drive the session, optionally several ticks a frame.
+const auto: Autopilot = { on: false, warp: 1, input: null, upkeep: null };
+
 const loop = startLoop({
   paused: () => !session || panel.value !== null || screen.value !== 'game',
   tick: () => {
     if (!session) return;
-    const ev = session.tick(input.sample(aim));
-    playMs += 1000 / 60;
-    if (ev.length) pendingEvents = pendingEvents.concat(ev);
+    for (let i = 0; i < (auto.on ? auto.warp : 1); i++) {
+      const w = session.world;
+      const bot = auto.on ? auto.input : null;
+      const ev = session.tick(bot ? bot(w) : input.sample(aim));
+      playMs += 1000 / 60;
+      if (bot && ev.some((e) => e.k === 'waystone' || e.k === 'levelUp')) auto.upkeep?.(w);
+      if (ev.length) pendingEvents = pendingEvents.concat(ev);
+      // A story beat opens a panel and pauses the game; stop warping into it.
+      if (ev.some((e) => e.k === 'story' || e.k === 'interact')) break;
+    }
   },
   render: (alpha, dt) => {
     frames++;
@@ -269,6 +279,7 @@ const loop = startLoop({
       gfx.frame(w, alpha, dt, pendingEvents, 0, db.rooms[w.room.id]?.palette ?? 'hall');
       playEvents(audio, w, pendingEvents, pan);
       eventToasts(w, db, pendingEvents, 0);
+      hud.bossEvents(pendingEvents, w, db);
       for (const ev of pendingEvents) {
         if (ev.k === 'interact' && ev.slot === 0 && ev.what === 'npc' && NPC_PANELS[ev.id]) panel.value = NPC_PANELS[ev.id]!;
         if (ev.k === 'interact' && ev.slot === 0 && ev.what === 'waystone' && w.zone.id !== 'citadel') panel.value = 'waystone';
@@ -293,4 +304,4 @@ const loop = startLoop({
   },
 });
 
-installDebug({ db, frames: () => frames, session: () => session, newGame, loop: loop.stats, gfx, saveNow: () => saveNow('debug') });
+installDebug({ db, frames: () => frames, session: () => session, newGame, loop: loop.stats, gfx, saveNow: () => saveNow('debug'), auto });

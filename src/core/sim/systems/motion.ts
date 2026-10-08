@@ -37,7 +37,7 @@ export function motionSystem(w: World, db: ContentDb): void {
     }
     if (e.kind === 'pickup' || e.kind === 'npc' || e.kind === 'prop') continue;
     // The ground gave way (cracked ice became water): grounded enemies fall in.
-    if (e.kind === 'enemy' && !e.dead && e.y <= 0 && tileAt(g, Math.floor(e.x), Math.floor(e.z)) === T_PIT) {
+    if (e.kind === 'enemy' && !e.boss && !e.dead && e.y <= 0 && tileAt(g, Math.floor(e.x), Math.floor(e.z)) === T_PIT) {
       e.hp = 0;
       continue;
     }
@@ -46,9 +46,15 @@ export function motionSystem(w: World, db: ContentDb): void {
     // Knocked or slid into a pit: enemies fall (handled by deaths), players are stopped at the edge.
     const block = e.kind === 'enemy' && e.stunKind > 0 ? (t: number) => t !== T_PIT && blocksMove(t) : blocksMove;
     [nx, nz] = collideCircle(g, nx, nz, e.r, block);
-    e.x = nx;
-    e.z = nz;
-    if (e.kind === 'enemy' && !e.dead && tileAt(g, Math.floor(e.x), Math.floor(e.z)) === T_PIT && e.y <= 0) {
+    // Never let a body's centre end up inside something it can't stand in (a big body squeezed
+    // between pits can be pushed through them otherwise), and never outside the room.
+    if (block(tileAt(g, Math.floor(nx), Math.floor(nz))) && !block(tileAt(g, Math.floor(e.x), Math.floor(e.z)))) {
+      nx = e.x;
+      nz = e.z;
+    }
+    e.x = Math.max(0.01, Math.min(g.w - 0.01, nx));
+    e.z = Math.max(0.01, Math.min(g.h - 0.01, nz));
+    if (e.kind === 'enemy' && !e.boss && !e.dead && tileAt(g, Math.floor(e.x), Math.floor(e.z)) === T_PIT && e.y <= 0) {
       e.hp = 0;
     }
   }
@@ -64,6 +70,8 @@ function separate(w: World, g: Grid): void {
     if ((e.kind === 'player' || e.kind === 'enemy' || e.kind === 'npc') && !e.dead) bodies.push(e);
   }
   if (bodies.length < 2) return;
+  const before: number[] = [];
+  for (const e of bodies) before.push(e.x, e.z);
   const cw = Math.ceil(g.w / CELL) + 1;
   const ch = Math.ceil(g.h / CELL) + 1;
   const cells: number[][] = [];
@@ -112,11 +120,15 @@ function separate(w: World, g: Grid): void {
       }
     }
   }
-  for (const e of bodies) {
-    const [x, z] = collideCircle(g, e.x, e.z, e.r);
-    e.x = x;
-    e.z = z;
-  }
+  bodies.forEach((e, i) => {
+    let [x, z] = collideCircle(g, e.x, e.z, e.r);
+    if (blocksMove(tileAt(g, Math.floor(x), Math.floor(z))) && !blocksMove(tileAt(g, Math.floor(before[i * 2]!), Math.floor(before[i * 2 + 1]!)))) {
+      x = before[i * 2]!;
+      z = before[i * 2 + 1]!;
+    }
+    e.x = Math.max(0.01, Math.min(g.w - 0.01, x));
+    e.z = Math.max(0.01, Math.min(g.h - 0.01, z));
+  });
 }
 
 function mass(e: Entity): number {

@@ -8,6 +8,8 @@ import { startAction } from '../sim/systems/actions';
 import { requestToken, releaseToken, flankPoint, TOKEN_HEAVY, TOKEN_MELEE, TOKEN_RANGED } from './director';
 import { moveTo, moveAway, face, stop, speedOf, lineOfSight, dist } from './steer';
 import { spawnEnemy } from '../sim/spawn';
+import { lobDist } from '../combat/emit';
+import { blocksMove, tileAt } from '../level/grid';
 
 const KIND_TOKEN = { melee: TOKEN_MELEE, ranged: TOKEN_RANGED, heavy: TOKEN_HEAVY } as const;
 
@@ -54,18 +56,38 @@ function chooseAttack(w: World, e: Entity, def: EnemyDef, d: number): number {
 
 function attack(w: World, db: ContentDb, e: Entity, a: AttackDef, i: number, t: Entity): void {
   const ai = e.ai!;
-  const [dx, dz] = norm(t.x - e.x, t.z - e.z, e.fx, e.fz);
-  const act = db.actions[a.action]!;
-  startAction(w, e, act, dx, dz, t.id, 'enemy');
+  strike(w, db, e, a.action, t);
   ai.cds[i] = Math.round(a.cd * cdScale(e));
   ai.gcd = Math.round(msToTicks(500) * cdScale(e));
+}
+
+/** Start an enemy action at a target and show its telegraph until the blow lands. */
+export function strike(w: World, db: ContentDb, e: Entity, actionId: string, t: Entity): void {
+  const ai = e.ai!;
+  const [dx, dz] = norm(t.x - e.x, t.z - e.z, e.fx, e.fz);
+  const act = db.actions[actionId]!;
+  startAction(w, e, act, dx, dz, t.id, 'enemy');
   ai.st = 'attack';
   ai.t = 0;
   if (act.tele) {
     // Lobbed shots land about 0.7 s after release; the decal stays until then.
     const first = act.hits[0]?.from ?? (act.shoot ? act.shoot.at[0]! + 42 : act.dash?.from ?? 30);
     const at = act.hits[0]?.at === 'target' || act.tele.at === 'target';
-    w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: act.tele.shape, x: at ? e.act!.ax : e.x, z: at ? e.act!.az : e.z, r: act.tele.r, dx, dz, len: act.tele.r, width: act.tele.width, dur: first });
+    const sh = act.shoot;
+    if (at && sh && sh.count > 1) {
+      // A spread of lobs: mark every landing point, exactly where each one will come down.
+      const d = lobDist(e.x, e.z, e.act!.ax, e.act!.az);
+      for (let k = 0; k < sh.count; k++) {
+        const side = k - (sh.count - 1) / 2;
+        const c = side === 0 ? 1 : sh.spreadCos;
+        const s = side === 0 ? 0 : sh.spreadSin * side;
+        const lx = dx * c - dz * s;
+        const lz = dx * s + dz * c;
+        w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: act.tele.shape, x: e.x + lx * d, z: e.z + lz * d, r: act.tele.r, dx, dz, len: act.tele.r, width: act.tele.width, dur: first });
+      }
+    } else {
+      w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: act.tele.shape, x: at ? e.act!.ax : e.x, z: at ? e.act!.az : e.z, r: act.tele.r, dx, dz, len: act.tele.r, width: act.tele.width, dur: first });
+    }
   }
 }
 
@@ -122,7 +144,9 @@ export function fighter(w: World, db: ContentDb, e: Entity, def: EnemyDef, t: En
   // Melee without a token waits on a ring around the target, flankers behind it.
   if (d < 5.5 && ai.token === 0) {
     ai.st = 'wait';
-    const [fx, fz] = flankPoint(w, e, t, 3.4, def.brain === 'thrall');
+    let [fx, fz] = flankPoint(w, e, t, 3.4, def.brain === 'thrall');
+    // A slot inside a wall or a pit is no slot: wait closer, on the target's side.
+    if (blocksMove(tileAt(w.room, Math.floor(fx), Math.floor(fz)))) [fx, fz] = [t.x, t.z];
     moveTo(w, e, fx, fz, speed * 0.7, false);
     face(e, t.x, t.z, def.guard === 'front' ? 0.015 : 0.2);
     return;

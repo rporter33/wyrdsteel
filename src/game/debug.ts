@@ -3,6 +3,16 @@ import type { GameRenderer } from '../render/scene';
 import type { SoloSession } from './session';
 import { generateItem } from '../core/loot/generate';
 import { spawnPickup } from '../core/sim/pickups';
+import type { PlayerInput } from '../core/input/frame';
+import type { World } from '../core/sim/types';
+
+/** The debug autopilot's hooks into the loop. The bot itself is loaded only when asked for. */
+export interface Autopilot {
+  on: boolean;
+  warp: number;
+  input: ((w: World) => PlayerInput) | null;
+  upkeep: ((w: World) => void) | null;
+}
 
 export interface DebugDeps {
   db: ContentDb;
@@ -12,6 +22,7 @@ export interface DebugDeps {
   loop: { fps: number; simMs: number };
   gfx: GameRenderer;
   saveNow: () => Promise<void>;
+  auto: Autopilot;
 }
 
 /**
@@ -67,6 +78,26 @@ export function installDebug(d: DebugDeps): void {
       p.y = 0;
     },
     save: () => d.saveNow(),
+    /** Debug-only: let the balance bot play, `warp` ticks per frame; it tends its gear at waystones. */
+    autopilot: async (on: boolean, aspect: 'human' | 'cyber' = 'human', warp = 1) => {
+      const [{ botInput, newMemory }, { botUpkeep }] = await Promise.all([import('../core/bot/policies'), import('../core/bot/upkeep')]);
+      const mem = newMemory();
+      d.auto.input = (w) => {
+        const inp = botInput(w, d.db, 0, 'tactical', mem, w.events);
+        return inp;
+      };
+      d.auto.upkeep = (w) => botUpkeep(w, d.db, 0, aspect);
+      d.auto.warp = Math.max(1, Math.min(16, warp));
+      d.auto.on = on;
+      const s = d.session();
+      if (on && s) botUpkeep(s.world, d.db, 0, aspect);
+    },
+    /** Debug-only: the gate's travel, without the panel. */
+    travel: (zone: string): string | null => {
+      const s = d.session();
+      if (!s) return 'no session';
+      return s.command([{ t: 'travel', zone, node: '' }])[0] ?? null;
+    },
     god: () => {
       const w = d.session()?.world;
       const e = w?.entities.find((x) => x.id === w.players[0]?.entity);

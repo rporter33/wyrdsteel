@@ -1,8 +1,8 @@
 {
  "replay": {
   "v": 1,
-  "simVersion": 6,
-  "contentHash": "f9ee2150",
+  "simVersion": 7,
+  "contentHash": "ebf50873",
   "start": {
    "seed": 101,
    "players": [

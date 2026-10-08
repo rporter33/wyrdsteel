@@ -6,6 +6,7 @@ import { sin, cos, TAU } from '../math/trig';
 import { msToTicks } from '../sim/constants';
 import { byId } from '../sim/entity';
 import { onRoomCleared } from './travel';
+import { buildRoom } from './room';
 
 const ACTIVATE_R = 7.5;
 
@@ -108,9 +109,11 @@ export function encounterSystem(w: World, db: ContentDb): void {
  * After a player death, unfinished encounters reset to their authored state: their enemies leave
  * and they wait to be triggered again. Finished encounters stay finished; nothing respawns.
  */
-export function resetActiveEncounters(w: World): void {
+export function resetActiveEncounters(w: World, db: ContentDb): void {
+  let boss = false;
   for (const enc of w.room.encounters) {
     if (enc.state !== 'active') continue;
+    for (const e of w.entities) if (e.boss && e.ai?.enc === enc.id) boss = true;
     for (const e of w.entities) if (e.kind === 'enemy' && e.ai?.enc === enc.id) {
       e.dead = true;
       e.removeAt = w.tick + 1;
@@ -118,6 +121,12 @@ export function resetActiveEncounters(w: World): void {
     enc.state = 'idle';
     enc.wave = 0;
     enc.alive = [];
+  }
+  // A boss fight starts over on whole ground: the collapsed arena is restored.
+  if (boss) {
+    w.room.tiles = buildRoom(db, w.room.id, w.room.variant).grid.tiles;
+    w.room.features = w.room.features.filter((f) => f.kind !== 'crack');
+    w.room.ver++;
   }
   // Projectiles in flight vanish with them.
   for (const e of w.entities) if (e.kind === 'projectile') {

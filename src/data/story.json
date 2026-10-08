@@ -253,7 +253,17 @@
   "lines": [
    {
     "who": "{name}",
-    "text": "The caldera. Its guardians come first."
+    "text": "The caldera. Something vast stands in the spring, drinking its heat."
+   },
+   {
+    "who": "{name}",
+    "text": "Stone, from horn to heel. And beside it a thing of clay, patting mud onto its master's plates."
+   },
+   {
+    "who": "Idunn",
+    "text": "Hrungnir, and his clay-son. Stop the mending, Sworn, or every blow you land is wasted on stone.",
+    "human": "Hrungnir, and his clay-son. Stop the mending, Sworn. Flesh tires; spend it where it counts.",
+    "cyber": "Hrungnir, and his clay-son. Stop the mending, Sworn. Brokkr's steel will hold if you aim it."
    }
   ]
  },
@@ -261,8 +271,35 @@
   "id": "r.done",
   "lines": [
    {
+    "who": "{name}",
+    "text": "The stone heart cracks. Heat floods back into the roots. I can feel the heat-lines waking, one by one."
+   },
+   {
     "who": "Ullr",
-    "text": "The way to the spring is open. Rest. Then finish it."
+    "text": "The forges are burning again. From the outer wall inward, the frost is giving ground."
+   },
+   {
+    "who": "Idunn",
+    "text": "You were made for this, flesh or steel.",
+    "human": "You kept your own heart and still broke a stone one. Remember that.",
+    "cyber": "Brokkr's steel held. He will be unbearable about it."
+   },
+   {
+    "who": "Idunn",
+    "text": "Listen, though. Under the ice, the spring still hums. The giants Hrungnir meant to wake are sleeping. Not gone. Sleeping."
+   },
+   {
+    "who": "Bragi",
+    "text": "Then I'll end the song there: the winter breaks, the giants sleep, and the Sworn come home. Chapter one."
+   }
+  ]
+ },
+ {
+  "id": "rematch",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "The stone remembers me. So do I."
    }
   ]
  }

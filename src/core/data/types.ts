@@ -320,7 +320,7 @@ export interface ZoneNodeDef {
   /** Story beat played the first time the room is entered. */
   story?: string;
   /** When the room is cleared: set story flags, play a beat, optionally send everyone somewhere. */
-  onClear?: { flags?: Record<string, number>; story?: string; to?: string; sigil?: boolean };
+  onClear?: { flags?: Record<string, number>; story?: string; to?: string; sigil?: boolean; delayMs?: number };
   /** Alignment-specific routing. */
   align: 'human' | 'cyber' | null;
   optional: boolean;
@@ -368,6 +368,49 @@ export interface WyrdRuleDef {
   desc: string;
 }
 
+/** One of a boss's patterns: a string of actions, the reads it answers, and when it may run. */
+export interface BossPatternDef {
+  id: string;
+  actions: string[];
+  /** The player habits this pattern punishes: close, mid, far, dodgy. */
+  vs: string[];
+  phases: number[];
+  /** Distance band the first action starts from; the boss walks into it first. */
+  min: number;
+  max: number;
+}
+
+export interface BossDef {
+  /** The enemy id this applies to. */
+  id: string;
+  title: string;
+  /** Enemy id of the guardian that restores plating (empty for none). */
+  guardian: string;
+  /** HP fractions where phases 1 and 2 end. */
+  phases: number[];
+  /** Plating as a fraction of max HP, and how much of a blow gets through it. */
+  plating: number;
+  bleed: number;
+  /** Stone hide: share of ranged damage taken while the heart is covered. */
+  rangedTaken: number;
+  /** Ticks: between re-plating channels, channel length, invulnerable transition, exposed heart. */
+  replate: number;
+  channel: number;
+  transition: number;
+  exposed: number;
+  /** Phase 2+: patterns between overheats. */
+  overheat: number;
+  /** Observation span, ticks: how long the boss watches before settling on a read. */
+  span: number;
+  patterns: BossPatternDef[];
+  /** The last phase's fixed, learnable sequence ('overheat' vents). */
+  final: string[];
+  /** Arena radii after each collapse; the second comes at half the last phase. */
+  arena: number[];
+  /** Lines the boss speaks: phase:2, phase:3, read:far, defeated... */
+  lines: Record<string, string>;
+}
+
 export interface ContentDb {
   version: number;
   hash: string;
@@ -392,4 +435,5 @@ export interface ContentDb {
   wyrd: Record<string, WyrdRuleDef>;
   uniques: Record<string, UniqueDef>;
   codex: CodexEntry[];
+  bosses: Record<string, BossDef>;
 }

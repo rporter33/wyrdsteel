@@ -425,5 +425,74 @@
   "model": "generator",
   "color": "#8a6a3a",
   "attacks": []
+ },
+ {
+  "id": "hrungnir",
+  "name": "Hrungnir",
+  "brain": "hrungnir",
+  "hp": 17000,
+  "dmg": 42,
+  "speed": 3.0,
+  "radius": 1.9,
+  "height": 5.2,
+  "poise": 999,
+  "weight": "heavy",
+  "xp": 900,
+  "bounty": 300,
+  "range": 5,
+  "keep": [
+   0,
+   5
+  ],
+  "aggro": 40,
+  "model": "jotun",
+  "color": "#5b6168",
+  "drop": "boss",
+  "resist": {
+   "freeze": 0.5,
+   "root": 0.5
+  },
+  "attacks": []
+ },
+ {
+  "id": "mokkurkalfi",
+  "name": "Mökkurkálfi",
+  "brain": "guardian",
+  "hp": 1400,
+  "dmg": 20,
+  "speed": 2.6,
+  "radius": 1.2,
+  "height": 3.6,
+  "poise": 160,
+  "weight": "heavy",
+  "xp": 200,
+  "bounty": 60,
+  "range": 3,
+  "keep": [
+   0,
+   3
+  ],
+  "aggro": 40,
+  "model": "golem",
+  "color": "#9a7a5a",
+  "drop": "elite",
+  "attacks": [
+   {
+    "action": "mk.punch",
+    "min": 0,
+    "max": 3.4,
+    "cdMs": 2800,
+    "kind": "heavy",
+    "weight": 2
+   },
+   {
+    "action": "mk.stomp",
+    "min": 0,
+    "max": 3,
+    "cdMs": 5000,
+    "kind": "heavy",
+    "weight": 1
+   }
+  ]
  }
 ]

@@ -1,6 +1,7 @@
 import type { ContentDb } from '../../data/types';
 import type { World } from '../types';
 import { msToTicks } from '../constants';
+import { onBossDeath } from '../../ai/boss';
 
 export type DeathHook = (w: World, db: ContentDb, deadId: number) => void;
 
@@ -11,6 +12,8 @@ export type DeathHook = (w: World, db: ContentDb, deadId: number) => void;
 export function deathSystem(w: World, db: ContentDb, onDeath: DeathHook[]): void {
   for (const e of w.entities) {
     if (e.dead || (e.kind !== 'enemy' && e.kind !== 'player')) continue;
+    // A boss phase ends at its floor: no burst, burn or vent pushes past it.
+    if (e.boss && e.hp < e.boss.floor) e.hp = e.boss.floor;
     if (e.hp > 0) continue;
     if (e.kind === 'enemy' && db.enemies[e.def]?.brain === 'dummy') {
       e.hp = 1;
@@ -24,5 +27,6 @@ export function deathSystem(w: World, db: ContentDb, onDeath: DeathHook[]): void
     if (e.kind === 'enemy') e.removeAt = w.tick + msToTicks(1500);
     w.events.push({ k: 'death', t: w.tick, src: e.id, def: e.def, x: e.x, z: e.z, killer: e.lastHit });
     for (const h of onDeath) h(w, db, e.id);
+    if (e.boss) onBossDeath(w, e);
   }
 }

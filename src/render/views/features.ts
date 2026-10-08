@@ -13,6 +13,8 @@ interface FView {
   rig?: Rig;
   glow?: THREE.Mesh;
   barrier?: THREE.Mesh;
+  /** A chest's lid, which opens. */
+  lid?: THREE.Object3D;
   phase: number;
 }
 
@@ -96,7 +98,8 @@ export class FeatureViews {
           break;
         }
         case 'chest': {
-          g.add(box(1.0, 0.6, 0.6, PALETTE.wood, 0.3), box(1.04, 0.14, 0.64, PALETTE.gold, 0.62));
+          v.lid = box(1.04, 0.14, 0.64, PALETTE.gold, 0.62);
+          g.add(box(1.0, 0.6, 0.6, PALETTE.wood, 0.3), v.lid);
           break;
         }
         case 'shrine': {
@@ -141,7 +144,7 @@ export class FeatureViews {
     for (const v of [...this.items, ...this.exits]) {
       if (v.glow) animated.add(v.glow);
       if (v.barrier) animated.add(v.barrier);
-      if (v.kind === 'chest') v.obj.children[1]?.traverse((o) => animated.add(o));
+      if (v.lid) animated.add(v.lid);
     }
     const baked = bakeStatic(this.group, animated);
     const merged: THREE.Mesh[] = [];
@@ -171,7 +174,7 @@ export class FeatureViews {
         v.glow.position.y = f.a === 2 ? 1.5 : 0.2;
       }
       if (v.kind === 'generator' && v.glow) v.glow.visible = f.a > 0;
-      if (v.kind === 'chest') v.obj.children[1]!.rotation.x = f.a ? -1.2 : 0;
+      if (v.lid) v.lid.rotation.x = f.a ? -1.2 : 0;
       if (v.rig) applyPose(v.rig, { speed: 0, phase: 0, pose: null, t: 0, strike: 0, airborne: false, stun: 0, dead: false, aiming: false, hurt: 0 });
     }
     w.room.exits.forEach((ex, i) => {
@@ -181,10 +184,10 @@ export class FeatureViews {
       v.glow!.visible = ex.open && !!ex.to;
       v.glow!.position.y = 3.6 + Math.sin(this.t * 3) * 0.1;
     });
-    // Mender tethers: a line from each mender to the ally it shields.
+    // Tethers: each mender to the ally it shields, a channelling guardian to the master it mends.
     const pts: number[] = [];
     for (const e of w.entities) {
-      if (e.kind !== 'enemy' || e.dead || !e.ai || !e.ai.a || e.def !== 'mender') continue;
+      if (e.kind !== 'enemy' || e.dead || !e.ai || !e.ai.a || (e.def !== 'mender' && e.ai.st !== 'channel')) continue;
       const a = w.entities.find((x) => x.id === e.ai!.a);
       if (!a || a.dead) continue;
       pts.push(e.x, 1.4, e.z, a.x, a.y + a.h * 0.6, a.z);

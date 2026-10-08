@@ -2,7 +2,7 @@ import type { ContentDb } from '../data/types';
 import type { Entity, Feature, World } from '../sim/types';
 import { msToTicks } from '../sim/constants';
 import { addBuildup } from '../combat/status';
-import { T_CRACKED, T_ICE, T_PIT, tileAt } from './grid';
+import { T_CRACKED, T_ICE, T_PIT, blocksMove, tileAt } from './grid';
 import { byId } from '../sim/entity';
 
 const SURGE_WARN = msToTicks(3000);
@@ -176,6 +176,41 @@ function thinIce(w: World): void {
     w.events.push({ k: 'hazard', t: w.tick, what: 'icebreak', x: f.x, z: f.z });
   }
   room.features = room.features.filter((f) => f.kind !== 'crack' || f.a > 0 || f.b === 1);
+  rescue(w);
+}
+
+/**
+ * Players (and bosses) never drown: anyone grounded on water is hauled to the nearest solid tile,
+ * players with a small fall's worth of damage.
+ */
+function rescue(w: World): void {
+  const room = w.room;
+  for (const e of w.entities) {
+    if (e.dead || e.y > 0 || (e.kind !== 'player' && !e.boss)) continue;
+    if (tileAt(room, Math.floor(e.x), Math.floor(e.z)) !== T_PIT) continue;
+    let best = -1;
+    let bd = Infinity;
+    for (let tz = 0; tz < room.h; tz++) {
+      for (let tx = 0; tx < room.w; tx++) {
+        if (blocksMove(room.tiles[tz * room.w + tx]!) || room.tiles[tz * room.w + tx] === T_CRACKED) continue;
+        const d = (tx + 0.5 - e.x) * (tx + 0.5 - e.x) + (tz + 0.5 - e.z) * (tz + 0.5 - e.z);
+        if (d < bd) {
+          bd = d;
+          best = tz * room.w + tx;
+        }
+      }
+    }
+    if (best < 0) continue;
+    e.x = e.px = (best % room.w) + 0.5;
+    e.z = e.pz = Math.floor(best / room.w) + 0.5;
+    e.vx = e.vz = 0;
+    if (e.kind === 'player') {
+      const dmg = Math.max(1, Math.round(e.hpMax * 0.05));
+      e.hp -= dmg;
+      e.hurtAt = w.tick;
+      w.events.push({ k: 'hit', t: w.tick, src: 0, dst: e.id, dmg, crit: false, weak: false, x: e.x, y: 1, z: e.z, heavy: false });
+    }
+  }
 }
 
 /** A heavy blow or a slam cracks thin ice around it; it breaks 1.5 s later. */

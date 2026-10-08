@@ -152,13 +152,32 @@ export interface PartState {
 }
 
 export interface BossComp {
+  /** 1..3. Each phase ends at an HP floor no blow can pass; the next begins after a transition. */
   phase: number;
+  /** HP this phase cannot be pushed below (0 in the last phase). */
+  floor: number;
   pattern: string;
+  /** Which action of the current pattern is running. */
+  step: number;
+  /** The last few patterns, newest last: no pattern runs three times in a row. */
   history: string[];
   invuln: number;
+  /** Patterns since the last overheat. */
   heat: number;
   exposed: number;
+  /** Stone plates: they take most of each blow until broken; the guardian restores them. */
   plating: number;
+  platingMax: number;
+  /** What the boss last read from the way its target fights: close, mid, far or dodgy. */
+  read: string;
+  /** Ticks into the current observation window. */
+  obsT: number;
+  /** Position in the final phase's fixed sequence. */
+  seq: number;
+  /** Arena collapse steps already taken. */
+  collapse: number;
+  cx: number;
+  cz: number;
 }
 
 export interface Entity {
@@ -339,7 +358,7 @@ export type SimEvent =
   | { k: 'quest'; t: number; slot: number; charm: string; done: boolean }
   | { k: 'ruiner'; t: number; src: number; id: string }
   | { k: 'ability'; t: number; src: number; id: string }
-  | { k: 'boss'; t: number; what: 'phase' | 'pattern' | 'exposed' | 'plated' | 'defeated'; value: string }
+  | { k: 'boss'; t: number; what: 'phase' | 'pattern' | 'exposed' | 'plated' | 'broken' | 'channel' | 'interrupt' | 'read' | 'collapse' | 'defeated'; value: string }
   | { k: 'hazard'; t: number; what: string; x: number; z: number }
   | { k: 'surge'; t: number; on: boolean; warn: boolean }
   | { k: 'interact'; t: number; slot: number; what: string; id: string }

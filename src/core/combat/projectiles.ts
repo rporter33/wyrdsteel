@@ -71,6 +71,8 @@ function explode(w: World, db: ContentDb, p: Entity): void {
   const owner = byId(w, p.proj!.owner) ?? p;
   for (const t of w.entities) {
     if (t.dead || t.team === p.team || t.team === 2 || (t.kind !== 'enemy' && t.kind !== 'player')) continue;
+    // The body the shell struck already took the direct hit; the blast is for its neighbours.
+    if (p.proj!.hit.includes(t.id)) continue;
     const dx = t.x - p.x;
     const dz = t.z - p.z;
     if (dx * dx + dz * dz > (r + t.r) * (r + t.r)) continue;

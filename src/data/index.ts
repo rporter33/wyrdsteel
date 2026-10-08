@@ -22,6 +22,7 @@ import story from './story.json';
 import wyrd from './wyrd.json';
 import uniques from './uniques.json';
 import codex from './codex.json';
+import bosses from './bosses.json';
 
 export const CONTENT_VERSION = 1;
 
@@ -48,4 +49,5 @@ export const packs: RawPacks = {
   wyrd,
   uniques,
   codex,
+  bosses,
 };

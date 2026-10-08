@@ -113,6 +113,8 @@ export class GameRenderer {
         lz = (inp.az / 16) * k;
       }
       this.rig.settings.shake = this.opts.shake;
+      // A giant needs room on screen: pull back while a boss stands.
+      this.rig.zoomTarget = w.entities.some((b) => b.boss && !b.dead) ? 1.45 : 1;
       this.rig.update({ x, z }, { x: lx, z: lz }, dt, this.canvas.clientWidth / Math.max(1, this.canvas.clientHeight));
       this.room?.cutaway(x, z);
       this.valkyrie.update(e.dead, x, z, dt);

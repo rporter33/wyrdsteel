@@ -1,6 +1,7 @@
 import type { ContentDb } from '../data/types';
 import type { World } from '../sim/types';
 import { pickTarget, fighter, frostwright, mender, burrower, eliteHooks } from './brains';
+import { hrungnir, guardian } from './boss';
 import { releaseToken } from './director';
 import { stop } from './steer';
 import { dist } from './steer';
@@ -48,6 +49,12 @@ export function aiSystem(w: World, db: ContentDb): void {
         break;
       case 'burrower':
         burrower(w, db, e, def, t);
+        break;
+      case 'hrungnir':
+        hrungnir(w, db, e, def, t);
+        break;
+      case 'guardian':
+        guardian(w, db, e, def, t);
         break;
       default:
         fighter(w, db, e, def, t);

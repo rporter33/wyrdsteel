@@ -41,7 +41,8 @@ export function addBuildup(w: World, t: Entity, k: StatusId, amt: number, resist
       return 'chill';
     case 'burn':
       t.status.burn = BURN_T;
-      t.status.burnDmg = Math.max(1, Math.round(t.hpMax * (t.kind === 'player' ? 0.006 : 0.012)));
+      // A share of max HP, so burn matters on anything; bosses burn at a troll's rate, not their own.
+      t.status.burnDmg = Math.max(1, Math.round(t.hpMax * (t.kind === 'player' ? 0.006 : t.boss ? 0.0025 : 0.012)));
       t.status.chill = 0;
       t.status.freeze = 0;
       return 'burn';

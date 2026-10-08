@@ -227,3 +227,23 @@ button.armed { border-color: var(--gold); color: var(--gold); }
 .codex article { border: 1px solid var(--panel-edge); border-radius: 8px; padding: 10px 12px; }
 .codex h4 { margin: 0 0 4px; color: var(--gold); font-size: 14px; }
 .codex p { margin: 0; font-size: 13px; line-height: 1.5; color: #cfd8e0; }
+
+/* Boss */
+.hud-boss { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: min(560px, 82vw); text-align: center; display: none; }
+.hud-boss .bname { font-weight: 800; font-size: 15px; letter-spacing: 0.06em; text-shadow: 0 1px 3px #000; margin-bottom: 4px; color: #f3e6c8; }
+.hud-boss .bar.bhp { height: 14px; position: relative; }
+.hud-boss .bar.bhp .fill { background: linear-gradient(90deg, #7a2a12, #e0622a 70%, #ffb057); }
+.hud-boss .ticks span { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #f3e6c8; opacity: 0.85; }
+.hud-boss .bar.bplate { height: 5px; margin-top: 3px; }
+.hud-boss .bar.bplate .fill { background: linear-gradient(90deg, #5b6168, #b8c0c8); }
+.hud-boss .bstate { font-size: 12px; color: var(--ink-dim); margin-top: 4px; text-shadow: 0 1px 2px #000; }
+.hud-boss .bstate.exposed { color: var(--gold); font-weight: 700; }
+.hud-boss .bstate.invuln { color: #b8c0c8; font-style: italic; }
+.hud-boss .bguard { width: 60%; margin: 6px auto 0; }
+.hud-boss .gname { font-size: 12px; text-shadow: 0 1px 2px #000; margin-bottom: 2px; }
+.hud-boss .gname.alert { color: var(--ember); font-weight: 700; }
+.hud-boss .bar.ghp { height: 6px; }
+.hud-boss .bar.ghp .fill { background: linear-gradient(90deg, #6b4f36, #c49a6a); }
+.hud-bossline { position: absolute; left: 50%; bottom: 168px; transform: translateX(-50%); max-width: min(640px, 86vw); text-align: center; font-size: 15px; font-style: italic; color: #f3e6c8; text-shadow: 0 2px 6px #000; opacity: 0; transition: opacity 300ms; pointer-events: none; }
+.hud-bossline.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .hud-bossline { transition: none; } }

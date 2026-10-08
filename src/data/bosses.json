@@ -1,0 +1,160 @@
+[
+ {
+  "id": "hrungnir",
+  "title": "Hrungnir, the Stone-Hearted",
+  "guardian": "mokkurkalfi",
+  "phases": [
+   0.66,
+   0.33
+  ],
+  "plating": 0.08,
+  "bleed": 0.25,
+  "rangedTaken": 0.75,
+  "replateMs": 14000,
+  "channelMs": 2500,
+  "transitionMs": 2000,
+  "exposedMs": 4500,
+  "overheat": 3,
+  "spanMs": 5000,
+  "patterns": [
+   {
+    "id": "maul",
+    "actions": [
+     "hr.maul"
+    ],
+    "vs": [
+     "close",
+     "mid"
+    ],
+    "phases": [
+     1,
+     2
+    ],
+    "max": 5
+   },
+   {
+    "id": "sweep",
+    "actions": [
+     "hr.sweep",
+     "hr.maul"
+    ],
+    "vs": [
+     "close"
+    ],
+    "phases": [
+     1,
+     2
+    ],
+    "max": 4.5
+   },
+   {
+    "id": "shockwave",
+    "actions": [
+     "hr.shockwave"
+    ],
+    "vs": [
+     "close"
+    ],
+    "phases": [
+     2
+    ],
+    "max": 6
+   },
+   {
+    "id": "leap",
+    "actions": [
+     "hr.leap",
+     "hr.volley"
+    ],
+    "vs": [
+     "close"
+    ],
+    "phases": [
+     2
+    ],
+    "max": 6
+   },
+   {
+    "id": "charge",
+    "actions": [
+     "hr.charge"
+    ],
+    "vs": [
+     "far"
+    ],
+    "phases": [
+     1,
+     2
+    ],
+    "min": 5,
+    "max": 14
+   },
+   {
+    "id": "volley",
+    "actions": [
+     "hr.volley"
+    ],
+    "vs": [
+     "far",
+     "mid"
+    ],
+    "phases": [
+     1,
+     2
+    ],
+    "min": 4,
+    "max": 18
+   },
+   {
+    "id": "summon",
+    "actions": [
+     "hr.summon"
+    ],
+    "vs": [
+     "far"
+    ],
+    "phases": [
+     2
+    ]
+   },
+   {
+    "id": "double",
+    "actions": [
+     "hr.slam",
+     "hr.slamLate"
+    ],
+    "vs": [
+     "dodgy"
+    ],
+    "phases": [
+     2
+    ],
+    "max": 4.5
+   }
+  ],
+  "final": [
+   "charge",
+   "maul",
+   "shockwave",
+   "volley",
+   "double",
+   "overheat"
+  ],
+  "arena": [
+   8.5,
+   6.5
+  ],
+  "lines": {
+   "intro": "Little forge-born. The heat you carry is mine to drink.",
+   "channel": "Clay-son, mend my stone.",
+   "broken": "You crack the plates. Not the heart.",
+   "phase:2": "Mökkurkálfi crumbles. Then I will burn hotter.",
+   "phase:3": "Let the spring take the floor. Let it take us both.",
+   "read:far": "You keep your distance. I will close it.",
+   "read:close": "You cling to my knees. I will shake you off.",
+   "read:dodgy": "You leap at every shadow. I will wait for you to land.",
+   "exposed": "The heart vents. Strike it now.",
+   "defeated": "The giants... still... sleep..."
+  }
+ }
+]

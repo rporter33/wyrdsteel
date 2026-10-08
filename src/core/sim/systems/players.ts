@@ -157,7 +157,7 @@ export function respawn(w: World, db: ContentDb, slot: number): void {
   const p = w.players[slot]!;
   const e = byId(w, p.entity);
   if (!e || !e.pl) return;
-  resetActiveEncounters(w);
+  resetActiveEncounters(w, db);
   e.dead = false;
   e.hp = e.hpMax;
   e.act = null;

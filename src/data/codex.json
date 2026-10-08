@@ -14,7 +14,7 @@
  {
   "id": "c.ironwood",
   "title": "The Iron Wood",
-  "text": "J\u00e1rnvi\u00f0r: trees with bark like cast iron, where trolls were said to be born. The first heat-line runs through it.",
+  "text": "Járnviðr: trees with bark like cast iron, where trolls were said to be born. The first heat-line runs through it.",
   "unlock": "zone.ironwood"
  },
  {
@@ -82,5 +82,23 @@
   "title": "Wells of Wyrd",
   "text": "The Norns keep one rule in each well. Win under it and the well pays in sigils and blueprints.",
   "unlock": "beat:wyrd.air"
+ },
+ {
+  "id": "c.hrungnir",
+  "title": "Hrungnir",
+  "text": "A jotun of the old songs, rebuilt as a war-engine with a forge for a heart. It drank the spring's heat to wake the giants under the ice. Its plates turn most of a blow; its heart, when it vents, turns nothing. It watches how you fight, and answers.",
+  "unlock": "kill:hrungnir"
+ },
+ {
+  "id": "c.mokkurkalfi",
+  "title": "Mökkurkálfi",
+  "text": "The clay giant built to stand beside Hrungnir, given a mare's heart because nothing braver would fit. It mends its master's stone with long, slow spells, and a solid blow breaks its nerve.",
+  "unlock": "beat:r.caldera"
+ },
+ {
+  "id": "c.chapter",
+  "title": "Chapter one: the winter breaks",
+  "text": "The heat-lines run again and Midgard thaws from the wall inward. Under the ice of Hvergelmir the giants sleep on. The gate will take you back to the caldera if you want Hrungnir's stone a second time.",
+  "unlock": "chapter"
  }
 ]

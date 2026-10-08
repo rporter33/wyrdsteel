@@ -1,5 +1,5 @@
 import type { ContentDb } from '../../core/data/types';
-import type { World } from '../../core/sim/types';
+import type { SimEvent, World } from '../../core/sim/types';
 import { boundAbilities } from '../../core/combat/attack';
 import { XP_TABLE, LEVEL_CAP } from '../../core/progression/rewards';
 import { inHeat } from '../../core/level/hazards';
@@ -51,6 +51,17 @@ export class Hud {
   private zoneEl: HTMLElement;
   private prompt: HTMLElement;
   private heat: HTMLElement;
+  private boss: HTMLElement;
+  private bossName: HTMLElement;
+  private bossFill: HTMLElement;
+  private bossTicks: HTMLElement;
+  private bossPlate: HTMLElement;
+  private bossState: HTMLElement;
+  private guard: HTMLElement;
+  private guardName: HTMLElement;
+  private guardFill: HTMLElement;
+  private line: HTMLElement;
+  private lineUntil = 0;
   private last: Record<string, string | number> = {};
   showPerf = false;
 
@@ -90,6 +101,21 @@ export class Hud {
     this.prompt = el('div', 'hud-prompt', this.root);
     this.heat = el('div', 'hud-heat', this.root);
     this.perf = el('div', 'perf', this.root);
+    // Boss: a wide bar with phase marks, the plates beneath it, a state line, and the guardian.
+    this.boss = el('div', 'hud-boss', this.root);
+    this.bossName = el('div', 'bname', this.boss);
+    const bb = el('div', 'bar bhp', this.boss);
+    this.bossFill = el('div', 'fill', bb);
+    this.bossTicks = el('div', 'ticks', bb);
+    const pb = el('div', 'bar bplate', this.boss);
+    this.bossPlate = el('div', 'fill', pb);
+    this.bossState = el('div', 'bstate', this.boss);
+    this.guard = el('div', 'bguard', this.boss);
+    this.guardName = el('div', 'gname', this.guard);
+    const gb = el('div', 'bar ghp', this.guard);
+    this.guardFill = el('div', 'fill', gb);
+    this.line = el('div', 'hud-bossline', this.root);
+    this.line.setAttribute('aria-live', 'polite');
     this.root.style.display = 'none';
   }
 
@@ -184,8 +210,9 @@ export class Hud {
       this.prompt.textContent = prompt;
       this.prompt.style.display = prompt ? 'block' : 'none';
     });
-    // Target panel: the locked target, else the soft target.
-    const tid = e.pl.lock || e.pl.soft;
+    this.updateBoss(w, db);
+    // Target panel: the locked target, else the soft target. A boss fight shows the boss bar instead.
+    const tid = w.entities.some((x) => x.boss && !x.dead) ? 0 : e.pl.lock || e.pl.soft;
     const t = tid && !e.dead ? w.entities.find((x) => x.id === tid && !x.dead) : null;
     this.set('target', t ? `${t.id}:${Math.ceil(t.hp)}:${(t.parts ?? []).map((pp) => (pp.broken ? 1 : 0)).join('')}:${e.pl.lock}` : '', () => {
       this.target.style.display = t ? 'block' : 'none';
@@ -206,8 +233,54 @@ export class Hud {
     this.set('dps', Math.round(dps), () => {
       this.dps.textContent = dps > 0 ? `${Math.round(dps)} dps` : '';
     });
+    if (this.lineUntil && performance.now() > this.lineUntil) {
+      this.line.classList.remove('on');
+      this.lineUntil = 0;
+    }
     if (this.showPerf) {
       this.perf.textContent = `${perf.fps.toFixed(0)} fps · sim ${perf.simMs.toFixed(2)} ms · ${perf.calls} calls · ${(perf.tris / 1000).toFixed(0)}k tris · ${w.entities.length} ents`;
+    }
+  }
+
+  private updateBoss(w: World, db: ContentDb): void {
+    const b = w.entities.find((x) => x.boss && !x.dead);
+    const bd = b ? db.bosses[b.def] : null;
+    const g = bd?.guardian ? w.entities.find((x) => x.def === bd.guardian && !x.dead) : null;
+    const s = b?.boss;
+    const key = b && s ? `${b.id}:${Math.ceil(b.hp)}:${s.plating}:${s.phase}:${s.invuln > 0}:${s.exposed > 0}:${g ? `${Math.ceil(g.hp)}:${g.ai?.st}` : '-'}` : '';
+    this.set('boss', key, () => {
+      this.boss.style.display = b ? 'block' : 'none';
+      if (!b || !s || !bd) return;
+      this.bossName.textContent = bd.title;
+      this.bossFill.style.width = `${(100 * Math.max(0, b.hp)) / b.hpMax}%`;
+      if (!this.bossTicks.childElementCount) for (const f of bd.phases) el('span', '', this.bossTicks).style.left = `${f * 100}%`;
+      this.bossPlate.parentElement!.style.display = s.platingMax > 0 ? '' : 'none';
+      this.bossPlate.style.width = `${s.platingMax > 0 ? (100 * s.plating) / s.platingMax : 0}%`;
+      const state = s.invuln > 0 ? 'Unbreakable — wait for it' : s.exposed > 0 ? 'Heart exposed — strike now' : s.plating > 0 ? 'Plated: break the stone, or stop the mending' : `Phase ${s.phase} of ${bd.phases.length + 1}`;
+      this.bossState.textContent = state;
+      this.bossState.className = 'bstate' + (s.exposed > 0 ? ' exposed' : s.invuln > 0 ? ' invuln' : '');
+      this.guard.style.display = g ? '' : 'none';
+      if (g) {
+        this.guardName.textContent = `${db.enemies[g.def]?.name ?? g.def}${g.ai?.st === 'channel' ? ' — mending the plates! Stagger it' : ''}`;
+        this.guardName.classList.toggle('alert', g.ai?.st === 'channel');
+        this.guardFill.style.width = `${(100 * Math.max(0, g.hp)) / g.hpMax}%`;
+      }
+    });
+  }
+
+  /** The boss speaks on its big moments: the fight's start, each phase, each new read of you. */
+  bossEvents(evs: SimEvent[], w: World, db: ContentDb): void {
+    for (const ev of evs) {
+      if (ev.k !== 'boss') continue;
+      const b = w.entities.find((x) => x.boss);
+      const bd = b ? db.bosses[b.def] : null;
+      if (!bd) continue;
+      const key = ev.what === 'phase' ? (ev.value === '1' ? 'intro' : `phase:${ev.value}`) : ev.what === 'read' ? `read:${ev.value}` : ev.what;
+      const text = bd.lines[key];
+      if (!text) continue;
+      this.line.textContent = `${db.enemies[bd.id]?.name ?? bd.id}: “${text}”`;
+      this.line.classList.add('on');
+      this.lineUntil = performance.now() + 4500;
     }
   }
 }

@@ -21,6 +21,9 @@ export class CameraRig {
   private readonly plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -1.2);
   private readonly hit = new THREE.Vector3();
   private snapped = false;
+  /** Multiplier on the player's chosen distance, eased: a boss fight pulls the camera back. */
+  zoomTarget = 1;
+  private zoom = 1;
 
   addTrauma(a: number): void {
     this.trauma = Math.min(1, this.trauma + a);
@@ -43,7 +46,8 @@ export class CameraRig {
     this.vel.addScaledVector(acc, s);
     this.pos.addScaledVector(this.vel, s);
     const pitch = THREE.MathUtils.degToRad(this.settings.pitchDeg);
-    const d = this.settings.distance;
+    this.zoom += (this.zoomTarget - this.zoom) * Math.min(1, s * 1.5);
+    const d = this.settings.distance * this.zoom;
     this.camera.position.set(this.pos.x, Math.sin(pitch) * d, this.pos.z + Math.cos(pitch) * d);
     this.t += s;
     this.trauma = Math.max(0, this.trauma - s * 1.6);

@@ -131,5 +131,16 @@
   "poise": 40,
   "stopMs": 40,
   "color": "#78c6ff"
+ },
+ {
+  "id": "hr.boulder",
+  "speed": 13,
+  "gravity": 1,
+  "radius": 0.5,
+  "lifeMs": 3000,
+  "aoe": 2.2,
+  "fragile": true,
+  "poise": 60,
+  "color": "#6b6f75"
  }
 ]
