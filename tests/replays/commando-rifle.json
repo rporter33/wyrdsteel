@@ -1,0 +1,97 @@
+{
+ "replay": {
+  "v": 1,
+  "simVersion": 1,
+  "contentHash": "2c75c103",
+  "start": {
+   "seed": 202,
+   "players": [
+    {
+     "name": "G",
+     "cls": "commando"
+    }
+   ],
+   "zone": "training",
+   "node": "training"
+  },
+  "frames": [
+   [
+    30,
+    [
+     {
+      "mx": 0,
+      "mz": -127,
+      "ax": 0,
+      "az": 0,
+      "held": 0,
+      "pressed": 0
+     }
+    ]
+   ],
+   [
+    90,
+    [
+     {
+      "mx": 0,
+      "mz": 0,
+      "ax": 16,
+      "az": -80,
+      "held": 16,
+      "pressed": 0
+     }
+    ]
+   ],
+   [
+    1,
+    [
+     {
+      "mx": 0,
+      "mz": 0,
+      "ax": 16,
+      "az": -80,
+      "held": 256,
+      "pressed": 256
+     }
+    ]
+   ],
+   [
+    120,
+    [
+     {
+      "mx": 0,
+      "mz": 0,
+      "ax": 0,
+      "az": 0,
+      "held": 0,
+      "pressed": 0
+     }
+    ]
+   ]
+  ],
+  "interstitials": [],
+  "checkpoints": [
+   {
+    "tick": 60,
+    "hash": "4b35f8fe23b0ce7e"
+   },
+   {
+    "tick": 120,
+    "hash": "86abfb191a85cc99"
+   },
+   {
+    "tick": 180,
+    "hash": "d6ea276a653dc7ea"
+   },
+   {
+    "tick": 240,
+    "hash": "3276f411e3bb2191"
+   }
+  ]
+ },
+ "final": "98a3e0f3146db573",
+ "summary": {
+  "hits": 6,
+  "damage": 69,
+  "kills": 0
+ }
+}

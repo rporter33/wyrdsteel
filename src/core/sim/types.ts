@@ -51,6 +51,14 @@ export interface PlayerComp {
   empowered: number;
   flasks: number;
   buffer: { input: 'light' | 'heavy' | 'launcher'; at: number } | null;
+  /** Last combo node and the tick until which the next press continues the string. */
+  chain: string;
+  chainUntil: number;
+  /** Buff ticks remaining and amount (Howl, empowered). */
+  buffDmg: number;
+  buffUntil: number;
+  /** Damage dealt recently, for the training-yard readout. */
+  dealt: number;
   lock: number;
   soft: number;
   fireCd: number;
@@ -86,8 +94,25 @@ export interface AiComp {
   enc: number;
 }
 
+/** An attacker's rolled damage and bonuses, captured when a blow or shot starts. */
+export interface Profile {
+  base: number;
+  pct: number;
+  critChance: number;
+  critMult: number;
+  poiseMult: number;
+  statusPct: number;
+  lifesteal: number;
+  level: number;
+  onHit: { k: StatusId; amt: number }[];
+  weakPct: number;
+  airPct: number;
+  ruinGain: number;
+}
+
 export interface ProjComp {
   owner: number;
+  prof: Profile;
   dmg: number;
   poise: number;
   life: number;
@@ -166,6 +191,10 @@ export interface Entity {
   shield: number;
   /** Tick of the last hit taken, for hit flash and poise regen. */
   hurtAt: number;
+  /** Entity that last damaged this one (credited with the kill). */
+  lastHit: number;
+  /** How the last hit landed, for charm quests (air, behind, status, weak point, ranged). */
+  lastHow: number;
   pl?: PlayerComp;
   ai?: AiComp;
   proj?: ProjComp;

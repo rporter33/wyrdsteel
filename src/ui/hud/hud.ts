@@ -1,5 +1,6 @@
 import type { ContentDb } from '../../core/data/types';
 import type { World } from '../../core/sim/types';
+import { boundAbilities } from '../../core/combat/attack';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, parent?: HTMLElement): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -19,6 +20,18 @@ export class Hud {
   private dodges: HTMLElement;
   private flasks: HTMLElement;
   private perf: HTMLElement;
+  private abil: HTMLElement;
+  private abilSlots: { root: HTMLElement; cd: HTMLElement; name: HTMLElement }[] = [];
+  private ruin: HTMLElement;
+  private ruinFill: HTMLElement;
+  private target: HTMLElement;
+  private targetName: HTMLElement;
+  private targetFill: HTMLElement;
+  private targetParts: HTMLElement;
+  private dps: HTMLElement;
+  private dpsWindow: { t: number; d: number }[] = [];
+  private lastDealt = 0;
+  private hint: HTMLElement;
   private last: Record<string, string | number> = {};
   showPerf = false;
 
@@ -31,6 +44,24 @@ export class Hud {
     const row = el('div', 'hud-row', vitals);
     this.dodges = el('div', 'pips', row);
     this.flasks = el('div', 'flasks', row);
+    this.ruin = el('div', 'bar ruin', vitals);
+    this.ruinFill = el('div', 'fill', this.ruin);
+    el('div', 'bar-text', this.ruin).textContent = 'RUIN';
+    this.abil = el('div', 'hud-abilities', this.root);
+    for (let i = 0; i < 4; i++) {
+      const root = el('div', 'ab', this.abil);
+      el('div', 'key', root).textContent = String(i + 1);
+      const name = el('div', 'name', root);
+      const cd = el('div', 'cd', root);
+      this.abilSlots.push({ root, cd, name });
+    }
+    this.target = el('div', 'hud-target', this.root);
+    this.targetName = el('div', 'tname', this.target);
+    const tb = el('div', 'bar thp', this.target);
+    this.targetFill = el('div', 'fill', tb);
+    this.targetParts = el('div', 'tparts', this.target);
+    this.dps = el('div', 'hud-dps', this.root);
+    this.hint = el('div', 'hud-hint', this.root);
     this.perf = el('div', 'perf', this.root);
     this.root.style.display = 'none';
   }
@@ -45,7 +76,14 @@ export class Hud {
     this.root.style.display = on ? '' : 'none';
   }
 
-  update(w: World, _db: ContentDb, slot: number, perf: { fps: number; simMs: number; calls: number; tris: number }): void {
+  setHint(text: string): void {
+    this.set('hint', text, () => {
+      this.hint.textContent = text;
+      this.hint.style.display = text ? '' : 'none';
+    });
+  }
+
+  update(w: World, db: ContentDb, slot: number, perf: { fps: number; simMs: number; calls: number; tris: number }): void {
     const p = w.players[slot];
     const e = p ? w.entities.find((x) => x.id === p.entity) : null;
     if (!p || !e || !e.pl) return;
@@ -59,6 +97,50 @@ export class Hud {
       for (let i = 0; i < p.stats.dodgeCharges; i++) el('span', 'pip' + (i < e.pl!.dodges ? ' on' : ''), this.dodges);
     });
     this.set('flask', e.pl.flasks, () => (this.flasks.textContent = `Flask ×${e.pl!.flasks}`));
+    const ruin = Math.floor(e.pl.ruin);
+    this.set('ruin', ruin, () => {
+      this.ruinFill.style.width = `${ruin}%`;
+      this.ruin.classList.toggle('full', ruin >= 100);
+    });
+    const abilities = boundAbilities(p, db);
+    for (let i = 0; i < 4; i++) {
+      const id = abilities[i];
+      const def = id ? db.abilities[id] : null;
+      const slotEl = this.abilSlots[i]!;
+      this.set(`ab${i}`, def?.name ?? '', () => {
+        slotEl.name.textContent = def?.name ?? '';
+        slotEl.root.classList.toggle('empty', !def);
+      });
+      const cd = e.pl.cds[i] ?? 0;
+      const total = def ? Math.round(def.cd * (1 - p.stats.cdr)) : 1;
+      const frac = def && cd > 0 ? cd / total : 0;
+      this.set(`cd${i}`, Math.ceil(frac * 20), () => {
+        slotEl.cd.style.height = `${frac * 100}%`;
+        slotEl.root.classList.toggle('ready', frac === 0 && !!def);
+      });
+    }
+    // Target panel: the locked target, else the soft target.
+    const tid = e.pl.lock || e.pl.soft;
+    const t = tid ? w.entities.find((x) => x.id === tid && !x.dead) : null;
+    this.set('target', t ? `${t.id}:${Math.ceil(t.hp)}:${(t.parts ?? []).map((pp) => (pp.broken ? 1 : 0)).join('')}:${e.pl.lock}` : '', () => {
+      this.target.style.display = t ? 'block' : 'none';
+      if (!t) return;
+      const def = db.enemies[t.def];
+      const elites = (t.elite ?? []).map((x) => db.elites[x]?.name ?? x).join(' ');
+      this.targetName.textContent = `${elites ? elites + ' ' : ''}${def?.name ?? t.def}${e.pl!.lock === t.id ? '  [LOCKED]' : ''}`;
+      this.targetFill.style.width = `${(100 * Math.max(0, t.hp)) / t.hpMax}%`;
+      this.targetParts.textContent = (t.parts ?? []).map((pp) => `${db.enemies[t.def]?.parts.find((d) => d.id === pp.id)?.name ?? pp.id}${pp.broken ? ' ✕' : ''}`).join(' · ');
+    });
+    // Damage per second over the last 3 s, for the training yard.
+    if (e.pl.dealt !== this.lastDealt) {
+      this.dpsWindow.push({ t: w.tick, d: e.pl.dealt - this.lastDealt });
+      this.lastDealt = e.pl.dealt;
+    }
+    this.dpsWindow = this.dpsWindow.filter((x) => w.tick - x.t < 180);
+    const dps = this.dpsWindow.reduce((a, x) => a + x.d, 0) / 3;
+    this.set('dps', Math.round(dps), () => {
+      this.dps.textContent = dps > 0 ? `${Math.round(dps)} dps` : '';
+    });
     if (this.showPerf) {
       this.perf.textContent = `${perf.fps.toFixed(0)} fps · sim ${perf.simMs.toFixed(2)} ms · ${perf.calls} calls · ${(perf.tris / 1000).toFixed(0)}k tris · ${w.entities.length} ents`;
     }

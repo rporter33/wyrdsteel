@@ -1,1 +1,44 @@
-[]
+[
+  { "id": "blades", "name": "Twin blades", "hand": "melee", "classes": ["berserker"], "dmg": [9, 13],
+    "combo": [
+      { "id": "L1", "input": "light", "from": ["", "H1"], "action": "b.l1" },
+      { "id": "L2", "input": "light", "from": ["L1"], "action": "b.l2" },
+      { "id": "L3", "input": "light", "from": ["L2"], "action": "b.l3" },
+      { "id": "L4", "input": "light", "from": ["L3"], "action": "b.l4" },
+      { "id": "H1", "input": "heavy", "from": [""], "action": "b.h1" },
+      { "id": "H2", "input": "heavy", "from": ["L1", "L2"], "action": "b.h2" },
+      { "id": "H3", "input": "heavy", "from": ["L3", "L4"], "action": "b.h3" },
+      { "id": "UP", "input": "launcher", "from": ["", "L1", "L2", "L3", "H1", "H2"], "action": "b.up" },
+      { "id": "A1", "input": "light", "from": ["@air", "UP", "AS"], "action": "b.a1" },
+      { "id": "A2", "input": "light", "from": ["A1"], "action": "b.a2" },
+      { "id": "A3", "input": "light", "from": ["A2"], "action": "b.a3" },
+      { "id": "AS", "input": "heavy", "from": ["@air", "UP", "A1", "A2", "A3"], "action": "b.slam" }
+    ] },
+  { "id": "greataxe", "name": "Great-axe", "hand": "melee", "classes": ["berserker"], "dmg": [18, 26],
+    "combo": [
+      { "id": "L1", "input": "light", "from": [""], "action": "g.l1" },
+      { "id": "L2", "input": "light", "from": ["L1"], "action": "g.l2" },
+      { "id": "L3", "input": "light", "from": ["L2"], "action": "g.l3" },
+      { "id": "H1", "input": "heavy", "from": ["", "L1", "L2"], "action": "g.h1" },
+      { "id": "UP", "input": "launcher", "from": ["", "L1", "L2"], "action": "g.up" },
+      { "id": "A1", "input": "light", "from": ["@air", "UP", "A1"], "action": "g.a1" },
+      { "id": "AS", "input": "heavy", "from": ["@air", "UP", "A1"], "action": "g.slam" }
+    ] },
+  { "id": "sword", "name": "Sword", "hand": "melee", "classes": ["berserker", "commando"], "dmg": [12, 16],
+    "combo": [
+      { "id": "L1", "input": "light", "from": ["", "H1"], "action": "s.l1" },
+      { "id": "L2", "input": "light", "from": ["L1"], "action": "s.l2" },
+      { "id": "L3", "input": "light", "from": ["L2"], "action": "s.l3" },
+      { "id": "H1", "input": "heavy", "from": ["", "L1", "L2", "L3"], "action": "s.h1" },
+      { "id": "UP", "input": "launcher", "from": ["", "L1", "L2", "H1"], "action": "s.up" },
+      { "id": "A1", "input": "light", "from": ["@air", "UP"], "action": "s.a1" },
+      { "id": "A2", "input": "light", "from": ["A1"], "action": "s.a2" },
+      { "id": "AS", "input": "heavy", "from": ["@air", "UP", "A1", "A2"], "action": "s.slam" }
+    ] },
+  { "id": "pistols", "name": "Pistols", "hand": "ranged", "classes": ["berserker", "commando"], "dmg": [5, 7],
+    "fire": { "proj": "bullet", "intervalMs": 150, "count": 1, "spread": 2, "moveMult": 0.85, "range": 18 } },
+  { "id": "rifle", "name": "Rifle", "hand": "ranged", "classes": ["commando"], "dmg": [9, 13],
+    "fire": { "proj": "round", "intervalMs": 240, "count": 1, "spread": 0, "moveMult": 0.7, "range": 24 } },
+  { "id": "cannon", "name": "Cannon", "hand": "ranged", "classes": ["commando"], "dmg": [24, 32],
+    "fire": { "proj": "shell", "intervalMs": 950, "count": 1, "spread": 0, "moveMult": 0.5, "range": 20 } }
+]

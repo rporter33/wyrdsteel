@@ -7,11 +7,22 @@
     "hpPerLevel": 14,
     "speed": 6.8,
     "armor": 6,
-    "melee": ["blades", "greataxe", "sword"],
-    "ranged": ["pistols"],
+    "melee": [
+      "blades",
+      "greataxe",
+      "sword"
+    ],
+    "ranged": [
+      "pistols"
+    ],
     "startMelee": "blades",
     "startRanged": "pistols",
-    "abilities": ["zerk.leap", "zerk.whirl", "zerk.howl", "zerk.rend"],
+    "abilities": [
+      "zerk.leap",
+      "zerk.whirl",
+      "zerk.howl",
+      "zerk.rend"
+    ],
     "tree": "tree.berserker",
     "dodge": "dodge.roll"
   },
@@ -23,11 +34,22 @@
     "hpPerLevel": 12,
     "speed": 6.4,
     "armor": 8,
-    "melee": ["sword"],
-    "ranged": ["rifle", "cannon", "pistols"],
+    "melee": [
+      "sword"
+    ],
+    "ranged": [
+      "rifle",
+      "cannon",
+      "pistols"
+    ],
     "startMelee": "sword",
     "startRanged": "rifle",
-    "abilities": ["cmdo.grenade", "cmdo.mine", "cmdo.turret", "cmdo.slug"],
+    "abilities": [
+      "cmdo.grenade",
+      "cmdo.mine",
+      "cmdo.slug",
+      "cmdo.volley"
+    ],
     "tree": "tree.commando",
     "dodge": "dodge.roll"
   }

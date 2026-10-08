@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-type Ent = { x: number; z: number; hp: number };
+type Ent = { x: number; z: number; hp: number; pl: { dealt: number; lock: number } };
 type Hook = { frames: number; tick: number; player: () => Ent | null };
 const hook = (page: Page) => page.evaluate(() => (window as unknown as { __game?: Hook }).__game);
 const player = (page: Page) => page.evaluate(() => (window as unknown as { __game: Hook }).__game.player());
@@ -47,6 +47,19 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   await expect.poll(() => tick(page)).toBeGreaterThan(t1 + 30);
   const a2 = (await player(page))!;
   expect(a2.z - b2.z).toBeGreaterThan(1.5);
+
+  // Combat: lock on to the nearest dummy, walk to it, and swing until damage lands.
+  await page.evaluate(() => (navigator as unknown as { getGamepads: () => unknown[] }).getGamepads = () => []);
+  await page.keyboard.press('Tab');
+  await expect.poll(async () => (await player(page))!.pl.lock).toBeGreaterThan(0);
+  for (let i = 0; i < 40 && (await player(page))!.pl.dealt === 0; i++) {
+    await page.keyboard.down('KeyW');
+    await page.mouse.click(480, 200);
+    const t = await tick(page);
+    await expect.poll(() => tick(page)).toBeGreaterThan(t + 8);
+    await page.keyboard.up('KeyW');
+  }
+  expect((await player(page))!.pl.dealt).toBeGreaterThan(0);
 
   await page.screenshot({ path: 'test-results/smoke-game.png' });
   expect(errors).toEqual([]);

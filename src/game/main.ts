@@ -11,6 +11,9 @@ import { setApi } from '../ui/api';
 import { panel, screen, version } from '../ui/store';
 import type { SimEvent } from '../core/sim/types';
 import { installDebug } from './debug';
+import { AudioEngine } from '../audio/engine';
+import { playEvents } from '../audio/sfx';
+import * as THREE from 'three';
 
 const params = new URLSearchParams(location.search);
 const db = loadContent(packs);
@@ -21,6 +24,15 @@ gfx.opts.lowFx = params.has('lowfx');
 const input = new InputSampler(canvas);
 const hud = new Hud(document.getElementById('hud')!);
 hud.showPerf = params.has('perf');
+
+const audio = new AudioEngine();
+for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => audio.unlock(), { capture: true });
+const panVec = new THREE.Vector3();
+const pan = (x: number, z: number) => {
+  panVec.set(x, 1, z).project(gfx.rig.camera);
+  return Math.max(-1, Math.min(1, panVec.x * 0.8));
+};
+const SANDBOX_HINT = 'Training yard\nLMB light · E heavy · Q launcher (hold to follow up)\nSpace dodge · RMB fire · Shift precise aim\n1-4 abilities · Tab lock on, wheel cycles · C flask\nIn the air: LMB air string, E slam · Esc pause';
 
 let session: SoloSession | null = null;
 let pendingEvents: SimEvent[] = [];
@@ -101,8 +113,10 @@ const loop = startLoop({
     }
     input.suspended = panel.value !== null;
     if (session) {
-      gfx.frame(session.world, alpha, dt, pendingEvents, 0, 'hall');
+      gfx.frame(session.world, alpha, dt, pendingEvents, 0, db.rooms[session.world.room.id]?.palette ?? 'hall');
+      playEvents(audio, session.world, pendingEvents, pan);
       pendingEvents = [];
+      hud.setHint(session.world.room.id === 'training' ? SANDBOX_HINT : '');
       hud.show(screen.value === 'game');
       const info = gfx.info();
       hud.update(session.world, db, 0, { fps: loop.stats.fps, simMs: loop.stats.simMs, calls: info.calls, tris: info.triangles });

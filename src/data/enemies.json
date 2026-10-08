@@ -1,1 +1,11 @@
-[]
+[
+  { "id": "dummy", "name": "Training Dummy", "brain": "dummy", "hp": 900, "dmg": 0, "speed": 0, "radius": 0.45, "height": 1.9, "poise": 45, "weight": "medium", "xp": 0, "model": "dummy", "color": "#b89a6a" },
+  { "id": "dummy.shield", "name": "Shield Dummy", "brain": "dummy", "hp": 900, "dmg": 0, "speed": 0, "radius": 0.6, "height": 1.95, "poise": 70, "weight": "medium", "guard": "front", "xp": 0, "model": "bulwark", "color": "#6b5a4a" },
+  { "id": "dummy.troll", "name": "Troll Effigy", "brain": "dummy", "hp": 3000, "dmg": 0, "speed": 0, "radius": 1.05, "height": 3.1, "poise": 999, "weight": "heavy", "xp": 0, "model": "troll", "color": "#6b6f5a",
+    "parts": [
+      { "id": "armL", "name": "Left arm", "hp": 260, "fwd": 0, "right": -0.95, "y": 2.2, "r": 0.45, "weak": 1.5, "effect": "noThrow" },
+      { "id": "armR", "name": "Right arm", "hp": 260, "fwd": 0, "right": 0.95, "y": 2.2, "r": 0.45, "weak": 1.5, "effect": "noThrow" },
+      { "id": "legL", "name": "Left leg", "hp": 320, "fwd": 0.2, "right": -0.45, "y": 0.6, "r": 0.45, "weak": 1.4, "effect": "kneel" },
+      { "id": "legR", "name": "Right leg", "hp": 320, "fwd": 0.2, "right": 0.45, "y": 0.6, "r": 0.45, "weak": 1.4, "effect": "kneel" }
+    ] }
+]

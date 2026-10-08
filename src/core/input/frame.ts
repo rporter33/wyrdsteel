@@ -19,6 +19,8 @@ export const BTN = {
   lockPrev: 1 << 14,
   flask: 1 << 15,
   skip: 1 << 16,
+  /** Set by the sampler when the input came from a gamepad: enables aim magnetism. */
+  pad: 1 << 17,
 } as const;
 export type ButtonName = keyof typeof BTN;
 

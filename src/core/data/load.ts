@@ -82,7 +82,7 @@ export function action(a: Raw): ActionDef {
     cancel: t(a.cancelMs, t(a.ms)),
     armor: pair(a.armorMs),
     iframes: pair(a.iframesMs),
-    jump: a.jump ? { at: t(a.jump[0]), vy: a.jump[1] } : null,
+    jump: a.jump ? { at: t(a.jump[0]), vy: a.jump[1], ifHeld: !!a.jump[2] } : null,
     air: !!a.air,
     hover: a.hover ?? 1,
     shoot: a.shoot

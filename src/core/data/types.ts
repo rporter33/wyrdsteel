@@ -42,7 +42,8 @@ export interface ActionDef {
   cancel: number;
   armor: [number, number] | null;
   iframes: [number, number] | null;
-  jump: { at: number; vy: number } | null;
+  /** Launcher follow: the attacker jumps with the target if the button is still held. */
+  jump: { at: number; vy: number; ifHeld: boolean } | null;
   air: boolean;
   hover: number;
   shoot: { at: number[]; proj: string; count: number; spreadCos: number; spreadSin: number; dmg: number } | null;
@@ -275,6 +276,9 @@ export interface RoomDef {
   music: string;
   ambient: string;
   surge: boolean;
+  /** Fixed spawns by marker glyph (training dummies), not part of any encounter. */
+  statics?: Record<string, string>;
+  palette?: string;
 }
 
 export interface ZoneNodeDef {

@@ -21,6 +21,7 @@ export const DEFAULT_KEYS: KeyBindings = {
   lockPrev: ['WheelUp'],
   flask: ['KeyC'],
   skip: ['Space', 'Enter', 'Escape', 'Mouse0'],
+  pad: [],
 };
 
 export const MOVE_KEYS = {

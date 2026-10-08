@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { db } from '../_db';
 import { chaosInputs, hold } from '../_drive';
-import { createWorld, type StartSpec } from '../../../src/core/sim/world';
+import { createWorld, playerEntity, type StartSpec } from '../../../src/core/sim/world';
 import { step } from '../../../src/core/sim/step';
 import { hashWorld } from '../../../src/core/sim/hash';
 import { snapshot, restore } from '../../../src/core/sim/snapshot';
@@ -79,7 +79,7 @@ describe('determinism', () => {
 describe('movement', () => {
   it('holding right moves the player right at about class speed', () => {
     const w = createWorld(spec, db());
-    const e = w.entities[0]!;
+    const e = playerEntity(w, 0)!;
     const x0 = e.x;
     run(w, hold(127, 0, 60));
     expect(e.x - x0).toBeGreaterThan(5.5);
@@ -89,16 +89,16 @@ describe('movement', () => {
 
   it('walls stop the player', () => {
     const w = createWorld(spec, db());
-    const e = w.entities[0]!;
-    run(w, hold(0, -127, 600));
-    expect(e.z).toBeGreaterThanOrEqual(1 + e.r - 1e-9);
-    expect(e.z).toBeLessThan(1 + e.r + 0.01);
+    const e = playerEntity(w, 0)!;
+    run(w, hold(-127, 0, 600));
+    expect(e.x).toBeGreaterThanOrEqual(1 + e.r - 1e-9);
+    expect(e.x).toBeLessThan(1 + e.r + 0.01);
   });
 
   it('dodge travels about 4 m and grants i-frames, two charges then recharge', async () => {
     const { BTN } = await import('../../../src/core/input/frame');
     const w = createWorld(spec, db());
-    const e = w.entities[0]!;
+    const e = playerEntity(w, 0)!;
     const x0 = e.x;
     run(w, [[{ mx: 127, mz: 0, ax: 0, az: 0, held: BTN.dodge, pressed: BTN.dodge }]]);
     let sawIframes = false;

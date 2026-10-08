@@ -60,10 +60,10 @@ export class RoomMesh {
         const n = ((x * 73856093) ^ (z * 19349663)) & 7;
         if (t === T_FLOOR) {
           // Mostly one tone, with every few tiles slightly darker: reads as flagstones, not a checkerboard.
-          c.setHex(n === 0 || n === 5 ? this.palette.floorAlt : this.palette.floor).offsetHSL(0, 0, (n - 3.5) * 0.0015);
+          c.setHex(n === 0 || n === 5 ? this.palette.floorAlt : this.palette.floor).multiplyScalar(1 + (n - 3.5) * 0.008);
           pushQuad(x, z, 0, c);
         } else if (t === T_ICE || t === T_CRACKED) {
-          c.setHex(this.palette.ice).offsetHSL(0, 0, t === T_CRACKED ? -0.18 : (n - 3.5) * 0.006);
+          c.setHex(this.palette.ice).multiplyScalar(t === T_CRACKED ? 0.6 : 1 + (n - 3.5) * 0.01);
           pushQuad(x, z, 0, c);
         } else if (t === T_PIT) {
           c.setHex(this.palette.pit);
@@ -94,7 +94,7 @@ export class RoomMesh {
         this.m.makeScale(1, wl.h, 1).setPosition(wl.x, 0, wl.z);
         mesh.setMatrixAt(i, this.m);
         const shade = wl.h < 1 ? this.palette.low : this.palette.wall;
-        c.setHex(shade).offsetHSL(0, 0, ((((wl.x * 31) ^ (wl.z * 17)) & 7) - 3.5) * 0.01);
+        c.setHex(shade).multiplyScalar(1 + ((((wl.x * 31) ^ (wl.z * 17)) & 7) - 3.5) * 0.02);
         mesh.setColorAt(i, c);
       });
       mesh.instanceMatrix.needsUpdate = true;

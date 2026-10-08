@@ -187,6 +187,7 @@ export class InputSampler {
     }
     this.latched.clear();
     if (this.suspended) return { mx: 0, mz: 0, ax: 0, az: 0, held: 0, pressed: 0 };
+    if (this.device === 'gamepad') held |= BTN.pad;
     const [qmx, qmz] = quantizeMove(mx, mz);
     const [qax, qaz] = ax || az ? quantizeAim(ax, az) : [0, 0];
     return { mx: qmx, mz: qmz, ax: qax, az: qaz, held, pressed };

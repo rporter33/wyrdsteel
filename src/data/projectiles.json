@@ -1,1 +1,8 @@
-[]
+[
+  { "id": "bullet", "speed": 40, "radius": 0.12, "lifeMs": 700, "poise": 3, "color": "#ffd27a" },
+  { "id": "round", "speed": 55, "radius": 0.12, "lifeMs": 600, "pierce": 1, "poise": 6, "color": "#9be7ff" },
+  { "id": "shell", "speed": 26, "radius": 0.25, "lifeMs": 900, "aoe": 2.2, "status": { "k": "burn", "amt": 35 }, "poise": 30, "stopMs": 60, "color": "#ff9a3c" },
+  { "id": "grenade", "speed": 14, "gravity": 1, "radius": 0.2, "lifeMs": 3000, "aoe": 3.0, "status": { "k": "burn", "amt": 60 }, "poise": 40, "color": "#ff9a3c" },
+  { "id": "slug", "speed": 70, "radius": 0.18, "lifeMs": 500, "pierce": 4, "poise": 60, "stopMs": 90, "color": "#78c6ff" },
+  { "id": "mine", "speed": 0, "radius": 0.3, "lifeMs": 20000, "aoe": 2.5, "status": { "k": "root", "amt": 120 }, "poise": 30, "color": "#f5c542" }
+]

@@ -41,6 +41,8 @@ export function newEntity(w: World, kind: EntityKind, def: string, team: number,
     removeAt: -1,
     shield: 0,
     hurtAt: -1000,
+    lastHit: 0,
+    lastHow: 0,
   };
   w.entities.push(e);
   return e;

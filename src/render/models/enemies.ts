@@ -11,7 +11,7 @@ export interface EnemyModel {
   update?(e: Entity, w: World): void;
 }
 
-const FLASH = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const FLASH = new THREE.MeshToonMaterial({ color: 0xffffff, emissive: 0xffe0d0, emissiveIntensity: 0.55 });
 const ELITE_COLOR: Record<string, number> = {
   frostbound: 0x9be7ff,
   volatile: 0xff6a3c,
@@ -23,7 +23,7 @@ const ELITE_COLOR: Record<string, number> = {
 
 function flasher(root: THREE.Object3D): (on: boolean) => void {
   const meshes: THREE.Mesh[] = [];
-  root.traverse((o) => o instanceof THREE.Mesh && !(o.material instanceof THREE.MeshBasicMaterial) && meshes.push(o));
+  root.traverse((o) => o instanceof THREE.Mesh && !(o.material instanceof THREE.MeshBasicMaterial) && !(o.material as THREE.MeshToonMaterial).emissiveIntensity && meshes.push(o));
   const orig = meshes.map((m) => m.material);
   let state = false;
   return (on) => {

@@ -2,6 +2,7 @@ import { TICK_HZ } from '../constants';
 import type { ContentDb, ActionDef } from '../../data/types';
 import type { Entity, World } from '../types';
 import { byId } from '../entity';
+import { BTN } from '../../input/frame';
 
 export function startAction(w: World, e: Entity, def: ActionDef, dx: number, dz: number, target = 0, node = ''): void {
   e.act = { id: def.id, t: 0, hit: [], node, dx, dz, target, moved: 0 };
@@ -25,7 +26,11 @@ export function actionSystem(w: World, db: ContentDb): void {
     a.t++;
     e.iframes = def.iframes && a.t >= def.iframes[0] && a.t < def.iframes[1] ? 1 : e.iframes > 1 ? e.iframes : 0;
     e.armorT = def.armor && a.t >= def.armor[0] && a.t < def.armor[1] ? 1 : 0;
-    if (def.jump && a.t === def.jump.at) e.vy = def.jump.vy;
+    if (def.jump && a.t === Math.max(1, def.jump.at)) {
+      // Launcher follow-up: rise with the target only while the button is still held.
+      const held = !def.jump.ifHeld || (e.pl && (w.players[e.pl.slot]!.lastInput.held & BTN.launcher) !== 0);
+      if (held) e.vy = Math.max(e.vy, def.jump.vy);
+    }
     const lunge = def.lunge;
     if (lunge && a.t >= lunge.from && a.t < lunge.to) {
       let dist = lunge.dist;

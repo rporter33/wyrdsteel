@@ -5,6 +5,7 @@ import { newCharacter, type CharacterState } from '../progression/character';
 import { computeStats } from '../progression/stats';
 import { buildRoom, markersOf } from '../level/room';
 import { newEntity } from './entity';
+import { spawnEnemy } from './spawn';
 import { MAX_PLAYERS } from './constants';
 import { TEAM_PLAYERS, type Entity, type Feature, type PlayerSlot, type RoomState, type World } from './types';
 
@@ -159,6 +160,17 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
       });
     }
   }
+  w.room = room;
+  w.entities = w.entities.filter((e) => e.kind === 'player');
+  if (def.statics) {
+    for (const m of built.markers) {
+      const id = def.statics[m.c];
+      if (id) {
+        const s = spawnEnemy(w, db, id, m.x, m.z, level, []);
+        s.ai!.st = 'static';
+      }
+    }
+  }
   const zone = db.zones[w.zone.id];
   const node = zone?.nodes.find((n) => n.id === nodeId);
   const exits = markersOf(built, 'D');
@@ -168,7 +180,6 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
     room.exits.push({ x: m.x, z: m.z, to, open: room.encounters.every((e) => e.state === 'done'), label: to ? (zone?.nodes.find((n) => n.id === to)?.room ?? to) : '' });
   });
   w.room = room;
-  w.entities = w.entities.filter((e) => e.kind === 'player');
   const starts = markersOf(built, 'P');
   const entryIdx = fromExit ? Math.max(0, starts.findIndex(() => true)) : 0;
   const start = starts[entryIdx] ?? { x: room.w / 2, z: room.h / 2 };
@@ -205,6 +216,11 @@ export function spawnPlayer(w: World, p: PlayerSlot): Entity {
     empowered: -1,
     flasks: p.stats.flasks,
     buffer: null,
+    chain: '',
+    chainUntil: 0,
+    buffDmg: 0,
+    buffUntil: 0,
+    dealt: 0,
     lock: 0,
     soft: 0,
     fireCd: 0,

@@ -17,7 +17,8 @@ export function motionSystem(w: World, db: ContentDb): void {
     const def = e.act ? db.actions[e.act.id] : null;
     const airborne = e.y > 0 || e.vy > 0;
     if (airborne) {
-      const hover = def && def.hover !== 1 ? def.hover : 1;
+      // Juggled enemies fall slower so an air string can connect; the juggle decay still ends it.
+      const hover = def && def.hover !== 1 ? def.hover : e.kind === 'enemy' && e.juggle > 0 ? 0.5 : 1;
       e.vy -= GRAVITY * DT * hover;
       e.y += e.vy * DT;
       if (e.y <= 0) {
@@ -26,6 +27,9 @@ export function motionSystem(w: World, db: ContentDb): void {
         e.vy = 0;
         if (e.juggle > 0 || fast) w.events.push({ k: 'land', t: w.tick, dst: e.id, slam: fast });
         e.juggle = 0;
+        // Landing ends an air string (a slam finishes its own impact window first).
+        if (def && def.air && !def.slam) e.act = null;
+        if (def && def.slam && e.act) e.act.t = Math.max(e.act.t, def.cancel - 6);
       }
     }
     if (e.kind === 'pickup' || e.kind === 'npc' || e.kind === 'prop') continue;

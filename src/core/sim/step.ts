@@ -5,6 +5,12 @@ import { controlSystem } from './systems/control';
 import { actionSystem } from './systems/actions';
 import { motionSystem } from './systems/motion';
 import { cleanupSystem } from './systems/cleanup';
+import { vitalsSystem } from './systems/vitals';
+import { deathSystem } from './systems/deaths';
+import { hitSystem } from '../combat/hits';
+import { projectileSystem } from '../combat/projectiles';
+import { statusSystem } from '../combat/status';
+import { emitSystem } from '../combat/emit';
 
 /**
  * The only function that advances the world. Systems run in a fixed order; each reads the state
@@ -19,7 +25,13 @@ export function step(w: World, f: InputFrame, db: ContentDb): void {
   }
   controlSystem(w, f, db);
   actionSystem(w, db);
+  emitSystem(w, db);
   motionSystem(w, db);
+  hitSystem(w, db);
+  projectileSystem(w, db);
+  statusSystem(w);
+  vitalsSystem(w, db);
+  deathSystem(w, db, []);
   cleanupSystem(w);
   for (const e of w.entities) if (e.hitstop > 0) e.hitstop--;
   w.tick++;
