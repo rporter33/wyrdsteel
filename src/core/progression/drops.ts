@@ -1,4 +1,5 @@
 import type { ContentDb } from '../data/types';
+import { modMult } from '../level/trials';
 import type { Entity, World } from '../sim/types';
 import { byId } from '../sim/entity';
 import { spawnPickup } from '../sim/pickups';
@@ -16,7 +17,8 @@ export function onEnemyDeath(w: World, db: ContentDb, id: number): void {
   if (!def || def.brain === 'dummy') return;
   const elite = !!e.elite?.length;
   grantXp(w, db, xpFor(db, e.def, e.level, elite));
-  const bounty = Math.round(def.bounty * (1 + 0.1 * (e.level - 1)) * (elite ? 3 : 1));
+  const trial = w.zone.trial ? (1 + 0.2 * w.zone.trial) * modMult(w, db, 'bountyMult') : 1;
+  const bounty = Math.round(def.bounty * (1 + 0.1 * (e.level - 1)) * (elite ? 3 : 1) * trial);
   if (bounty > 0) spawnPickup(w, 'bounty', e.x, e.z, bounty);
   if (nextFloat(w.rng.combat) < (elite ? 0.6 : 0.1)) spawnPickup(w, 'heal', e.x, e.z, 0.12);
   dropLoot(w, db, e, elite);

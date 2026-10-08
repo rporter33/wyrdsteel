@@ -1,7 +1,7 @@
 {
   "name": "wyrdsteel",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "A browser action RPG of Norse gods rebuilt by machine. A spiritual successor to Too Human.",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "e2e": "playwright test",
     "size": "node scripts/check-size.mjs",
     "balance": "vitest run --config vitest.balance.config.ts",
-    "check": "npm run typecheck && npm test && npm run build && npm run size && npm run e2e"
+    "check": "npm run typecheck && npm test && npm run balance && npm run build && npm run size && npm run e2e"
   },
   "dependencies": {
     "@preact/signals": "2.11.3",

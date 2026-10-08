@@ -5,6 +5,7 @@ import { generateItem } from '../core/loot/generate';
 import { spawnPickup } from '../core/sim/pickups';
 import type { PlayerInput } from '../core/input/frame';
 import type { World } from '../core/sim/types';
+import { panel, type Panel } from '../ui/store';
 
 /** The debug autopilot's hooks into the loop. The bot itself is loaded only when asked for. */
 export interface Autopilot {
@@ -91,6 +92,10 @@ export function installDebug(d: DebugDeps): void {
       d.auto.on = on;
       const s = d.session();
       if (on && s) botUpkeep(s.world, d.db, 0, aspect);
+    },
+    /** Debug-only: open a menu panel by name (gate, smith, well, inventory...). */
+    open: (name: string) => {
+      panel.value = name as Panel;
     },
     /** Debug-only: the gate's travel, without the panel. */
     travel: (zone: string): string | null => {

@@ -54,8 +54,8 @@ export function step(w: World, f: InputFrame, db: ContentDb): void {
   w.tick++;
   // Room changes happen between ticks, inside the sim, so they replay identically.
   if (w.transition && w.transition.at <= w.tick) {
-    const { to, zone } = w.transition;
+    const { to, zone, trial, mods } = w.transition;
     w.transition = null;
-    travel(w, db, to, zone);
+    travel(w, db, to, zone, trial ? { trial, mods: mods ?? [] } : undefined);
   }
 }

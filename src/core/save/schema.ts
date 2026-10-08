@@ -15,6 +15,11 @@ export interface Settings {
   flash: boolean;
   reducedMotion: boolean;
   volume: number;
+  music: number;
+  /** Interface text size: 1, 1.15 or 1.3. */
+  textScale: number;
+  /** Thicker, more opaque telegraphs. */
+  boldTelegraphs: boolean;
   showPerf: boolean;
   /** Keyboard rebinding: action -> codes. Empty means defaults. */
   keys: Record<string, string[]>;
@@ -30,6 +35,9 @@ export const DEFAULT_SETTINGS: Settings = {
   flash: true,
   reducedMotion: false,
   volume: 0.7,
+  music: 0.5,
+  textScale: 1,
+  boldTelegraphs: false,
   showPerf: false,
   keys: {},
   deadzone: 0.18,

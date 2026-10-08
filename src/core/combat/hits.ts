@@ -8,6 +8,7 @@ import { addBuildup } from './status';
 import { msToTicks } from '../sim/constants';
 import { shielded, crackIce } from '../level/hazards';
 import { interruptChannel } from '../ai/bossState';
+import { modMult } from '../level/trials';
 
 /** Bits recorded on the victim describing how the killing blow landed (charm quests read them). */
 export const HOW_AIR = 1;
@@ -52,6 +53,7 @@ export function profile(w: World, db: ContentDb, src: Entity, ranged: boolean): 
   let base = def ? def.dmg + def.dmgPerLevel * (lvl - 1) : 10;
   base *= DIFF_DMG[w.difficulty]!;
   for (const el of src.elite ?? []) base *= db.elites[el]?.dmgMult ?? 1;
+  if (w.zone.trial) base *= modMult(w, db, 'dmgMult');
   const onHit: Profile['onHit'] = (src.elite ?? []).includes('frostbound') ? [{ k: 'chill', amt: 30 }] : [];
   return { base, pct: 0, critChance: 0, critMult: 1, poiseMult: 1, statusPct: 0, lifesteal: 0, level: lvl, onHit, weakPct: 0, airPct: 0, ruinGain: 0 };
 }

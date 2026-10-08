@@ -132,21 +132,21 @@ export class Effects {
     this.trails.push({ mesh: m, life: 0.16, max: 0.16 });
   }
 
-  private telegraph(ev: Extract<SimEvent, { k: 'telegraph' }>, w: World): void {
+  private telegraph(ev: Extract<SimEvent, { k: 'telegraph' }>, w: World, bold = false): void {
     void w;
-    const col = 0xe5484d;
+    const col = bold ? 0xff2a6d : 0xe5484d;
     let shape: THREE.BufferGeometry;
     if (ev.shape === 'line') shape = new THREE.PlaneGeometry(ev.width, ev.len).translate(0, ev.len / 2, 0);
     else if (ev.shape === 'ring') shape = new THREE.RingGeometry(Math.max(0.1, ev.r - ev.width), ev.r, 40);
     else if (ev.shape === 'cone') shape = new THREE.CircleGeometry(ev.r, 24, Math.PI / 2 - 0.6, 1.2);
     else shape = new THREE.CircleGeometry(ev.r, 32);
-    const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide });
+    const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: bold ? 0.36 : 0.18, depthWrite: false, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(shape, mat);
     mesh.rotation.x = -Math.PI / 2;
     mesh.rotation.z = Math.atan2(ev.dx, ev.dz) + Math.PI;
     if (ev.shape === 'line' || ev.shape === 'cone') mesh.rotation.z = -Math.atan2(ev.dx, -ev.dz);
     mesh.position.set(ev.x, 0.05, ev.z);
-    const fill = new THREE.Mesh(shape, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide }));
+    const fill = new THREE.Mesh(shape, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: bold ? 0.6 : 0.35, depthWrite: false, side: THREE.DoubleSide }));
     fill.scale.setScalar(0.01);
     mesh.add(fill);
     fill.position.z = 0.001;
@@ -221,7 +221,7 @@ export class Effects {
           else if (ev.what === 'brazier') this.burst(ev.x, 1.1, ev.z, 0xff9a3c, 24, 4, 0.08, -2, 0.8);
           break;
         case 'telegraph':
-          this.telegraph(ev, w);
+          this.telegraph(ev, w, opts.boldTelegraphs);
           break;
         case 'immune': {
           const e = ent(ev.dst);

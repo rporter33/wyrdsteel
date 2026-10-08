@@ -43,6 +43,7 @@ export interface RawPacks {
   uniques: Raw[];
   codex: Raw[];
   bosses: Raw[];
+  trials: Raw[];
 }
 
 const t = (ms: number | undefined, d = 0) => (ms === undefined ? d : msToTicks(ms));
@@ -272,5 +273,6 @@ export function loadContent(raw: RawPacks): ContentDb {
     uniques: byId(raw.uniques),
     codex: raw.codex,
     bosses: byId(raw.bosses.map(boss)),
+    trials: byId(raw.trials),
   };
 }

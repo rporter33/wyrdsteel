@@ -7,6 +7,7 @@ import { msToTicks } from '../sim/constants';
 import { byId } from '../sim/entity';
 import { onRoomCleared } from './travel';
 import { buildRoom } from './room';
+import { modElites, modMult } from './trials';
 
 const ACTIVATE_R = 7.5;
 
@@ -32,6 +33,15 @@ function spawnWave(w: World, db: ContentDb, enc: EncounterState): void {
     // Elite affixes go on the toughest enemy of the final wave.
     const last = enc.wave === enc.waves.length - 1;
     const e = spawnEnemy(w, db, id, x, z, enc.level, []);
+    if (w.zone.trial) {
+      // Trial hardships: every foe carries the run's affixes (without an elite's extra health).
+      const els = modElites(w, db);
+      if (els.length) {
+        e.elite = [...(e.elite ?? [])];
+        for (const el of els) if (!e.elite.includes(el)) e.elite.push(el);
+      }
+      e.hpMax = e.hp = Math.max(1, Math.round(e.hpMax * modMult(w, db, 'hpMult')));
+    }
     e.ai!.enc = enc.id;
     e.ai!.aggro = enc.wave > 0;
     enc.alive.push(e.id);

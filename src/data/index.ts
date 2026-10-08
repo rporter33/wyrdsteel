@@ -23,6 +23,7 @@ import wyrd from './wyrd.json';
 import uniques from './uniques.json';
 import codex from './codex.json';
 import bosses from './bosses.json';
+import trials from './trials.json';
 
 export const CONTENT_VERSION = 1;
 
@@ -50,4 +51,5 @@ export const packs: RawPacks = {
   uniques,
   codex,
   bosses,
+  trials,
 };

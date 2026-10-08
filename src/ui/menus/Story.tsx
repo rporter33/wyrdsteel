@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { api } from '../api';
 import { dialogue, panel, version } from '../store';
 import { Panel, run } from './common';
+import { TRIAL_MAX, TRIAL_ZONES, bestTier, trialLevel, trialMods, trialsOpen } from '../../core/level/trials';
 
 /** Story beats: one line at a time; click, Enter, Space or A advances. */
 export function Dialogue() {
@@ -67,14 +68,64 @@ export function Gate() {
                 {z.name} {done && <small>· cleared</small>}
               </strong>
               <span>{open ? z.desc : 'Not yet. The story has not reached it.'}</span>
-              <small>
-                Levels {z.level[0]}–{z.level[1]}
-              </small>
+              <small>{z.level[0] === z.level[1] ? `Level ${z.level[0]}` : `Levels ${z.level[0]}–${z.level[1]}`}</small>
             </button>
           );
         })}
       </div>
+      {trialsOpen(c) && <Trials />}
     </Panel>
+  );
+}
+
+/** The endgame: a cleared zone as a seeded remix, one tier at a time. */
+function Trials() {
+  const db = api().db;
+  const c = api().world()!.players[0]!.character;
+  const [tiers, setTiers] = useState<Record<string, number>>({});
+  return (
+    <section class="trials">
+      <h3>Wyrd Trials</h3>
+      <p class="muted">The Norns reweave a road you have walked: stronger foes, other foes, and hardships laid over it. Clear a tier to open the next.</p>
+      <div class="stack wide">
+        {TRIAL_ZONES.map((id) => {
+          const z = db.zones[id]!;
+          const best = bestTier(c, id);
+          const tier = Math.min(tiers[id] ?? best + 1, TRIAL_MAX, best + 1);
+          const mods = trialMods(db, c, id, tier);
+          const set = (t: number) => setTiers({ ...tiers, [id]: Math.max(1, Math.min(best + 1, TRIAL_MAX, t)) });
+          return (
+            <div key={id} class="trial">
+              <div class="trial-head">
+                <strong>{z.name}</strong>
+                <span class="muted">best: {best ? `tier ${best}` : 'none yet'}</span>
+              </div>
+              <div class="trial-tier">
+                <button aria-label="Lower tier" disabled={tier <= 1} onClick={() => set(tier - 1)}>
+                  −
+                </button>
+                <span>
+                  Tier {tier} · foes level {trialLevel(z.level[0], tier)}–{trialLevel(z.level[1], tier)}
+                </span>
+                <button aria-label="Higher tier" disabled={tier >= Math.min(TRIAL_MAX, best + 1)} onClick={() => set(tier + 1)}>
+                  +
+                </button>
+              </div>
+              <ul class="mods">
+                {mods.map((m) => (
+                  <li key={m} class={db.trials[m]?.boon ? 'boon' : 'hard'}>
+                    <b>{db.trials[m]?.name}</b> — {db.trials[m]?.desc}
+                  </li>
+                ))}
+              </ul>
+              <button class="primary" onClick={() => run({ t: 'travel', zone: id, node: '', trial: tier, mods }) && api().closePanel()}>
+                Enter tier {tier}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

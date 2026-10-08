@@ -5,6 +5,9 @@
 export class AudioEngine {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
+  /** Music has its own level under the master volume. */
+  music: GainNode | null = null;
+  musicLevel = 0.5;
   private noise: AudioBuffer | null = null;
   private voices = 0;
   private last = new Map<string, number>();
@@ -26,15 +29,28 @@ export class AudioEngine {
     comp.threshold.value = -14;
     comp.ratio.value = 6;
     this.master.connect(comp).connect(this.ctx.destination);
+    this.music = this.ctx.createGain();
+    this.music.gain.value = this.musicLevel;
+    this.music.connect(this.master);
     const len = this.ctx.sampleRate;
     this.noise = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
     const d = this.noise.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
   }
 
-  setVolume(v: number): void {
+  setVolume(v: number, music = this.musicLevel): void {
     this.volume = v;
+    this.musicLevel = music;
     if (this.master) this.master.gain.value = this.muted ? 0 : v;
+    if (this.music) this.music.gain.value = music;
+  }
+
+  get context(): AudioContext | null {
+    return this.ctx;
+  }
+
+  get noiseBuffer(): AudioBuffer | null {
+    return this.noise;
   }
 
   get ready(): boolean {

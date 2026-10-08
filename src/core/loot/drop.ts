@@ -4,6 +4,7 @@ import { nextFloat, nextInt, mix } from '../rng/xoshiro';
 import { generateItem } from './generate';
 import { RARITIES, rarityIndex } from './item';
 import { spawnPickup } from '../sim/pickups';
+import { rarityShift, shiftWeights } from '../level/trials';
 
 const RUNE_FAMILIES = ['tyr', 'uruz', 'sowilo', 'algiz', 'raido', 'kaun', 'isa', 'thurs', 'naud'];
 const MATS = ['mat.iron', 'mat.iron', 'mat.iron', 'mat.rune', 'mat.star'];
@@ -23,7 +24,8 @@ export function dropLoot(w: World, db: ContentDb, e: Entity, elite: boolean): vo
       const seed = mix(w.seed, w.tick, e.id, slot);
       // Bosses guarantee Ascendant or better the first time (pity).
       const pity = def.drop === 'boss' && !p.character.bossPity ? 'ascendant' : undefined;
-      const item = generateItem(seed, { ilvl, cls: p.character.cls, weights: table.rarityWeights, minRarity: pity }, db);
+      const weights = shiftWeights(table.rarityWeights, rarityShift(w, db));
+      const item = generateItem(seed, { ilvl, cls: p.character.cls, weights, minRarity: pity }, db);
       if (pity) p.character.bossPity = item.rarity;
       const pk = spawnPickup(w, 'item', e.x, e.z, 1, item.uid, slot);
       pk.pick!.item = item;

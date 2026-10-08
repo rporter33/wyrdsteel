@@ -19,9 +19,11 @@ import { eventToasts } from './feedback';
 import { MenuPad, installArrowKeys } from '../ui/focus';
 import { AudioEngine } from '../audio/engine';
 import { playEvents } from '../audio/sfx';
+import { Music, type Mood } from '../audio/music';
 import { characterSave, startFrom } from '../core/save/serialize';
 import { DEFAULT_SETTINGS, SLOTS, type Settings } from '../core/save/schema';
 import type { StartSpec } from '../core/sim/world';
+import type { World } from '../core/sim/types';
 import type { ButtonName } from '../core/input/frame';
 import type { WriteResult } from '../platform/storage/adapter';
 
@@ -35,6 +37,7 @@ const input = new InputSampler(canvas);
 const hud = new Hud(document.getElementById('hud')!);
 
 const audio = new AudioEngine();
+const music = new Music(audio);
 for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => audio.unlock(), { capture: true });
 const panVec = new THREE.Vector3();
 const pan = (x: number, z: number) => {
@@ -84,7 +87,9 @@ function applySettings(s: Settings): void {
   gfx.rig.settings.pitchDeg = s.cameraPitch;
   gfx.opts.shake = s.reducedMotion ? 0 : s.shake;
   gfx.opts.flash = s.flash && !s.reducedMotion;
-  audio.setVolume(s.volume);
+  audio.setVolume(s.volume, s.music);
+  gfx.opts.boldTelegraphs = s.boldTelegraphs;
+  document.documentElement.style.setProperty('--text-scale', String(s.textScale));
   hud.showPerf = s.showPerf || params.has('perf');
   input.deadzone = s.deadzone;
   const keys = structuredClone(DEFAULT_KEYS);
@@ -245,6 +250,14 @@ const NPC_PANELS: Record<string, Panel> = { well: 'well', board: 'board', smith:
 // Debug only (?debug=1): the balance bot can drive the session, optionally several ticks a frame.
 const auto: Autopilot = { on: false, warp: 1, input: null, upkeep: null };
 
+/** The music follows the fight: a boss, an active encounter, open ground, or home. */
+function moodOf(w: World): Mood {
+  if (w.zone.id === 'citadel') return 'hub';
+  if (w.entities.some((e) => e.boss && !e.dead)) return 'boss';
+  if (w.room.encounters.some((e) => e.state === 'active')) return 'combat';
+  return 'explore';
+}
+
 const loop = startLoop({
   paused: () => !session || panel.value !== null || screen.value !== 'game',
   tick: () => {
@@ -296,12 +309,19 @@ const loop = startLoop({
       hud.setHint(w.room.id === 'training' ? SANDBOX_HINT : '');
       const info = gfx.info();
       hud.update(w, db, 0, { fps: loop.stats.fps, simMs: loop.stats.simMs, calls: info.calls, tris: info.triangles });
+      music.update(moodOf(w));
     } else {
       hud.show(false);
       gfx.renderer.setClearColor(0x0b1016, 1);
       gfx.renderer.clear();
+      music.update('title');
     }
   },
 });
 
 installDebug({ db, frames: () => frames, session: () => session, newGame, loop: loop.stats, gfx, saveNow: () => saveNow('debug'), auto });
+
+// Offline: the service worker caches the whole build on first visit (production builds only).
+if ('serviceWorker' in navigator && import.meta.env.PROD && !params.has('nosw')) {
+  window.addEventListener('load', () => void navigator.serviceWorker.register('./sw.js').catch(() => undefined));
+}

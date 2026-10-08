@@ -182,7 +182,7 @@ export class Hud {
     const zone = db.zones[w.zone.id];
     const room = db.rooms[w.room.id];
     const active = w.room.encounters.find((x) => x.state === 'active');
-    const zoneText = `${zone?.name ?? ''}${room ? ' — ' + room.name : ''}${active ? ` · wave ${active.wave + 1}/${active.waves.length}` : w.room.cleared ? ' · cleared' : ''}`;
+    const zoneText = `${zone?.name ?? ''}${w.zone.trial ? ` · Trial ${w.zone.trial}` : ''}${room ? ' — ' + room.name : ''}${active ? ` · wave ${active.wave + 1}/${active.waves.length}` : w.room.cleared ? ' · cleared' : ''}`;
     this.set('zone', zoneText, () => (this.zoneEl.textContent = zoneText));
     // Blizzard: are you in heat?
     const surging = w.room.surgeEnd > w.tick;

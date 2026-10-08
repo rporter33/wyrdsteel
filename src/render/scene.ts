@@ -14,6 +14,8 @@ export interface RenderOptions {
   lowFx: boolean;
   shake: number;
   flash: boolean;
+  /** Accessibility: thicker, more opaque telegraphs. */
+  boldTelegraphs: boolean;
 }
 
 /** Everything the player sees in the 3D view. Reads the world; never writes it. */
@@ -31,7 +33,7 @@ export class GameRenderer {
   private roomKey = '';
   private hemi = new THREE.HemisphereLight(0xdfeeff, 0x1a222c, 1.1);
   private sun = new THREE.DirectionalLight(0xffffff, 1.4);
-  opts: RenderOptions = { lowFx: false, shake: 1, flash: true };
+  opts: RenderOptions = { lowFx: false, shake: 1, flash: true, boldTelegraphs: false };
 
   constructor(
     readonly canvas: HTMLCanvasElement,

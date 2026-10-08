@@ -75,6 +75,17 @@ export function SettingsView(props: { onBack: () => void }) {
             Volume <b>{Math.round(s.volume * 100)}%</b>
             <input type="range" min="0" max="1" step="0.05" value={s.volume} onInput={(e) => set({ volume: Number((e.target as HTMLInputElement).value) })} />
           </label>
+          <label>
+            Music <b>{Math.round(s.music * 100)}%</b>
+            <input type="range" min="0" max="1" step="0.05" value={s.music} onInput={(e) => set({ music: Number((e.target as HTMLInputElement).value) })} />
+          </label>
+          <label>
+            Text size <b>{Math.round(s.textScale * 100)}%</b>
+            <input type="range" min="1" max="1.3" step="0.15" value={s.textScale} onInput={(e) => set({ textScale: Number((e.target as HTMLInputElement).value) })} />
+          </label>
+          <label class="check">
+            <input type="checkbox" checked={s.boldTelegraphs} onChange={(e) => set({ boldTelegraphs: (e.target as HTMLInputElement).checked })} /> Bold telegraphs (brighter, more opaque warning areas)
+          </label>
           <label class="check">
             <input type="checkbox" checked={s.showPerf} onChange={(e) => set({ showPerf: (e.target as HTMLInputElement).checked })} /> Show performance overlay
           </label>

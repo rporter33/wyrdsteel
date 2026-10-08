@@ -411,6 +411,24 @@ export interface BossDef {
   lines: Record<string, string>;
 }
 
+/** A Wyrd Trial modifier: a hardship (or a boon) laid over a zone remix. */
+export interface TrialModDef {
+  id: string;
+  name: string;
+  desc: string;
+  /** Elite affix given to every foe. */
+  elite?: string;
+  hpMult?: number;
+  dmgMult?: number;
+  /** Extra foes per wave. */
+  extra?: number;
+  flaskMult?: number;
+  bountyMult?: number;
+  /** Extra steps of rarity shift on drops. */
+  rarity?: number;
+  boon?: boolean;
+}
+
 export interface ContentDb {
   version: number;
   hash: string;
@@ -436,4 +454,5 @@ export interface ContentDb {
   uniques: Record<string, UniqueDef>;
   codex: CodexEntry[];
   bosses: Record<string, BossDef>;
+  trials: Record<string, TrialModDef>;
 }

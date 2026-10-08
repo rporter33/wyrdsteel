@@ -1,0 +1,12 @@
+[
+ { "id": "t.hasted", "name": "Quickened", "desc": "Every foe is Hasted: faster feet, faster blows.", "elite": "hasted" },
+ { "id": "t.rime", "name": "Rime", "desc": "Every foe is Frostbound: their blows build frost.", "elite": "frostbound" },
+ { "id": "t.volatile", "name": "Unstable", "desc": "Every foe is Volatile: it bursts a second after it dies.", "elite": "volatile" },
+ { "id": "t.warded", "name": "Warded", "desc": "Every foe ignores statuses until its poise breaks.", "elite": "warded" },
+ { "id": "t.fortified", "name": "Fortified", "desc": "Foes have 35% more health.", "hpMult": 1.35 },
+ { "id": "t.brutal", "name": "Brutal", "desc": "Foes hit 25% harder.", "dmgMult": 1.25 },
+ { "id": "t.crowded", "name": "Crowded", "desc": "Every wave brings two more.", "extra": 2 },
+ { "id": "t.scarce", "name": "Scarce", "desc": "Flasks heal half as much.", "flaskMult": 0.5 },
+ { "id": "t.gilded", "name": "Gilded", "desc": "Bounty doubled.", "bountyMult": 2, "boon": true },
+ { "id": "t.fated", "name": "Fated", "desc": "Rarer drops.", "rarity": 1, "boon": true }
+]

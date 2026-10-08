@@ -7,6 +7,7 @@ import { refreshPlayer } from '../progression/rewards';
 import { takeQuest } from '../progression/charms';
 import { applyItemCommand } from '../loot/inventory';
 import { playStory } from '../level/travel';
+import { trialRefusal } from '../level/trials';
 
 /**
  * Menu actions applied between ticks. Each returns null on success or a reason it was refused;
@@ -91,6 +92,13 @@ export function applyCommand(w: World, slot: number, cmd: Command, db: ContentDb
       const zone = db.zones[cmd.zone];
       if (!zone) return 'Unknown destination';
       if (zone.requires && !c.story[zone.requires]) return 'The way there is not open yet';
+      if (cmd.trial) {
+        const why = trialRefusal(db, c, cmd.zone, cmd.trial, cmd.mods ?? []);
+        if (why) return why;
+        c.story['trials.runs'] = (c.story['trials.runs'] ?? 0) + 1;
+        w.transition = { to: `${cmd.zone}:${zone.start}`, at: w.tick, trial: cmd.trial, mods: [...(cmd.mods ?? [])] };
+        return null;
+      }
       w.transition = { to: `${cmd.zone}:${cmd.node || zone.start}`, at: w.tick };
       return null;
     }

@@ -10,6 +10,9 @@ export function eventToasts(w: World, db: ContentDb, events: SimEvent[], local: 
       case 'levelUp':
         if (ev.slot === local) toast(`Level ${ev.level}. Skill point gained.`, 'loot');
         break;
+      case 'trial':
+        toast(`Wyrd Trial ${ev.tier} cleared: ${db.zones[ev.zone]?.name ?? ev.zone}. Tier ${Math.min(10, ev.tier + 1)} is open.`, 'loot', undefined, 5000);
+        break;
       case 'waystone':
         if (ev.slot === local) toast('Waystone attuned: health and flasks restored.');
         break;

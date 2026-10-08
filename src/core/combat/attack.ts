@@ -1,4 +1,5 @@
 import type { ComboInput, ContentDb } from '../data/types';
+import { modMult } from '../level/trials';
 import { BTN, type PlayerInput } from '../input/frame';
 import type { Entity, PlayerSlot, World } from '../sim/types';
 import { byId } from '../sim/entity';
@@ -72,7 +73,7 @@ export function attackControl(
   // Flask.
   if (inp.pressed & BTN.flask && pl.flasks > 0 && free && e.hp < e.hpMax) {
     pl.flasks--;
-    const heal = Math.round(e.hpMax * p.stats.flaskHeal);
+    const heal = Math.round(e.hpMax * p.stats.flaskHeal * (w.zone.trial ? modMult(w, db, 'flaskMult') : 1));
     e.hp = Math.min(e.hpMax, e.hp + heal);
     startAction(w, e, db.actions['flask.drink']!, e.fx, e.fz);
     w.events.push({ k: 'ability', t: w.tick, src: e.id, id: 'flask' });

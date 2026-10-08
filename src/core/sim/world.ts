@@ -5,6 +5,7 @@ import { type CharacterState } from '../progression/character';
 import { starterCharacter } from '../loot/inventory';
 import { computeStats } from '../progression/derive';
 import { buildRoom, markersOf } from '../level/room';
+import { remixWaves, trialLevel } from '../level/trials';
 import { newEntity } from './entity';
 import { spawnEnemy } from './spawn';
 import { placeShade } from './systems/players';
@@ -91,7 +92,8 @@ export function nodeRoom(db: ContentDb, zoneId: string, nodeId: string): { room:
  * players at the entrance. Non-player entities are dropped; ids keep counting up.
  */
 export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: string): void {
-  const { room: roomId, level } = nodeRoom(db, w.zone.id, nodeId);
+  const { room: roomId, level: baseLevel } = nodeRoom(db, w.zone.id, nodeId);
+  const level = w.zone.trial ? trialLevel(baseLevel, w.zone.trial) : baseLevel;
   const def = db.rooms[roomId]!;
   const variant = nextInt(w.rng.level, def.variants.length);
   const built = buildRoom(db, roomId, variant);
@@ -159,7 +161,7 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
         z: m.z,
         radius: 7,
         state: cleared ? 'done' : 'idle',
-        waves: enc.waves,
+        waves: w.zone.trial ? remixWaves(w, db, enc.waves) : enc.waves,
         wave: 0,
         alive: [],
         elite: enc.elite ?? [],
