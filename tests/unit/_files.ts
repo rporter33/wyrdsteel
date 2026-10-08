@@ -1,10 +1,12 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve, dirname } from 'node:path';
 
 export const ROOT = resolve(import.meta.dirname, '../..');
 
 export function walk(dir: string, exts: string[]): string[] {
   const out: string[] = [];
+  // Git does not track empty folders, so a layer with no files yet may not exist in a checkout.
+  if (!existsSync(dir)) return out;
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) out.push(...walk(p, exts));

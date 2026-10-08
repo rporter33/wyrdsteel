@@ -1,0 +1,342 @@
+// Content as the sim sees it after loading. Authored packs give times in milliseconds and angles
+// in degrees; load.ts converts them to ticks and cosines once, so the sim never does either.
+import type { StatusId } from '../sim/types';
+import type { GearSlot, Rarity } from '../loot/item';
+
+export type ComboInput = 'light' | 'heavy' | 'launcher';
+
+export interface HitDef {
+  from: number;
+  to: number;
+  shape: 'sector' | 'circle' | 'line';
+  range: number;
+  /** cos of the half-angle for sectors. */
+  cosArc: number;
+  width: number;
+  /** Forward offset of a circle's centre. */
+  offset: number;
+  yMin: number;
+  yMax: number;
+  dmg: number;
+  poise: number;
+  launch: number;
+  knock: number;
+  down: boolean;
+  stop: number;
+  status: { k: StatusId; amt: number } | null;
+  guardBreak: boolean;
+  tag: 'light' | 'heavy' | 'launcher' | 'air' | 'ability' | 'ruiner' | 'finisher' | 'enemy';
+  /** Fraction of the target's max HP one hit may deal to a player. */
+  cap: number;
+}
+
+export interface ActionDef {
+  id: string;
+  /** Render-only: which pose family animates this action. */
+  pose: string;
+  len: number;
+  move: number;
+  turn: number;
+  lunge: { from: number; to: number; dist: number } | null;
+  hits: HitDef[];
+  cancel: number;
+  armor: [number, number] | null;
+  iframes: [number, number] | null;
+  jump: { at: number; vy: number } | null;
+  air: boolean;
+  hover: number;
+  shoot: { at: number[]; proj: string; count: number; spreadCos: number; spreadSin: number; dmg: number } | null;
+  slam: boolean;
+  /** Telegraph shown from action start until the first hit window, for enemy attacks. */
+  tele: { shape: 'circle' | 'line' | 'ring' | 'cone'; r: number; width: number } | null;
+  /** Dash to a point (enemy charges, player gap closers): distance over the window. */
+  dash: { from: number; to: number; dist: number } | null;
+  buff: { stat: string; amt: number; dur: number } | null;
+  spawn: { at: number; def: string; count: number } | null;
+  heal: number;
+}
+
+export interface ComboNode {
+  id: string;
+  input: ComboInput;
+  /** Node ids this follows; '' is grounded neutral, '@air' is airborne neutral. */
+  from: string[];
+  action: string;
+}
+
+export interface WeaponKindDef {
+  id: string;
+  name: string;
+  hand: 'melee' | 'ranged';
+  classes: string[];
+  /** Melee: combo graph. Ranged: fire action and cadence. */
+  combo: ComboNode[];
+  fire: { proj: string; interval: number; count: number; spreadCos: number; spreadSin: number; auto: boolean; moveMult: number; range: number } | null;
+  dmg: [number, number];
+  speed: number;
+}
+
+export interface ProjectileDef {
+  id: string;
+  speed: number;
+  radius: number;
+  life: number;
+  pierce: number;
+  gravity: number;
+  homing: number;
+  aoe: number;
+  status: { k: StatusId; amt: number } | null;
+  poise: number;
+  launch: number;
+  stop: number;
+  color: string;
+  /** Shootable (enemy shards can be shot down). */
+  fragile: boolean;
+}
+
+export interface AbilityDef {
+  id: string;
+  name: string;
+  cls: string;
+  cd: number;
+  action: string;
+  desc: string;
+  /** Skill node that unlocks it; null = starts unlocked. */
+  unlock: string | null;
+}
+
+export interface ClassDef {
+  id: string;
+  name: string;
+  blurb: string;
+  hp: number;
+  hpPerLevel: number;
+  speed: number;
+  armor: number;
+  melee: string[];
+  ranged: string[];
+  startMelee: string;
+  startRanged: string;
+  abilities: string[];
+  tree: TreeDef;
+  dodge: string;
+}
+
+export interface SkillEffect {
+  stat: string;
+  /** Per rank. */
+  amt: number;
+}
+
+export interface SkillNodeDef {
+  id: string;
+  name: string;
+  path: number;
+  row: number;
+  maxRank: number;
+  requires: string[];
+  effects: SkillEffect[];
+  ability: string | null;
+  desc: string;
+}
+
+export interface TreeDef {
+  id: string;
+  paths: string[];
+  nodes: SkillNodeDef[];
+}
+
+export interface PartDef {
+  id: string;
+  name: string;
+  hp: number;
+  /** Offset in the body's local frame: forward and right, metres. */
+  fwd: number;
+  right: number;
+  y: number;
+  r: number;
+  /** Damage multiplier when hit here. */
+  weak: number;
+  /** What breaking it does: 'kneel' (legs), 'noThrow' (arms), 'expose'. */
+  effect: string;
+}
+
+export interface EnemyDef {
+  id: string;
+  name: string;
+  brain: string;
+  hp: number;
+  hpPerLevel: number;
+  dmg: number;
+  dmgPerLevel: number;
+  armor: number;
+  speed: number;
+  radius: number;
+  height: number;
+  poise: number;
+  weight: 'light' | 'medium' | 'heavy';
+  xp: number;
+  bounty: number;
+  attacks: string[];
+  range: number;
+  /** 'front' = blocks light melee and projectiles from the front. */
+  guard: 'none' | 'front';
+  parts: PartDef[];
+  resist: Partial<Record<StatusId, number>>;
+  drop: string;
+  color: string;
+  model: string;
+}
+
+export interface EliteDef {
+  id: string;
+  name: string;
+  desc: string;
+  hpMult: number;
+  dmgMult: number;
+}
+
+export interface AffixDef {
+  id: string;
+  name: string;
+  kind: 'prefix' | 'suffix';
+  group: string;
+  tier: number;
+  ilvl: number;
+  weight: number;
+  slots: GearSlot[];
+  classes: string[] | null;
+  stat: string;
+  range: [number, number];
+}
+
+export interface BaseItemDef {
+  id: string;
+  name: string;
+  slot: GearSlot;
+  kind: string;
+  ilvl: number;
+  classes: string[] | null;
+  armor: number;
+  /** Charms: the ruiner they grant. */
+  ruiner: string | null;
+}
+
+export interface RuneDef {
+  id: string;
+  name: string;
+  tier: number;
+  stats: SkillEffect[];
+  onHit: { k: StatusId; amt: number } | null;
+}
+
+export interface CharmDef {
+  id: string;
+  name: string;
+  ruiner: string;
+  desc: string;
+  quests: { kind: 'kill' | 'killAir' | 'killBehind' | 'killStatus' | 'killWeak' | 'killRanged'; target: string; count: number; text: string }[];
+}
+
+export interface RuinerDef {
+  id: string;
+  name: string;
+  action: string;
+  desc: string;
+}
+
+export interface BlueprintDef {
+  id: string;
+  name: string;
+  base: string;
+  rarity: Rarity;
+  guaranteed: string[];
+  bounty: number;
+  mats: Record<string, number>;
+}
+
+export interface DropTableDef {
+  id: string;
+  /** Chance per kill that any item drops. */
+  itemChance: number;
+  bounty: [number, number];
+  runeChance: number;
+  matChance: number;
+  rarityWeights: number[];
+}
+
+export interface RoomDef {
+  id: string;
+  name: string;
+  variants: string[][];
+  /** Wave composition by encounter marker digit: '1' -> list of waves of enemy ids. */
+  encounters: Record<string, { waves: string[][]; elite?: string[] }>;
+  rule: string;
+  music: string;
+  ambient: string;
+  surge: boolean;
+}
+
+export interface ZoneNodeDef {
+  id: string;
+  room: string;
+  next: string[];
+  level: number;
+  /** Alignment-specific routing. */
+  align: 'human' | 'cyber' | null;
+  optional: boolean;
+}
+
+export interface ZoneDef {
+  id: string;
+  name: string;
+  desc: string;
+  start: string;
+  level: [number, number];
+  nodes: ZoneNodeDef[];
+  palette: string;
+  next: string | null;
+}
+
+export interface DialogueLine {
+  who: string;
+  text: string;
+  human?: string;
+  cyber?: string;
+}
+
+export interface StoryBeat {
+  id: string;
+  lines: DialogueLine[];
+  choice?: { label: string; set: string; value: number; desc: string }[];
+}
+
+export interface WyrdRuleDef {
+  id: string;
+  name: string;
+  desc: string;
+}
+
+export interface ContentDb {
+  version: number;
+  hash: string;
+  actions: Record<string, ActionDef>;
+  weapons: Record<string, WeaponKindDef>;
+  projectiles: Record<string, ProjectileDef>;
+  abilities: Record<string, AbilityDef>;
+  classes: Record<string, ClassDef>;
+  alignTrees: Record<'human' | 'cyber', TreeDef>;
+  enemies: Record<string, EnemyDef>;
+  elites: Record<string, EliteDef>;
+  affixes: AffixDef[];
+  bases: Record<string, BaseItemDef>;
+  runes: Record<string, RuneDef>;
+  charms: Record<string, CharmDef>;
+  ruiners: Record<string, RuinerDef>;
+  blueprints: Record<string, BlueprintDef>;
+  drops: Record<string, DropTableDef>;
+  rooms: Record<string, RoomDef>;
+  zones: Record<string, ZoneDef>;
+  story: Record<string, StoryBeat>;
+  wyrd: Record<string, WyrdRuleDef>;
+}

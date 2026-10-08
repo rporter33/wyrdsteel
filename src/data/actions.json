@@ -1,0 +1,3 @@
+[
+  { "id": "dodge.roll", "pose": "roll", "ms": 400, "move": 0, "turn": 0, "dash": [0, 300, 4.2], "iframesMs": [50, 230], "cancelMs": 300 }
+]

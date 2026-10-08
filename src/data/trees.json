@@ -1,0 +1,6 @@
+[
+  { "id": "tree.berserker", "paths": ["Wolfskin", "Stormfury", "Bloodrage"], "nodes": [] },
+  { "id": "tree.commando", "paths": ["Marksman", "Demolitions", "Tactician"], "nodes": [] },
+  { "id": "align.human", "paths": ["Human"], "nodes": [] },
+  { "id": "align.cyber", "paths": ["Cyber"], "nodes": [] }
+]

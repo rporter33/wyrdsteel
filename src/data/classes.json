@@ -1,0 +1,34 @@
+[
+  {
+    "id": "berserker",
+    "name": "Berserker",
+    "blurb": "Twin blades and a great-axe. Lives in the air, juggling foes and slamming them down.",
+    "hp": 150,
+    "hpPerLevel": 14,
+    "speed": 6.8,
+    "armor": 6,
+    "melee": ["blades", "greataxe", "sword"],
+    "ranged": ["pistols"],
+    "startMelee": "blades",
+    "startRanged": "pistols",
+    "abilities": ["zerk.leap", "zerk.whirl", "zerk.howl", "zerk.rend"],
+    "tree": "tree.berserker",
+    "dodge": "dodge.roll"
+  },
+  {
+    "id": "commando",
+    "name": "Commando",
+    "blurb": "Rifle, cannon and a sidearm sword. Reads the battlefield, breaks armour from range.",
+    "hp": 125,
+    "hpPerLevel": 12,
+    "speed": 6.4,
+    "armor": 8,
+    "melee": ["sword"],
+    "ranged": ["rifle", "cannon", "pistols"],
+    "startMelee": "sword",
+    "startRanged": "rifle",
+    "abilities": ["cmdo.grenade", "cmdo.mine", "cmdo.turret", "cmdo.slug"],
+    "tree": "tree.commando",
+    "dodge": "dodge.roll"
+  }
+]
