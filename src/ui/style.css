@@ -1,0 +1,33 @@
+:root {
+  --bg: #0b1016;
+  --panel: rgba(14, 20, 28, 0.92);
+  --panel-edge: #2b3b4d;
+  --ink: #e6edf3;
+  --ink-dim: #93a4b5;
+  --steel: #78c6ff;
+  --ember: #ff9a3c;
+  --blood: #e5484d;
+  --frost: #9be7ff;
+  --gold: #f5c542;
+  --ok: #46c46e;
+  --r-worn: #a0a8b0;
+  --r-forged: #e6edf3;
+  --r-runed: #5aa9ff;
+  --r-ascendant: #c07bff;
+  --r-relic: #ff9a3c;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+#app { position: fixed; inset: 0; }
+#view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+#hud { position: absolute; inset: 0; pointer-events: none; }
+#menu { position: absolute; inset: 0; pointer-events: none; }
+#menu > * { pointer-events: auto; }
+#toasts { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast { pointer-events: auto; background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 8px; padding: 10px 14px; font-size: 14px; display: flex; gap: 12px; align-items: center; max-width: min(92vw, 520px); }
+.toast.error { border-color: var(--blood); }
+button { font: inherit; color: var(--ink); background: #1b2633; border: 1px solid var(--panel-edge); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+button:hover, button:focus-visible { border-color: var(--steel); outline: none; background: #223244; }
+button:disabled { opacity: 0.45; cursor: default; }
