@@ -226,6 +226,24 @@ export class EntityViews {
       v.rig = n;
       v.shadowR = 0.45;
       v.obj.add(n.root);
+    } else if (e.tur) {
+      // Sentry turret: tripod and a rifle head that tracks its target.
+      const head = new THREE.Group();
+      head.add(new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.3, 0.8), toon(0x3f5468)));
+      const muzzle = glow(0.07, 0x9be7ff, 2);
+      muzzle.position.z = 0.45;
+      head.add(muzzle);
+      head.position.y = 1.0;
+      head.name = 'head';
+      for (let i = 0; i < 3; i++) {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.1, 5), toon(0x2a3038));
+        leg.position.set(Math.cos(i * 2.09) * 0.25, 0.5, Math.sin(i * 2.09) * 0.25);
+        leg.rotation.z = Math.cos(i * 2.09) * 0.35;
+        leg.rotation.x = -Math.sin(i * 2.09) * 0.35;
+        v.obj.add(leg);
+      }
+      v.obj.add(head);
+      v.shadowR = 0.4;
     } else {
       v.obj.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), toon(0x888888)));
     }
@@ -244,6 +262,11 @@ export class EntityViews {
     }
     if (e.kind === 'projectile') {
       v.obj.rotation.y = Math.atan2(e.vx, e.vz);
+      return;
+    }
+    if (e.tur) {
+      const head = v.obj.getObjectByName('head');
+      if (head) head.rotation.y = Math.atan2(e.fx, e.fz);
       return;
     }
     const facing = Math.atan2(e.fx, e.fz);

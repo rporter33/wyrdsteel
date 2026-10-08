@@ -16,6 +16,7 @@ import { encounterSystem } from '../level/encounters';
 import { playerSystem } from './systems/players';
 import { onEnemyDeath } from '../progression/drops';
 import { enterNode } from './world';
+import { turretSystem } from '../combat/turret';
 
 /**
  * The only function that advances the world. Systems run in a fixed order; each reads the state
@@ -34,6 +35,7 @@ export function step(w: World, f: InputFrame, db: ContentDb): void {
   emitSystem(w, db);
   motionSystem(w, db);
   hitSystem(w, db);
+  turretSystem(w, db);
   projectileSystem(w, db);
   statusSystem(w);
   vitalsSystem(w, db);

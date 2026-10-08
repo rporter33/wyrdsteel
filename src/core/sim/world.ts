@@ -2,7 +2,7 @@ import type { ContentDb } from '../data/types';
 import { deriveSeed, seedRng, nextInt } from '../rng/xoshiro';
 import { emptyInput } from '../input/frame';
 import { newCharacter, type CharacterState } from '../progression/character';
-import { computeStats } from '../progression/stats';
+import { computeStats } from '../progression/derive';
 import { buildRoom, markersOf } from '../level/room';
 import { newEntity } from './entity';
 import { spawnEnemy } from './spawn';

@@ -2,6 +2,9 @@ import { useState } from 'preact/hooks';
 import { screen, panel, toasts } from '../store';
 import { api } from '../api';
 import { Pause } from './Pause';
+import { Character } from './Character';
+import { Well, Board } from './Npcs';
+import { Controls } from './Controls';
 
 export function App() {
   const s = screen.value;
@@ -10,6 +13,11 @@ export function App() {
       {s === 'title' && <Title />}
       {s === 'newgame' && <NewGame />}
       {s === 'game' && panel.value === 'pause' && <Pause />}
+      {s === 'game' && panel.value === 'skills' && <Character />}
+      {s === 'game' && panel.value === 'inventory' && <Character initial="gear" />}
+      {s === 'game' && panel.value === 'well' && <Well />}
+      {s === 'game' && panel.value === 'board' && <Board />}
+      {s === 'game' && panel.value === 'controls' && <Controls />}
       <Toasts />
     </>
   );

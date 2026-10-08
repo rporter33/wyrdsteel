@@ -1,1 +1,86 @@
-[]
+[
+ {
+  "id": "charm.wolf",
+  "name": "Fenris Fang",
+  "ruiner": "ruiner.quake",
+  "desc": "Grants Fenrir's Quake.",
+  "quests": [
+   {
+    "kind": "kill",
+    "target": "thrall",
+    "count": 25,
+    "text": "Kill 25 thralls."
+   }
+  ]
+ },
+ {
+  "id": "charm.storm",
+  "name": "Thor's Knot",
+  "ruiner": "ruiner.storm",
+  "desc": "Grants Thor's Wrath.",
+  "quests": [
+   {
+    "kind": "killAir",
+    "target": "*",
+    "count": 15,
+    "text": "Kill 15 foes while they are airborne."
+   }
+  ]
+ },
+ {
+  "id": "charm.frost",
+  "name": "Skadi's Tear",
+  "ruiner": "ruiner.frost",
+  "desc": "Grants Skadi's Breath.",
+  "quests": [
+   {
+    "kind": "killBehind",
+    "target": "bulwark",
+    "count": 8,
+    "text": "Kill 8 bulwarks from behind."
+   }
+  ]
+ },
+ {
+  "id": "charm.fire",
+  "name": "Surtr's Coal",
+  "ruiner": "ruiner.fire",
+  "desc": "Grants Surtr's Ring.",
+  "quests": [
+   {
+    "kind": "killStatus",
+    "target": "*",
+    "count": 20,
+    "text": "Kill 20 foes that are burning, chilled or rooted."
+   }
+  ]
+ },
+ {
+  "id": "charm.rune",
+  "name": "Mimir's Eye",
+  "ruiner": "ruiner.spear",
+  "desc": "Grants Gungnir's Fan.",
+  "quests": [
+   {
+    "kind": "killWeak",
+    "target": "*",
+    "count": 12,
+    "text": "Land 12 killing blows on weak points."
+   }
+  ]
+ },
+ {
+  "id": "charm.root",
+  "name": "Yggdrasil Knot",
+  "ruiner": "ruiner.roots",
+  "desc": "Grants Yggdrasil's Grasp.",
+  "quests": [
+   {
+    "kind": "killRanged",
+    "target": "*",
+    "count": 30,
+    "text": "Kill 30 foes with shots."
+   }
+  ]
+ }
+]

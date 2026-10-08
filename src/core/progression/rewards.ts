@@ -1,7 +1,7 @@
 import type { ContentDb } from '../data/types';
 import type { World } from '../sim/types';
 import { byId } from '../sim/entity';
-import { computeStats } from './stats';
+import { computeStats } from './derive';
 
 /** Cumulative XP needed to reach each level (index = level). Chapter one caps at 20. */
 export const XP_TABLE = [0, 0, 100, 260, 480, 760, 1100, 1520, 2020, 2600, 3260, 4000, 4840, 5780, 6820, 7960, 9200, 10560, 12040, 13640, 15360];

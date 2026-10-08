@@ -1514,5 +1514,344 @@
     "cap": 0.25
    }
   ]
+ },
+ {
+  "id": "cmdo.turret",
+  "pose": "throw",
+  "ms": 500,
+  "turn": 0,
+  "cancelMs": 420,
+  "spawn": {
+   "ms": 260,
+   "def": "turret"
+  }
+ },
+ {
+  "id": "human.surge",
+  "pose": "thrust",
+  "ms": 700,
+  "turn": 0,
+  "dash": [
+   80,
+   400,
+   7
+  ],
+  "iframesMs": [
+   0,
+   460
+  ],
+  "cancelMs": 600,
+  "hits": [
+   {
+    "ms": [
+     100,
+     420
+    ],
+    "shape": "circle",
+    "range": 2.2,
+    "dmg": 1.6,
+    "poise": 30,
+    "knock": 4,
+    "stopMs": 40,
+    "tag": "ability"
+   }
+  ]
+ },
+ {
+  "id": "cyber.beam",
+  "pose": "shoot",
+  "ms": 950,
+  "turn": 20,
+  "armorMs": [
+   0,
+   950
+  ],
+  "cancelMs": 860,
+  "hits": [
+   {
+    "ms": [
+     450,
+     500
+    ],
+    "shape": "line",
+    "range": 12,
+    "width": 1.3,
+    "dmg": 0.9,
+    "poise": 15,
+    "status": {
+     "k": "shock",
+     "amt": 40
+    },
+    "stopMs": 15,
+    "tag": "ability"
+   },
+   {
+    "ms": [
+     560,
+     610
+    ],
+    "shape": "line",
+    "range": 12,
+    "width": 1.3,
+    "dmg": 0.9,
+    "poise": 15,
+    "status": {
+     "k": "shock",
+     "amt": 40
+    },
+    "stopMs": 15,
+    "tag": "ability"
+   },
+   {
+    "ms": [
+     670,
+     720
+    ],
+    "shape": "line",
+    "range": 12,
+    "width": 1.3,
+    "dmg": 1.2,
+    "poise": 25,
+    "knock": 5,
+    "status": {
+     "k": "shock",
+     "amt": 40
+    },
+    "stopMs": 40,
+    "tag": "ability"
+   }
+  ]
+ },
+ {
+  "id": "r.pulse",
+  "pose": "howl",
+  "ms": 700,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   700
+  ],
+  "hits": [
+   {
+    "ms": [
+     250,
+     320
+    ],
+    "shape": "circle",
+    "range": 4.5,
+    "dmg": 2.5,
+    "poise": 80,
+    "knock": 10,
+    "stopMs": 90,
+    "tag": "ruiner"
+   }
+  ]
+ },
+ {
+  "id": "r.quake",
+  "pose": "slam",
+  "ms": 900,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   900
+  ],
+  "hits": [
+   {
+    "ms": [
+     380,
+     450
+    ],
+    "shape": "circle",
+    "range": 6,
+    "dmg": 4,
+    "poise": 120,
+    "launch": 10,
+    "knock": 3,
+    "stopMs": 120,
+    "tag": "ruiner"
+   }
+  ]
+ },
+ {
+  "id": "r.storm",
+  "pose": "cast",
+  "ms": 900,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   900
+  ],
+  "hits": [
+   {
+    "ms": [
+     200,
+     240
+    ],
+    "shape": "circle",
+    "range": 8,
+    "dmg": 1.5,
+    "poise": 30,
+    "status": {
+     "k": "shock",
+     "amt": 100
+    },
+    "stopMs": 20,
+    "tag": "ruiner"
+   },
+   {
+    "ms": [
+     450,
+     490
+    ],
+    "shape": "circle",
+    "range": 8,
+    "dmg": 1.5,
+    "poise": 30,
+    "status": {
+     "k": "shock",
+     "amt": 100
+    },
+    "stopMs": 20,
+    "tag": "ruiner"
+   },
+   {
+    "ms": [
+     700,
+     740
+    ],
+    "shape": "circle",
+    "range": 8,
+    "dmg": 2.0,
+    "poise": 50,
+    "status": {
+     "k": "shock",
+     "amt": 100
+    },
+    "stopMs": 60,
+    "tag": "ruiner"
+   }
+  ]
+ },
+ {
+  "id": "r.frost",
+  "pose": "howl",
+  "ms": 800,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   800
+  ],
+  "hits": [
+   {
+    "ms": [
+     200,
+     240
+    ],
+    "shape": "circle",
+    "range": 6.5,
+    "dmg": 1.5,
+    "poise": 40,
+    "status": {
+     "k": "chill",
+     "amt": 100
+    },
+    "stopMs": 20,
+    "tag": "ruiner"
+   },
+   {
+    "ms": [
+     450,
+     500
+    ],
+    "shape": "circle",
+    "range": 6.5,
+    "dmg": 2.0,
+    "poise": 60,
+    "status": {
+     "k": "chill",
+     "amt": 100
+    },
+    "stopMs": 80,
+    "tag": "ruiner"
+   }
+  ]
+ },
+ {
+  "id": "r.fire",
+  "pose": "spin",
+  "ms": 800,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   800
+  ],
+  "hits": [
+   {
+    "ms": [
+     250,
+     500
+    ],
+    "shape": "circle",
+    "range": 5.5,
+    "dmg": 3,
+    "poise": 60,
+    "knock": 6,
+    "status": {
+     "k": "burn",
+     "amt": 120
+    },
+    "stopMs": 70,
+    "tag": "ruiner"
+   }
+  ]
+ },
+ {
+  "id": "r.spear",
+  "pose": "throw",
+  "ms": 900,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   900
+  ],
+  "shoot": {
+   "ms": [
+    420
+   ],
+   "proj": "spear",
+   "count": 7,
+   "spread": 9,
+   "dmg": 3
+  }
+ },
+ {
+  "id": "r.roots",
+  "pose": "cast",
+  "ms": 800,
+  "turn": 0,
+  "iframesMs": [
+   0,
+   800
+  ],
+  "heal": 0.2,
+  "hits": [
+   {
+    "ms": [
+     300,
+     360
+    ],
+    "shape": "circle",
+    "range": 8,
+    "dmg": 1.5,
+    "poise": 40,
+    "status": {
+     "k": "root",
+     "amt": 150
+    },
+    "stopMs": 40,
+    "tag": "ruiner"
+   }
+  ]
  }
 ]

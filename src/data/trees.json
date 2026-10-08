@@ -1,6 +1,902 @@
 [
-  { "id": "tree.berserker", "paths": ["Wolfskin", "Stormfury", "Bloodrage"], "nodes": [] },
-  { "id": "tree.commando", "paths": ["Marksman", "Demolitions", "Tactician"], "nodes": [] },
-  { "id": "align.human", "paths": ["Human"], "nodes": [] },
-  { "id": "align.cyber", "paths": ["Cyber"], "nodes": [] }
+ {
+  "id": "tree.berserker",
+  "paths": [
+   "Wolfskin",
+   "Stormfury",
+   "Bloodrage"
+  ],
+  "nodes": [
+   {
+    "id": "zk.wolf.hide",
+    "name": "Thick Hide",
+    "path": 0,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "armor",
+      "amt": 4
+     }
+    ],
+    "requires": [],
+    "desc": "+4 armour per rank."
+   },
+   {
+    "id": "zk.wolf.thirst",
+    "name": "Bloodthirst",
+    "path": 0,
+    "row": 1,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "lifesteal",
+      "amt": 0.01
+     }
+    ],
+    "requires": [
+     "zk.wolf.hide"
+    ],
+    "desc": "Heal for 1% of damage dealt per rank."
+   },
+   {
+    "id": "zk.wolf.whirl",
+    "name": "Iron Whirl",
+    "path": 0,
+    "row": 2,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "zk.wolf.thirst"
+    ],
+    "desc": "Unlocks Iron Whirl: spin through a crowd with unbreakable footing.",
+    "ability": "zerk.whirl"
+   },
+   {
+    "id": "zk.wolf.breath",
+    "name": "Second Wind",
+    "path": 0,
+    "row": 3,
+    "maxRank": 3,
+    "effects": [
+     {
+      "stat": "flaskHeal",
+      "amt": 0.05
+     }
+    ],
+    "requires": [
+     "zk.wolf.whirl"
+    ],
+    "desc": "Flasks heal 5% more per rank."
+   },
+   {
+    "id": "zk.wolf.pelt",
+    "name": "Iron Pelt",
+    "path": 0,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "hpPct",
+      "amt": 0.04
+     }
+    ],
+    "requires": [
+     "zk.wolf.breath"
+    ],
+    "desc": "+4% health per rank."
+   },
+   {
+    "id": "zk.wolf.fenrir",
+    "name": "Fenrir's Hunger",
+    "path": 0,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "cap.fenrir",
+      "amt": 1
+     }
+    ],
+    "requires": [
+     "zk.wolf.pelt"
+    ],
+    "desc": "Capstone. Every kill heals 5% of your health."
+   },
+   {
+    "id": "zk.storm.updraft",
+    "name": "Updraft",
+    "path": 1,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "airPct",
+      "amt": 0.05
+     }
+    ],
+    "requires": [],
+    "desc": "+5% damage to airborne foes per rank."
+   },
+   {
+    "id": "zk.storm.leap",
+    "name": "Wolf's Leap",
+    "path": 1,
+    "row": 1,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "zk.storm.updraft"
+    ],
+    "desc": "Unlocks Wolf's Leap: crash down on your aim point.",
+    "ability": "zerk.leap"
+   },
+   {
+    "id": "zk.storm.gale",
+    "name": "Gale Strikes",
+    "path": 1,
+    "row": 2,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "atkSpeed",
+      "amt": 0.03
+     }
+    ],
+    "requires": [
+     "zk.storm.leap"
+    ],
+    "desc": "+3% attack speed per rank."
+   },
+   {
+    "id": "zk.storm.thunder",
+    "name": "Thunder Slam",
+    "path": 1,
+    "row": 3,
+    "maxRank": 3,
+    "effects": [
+     {
+      "stat": "poisePct",
+      "amt": 0.06
+     }
+    ],
+    "requires": [
+     "zk.storm.gale"
+    ],
+    "desc": "+6% stagger power per rank."
+   },
+   {
+    "id": "zk.storm.split",
+    "name": "Sky Splitter",
+    "path": 1,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "crit",
+      "amt": 0.02
+     }
+    ],
+    "requires": [
+     "zk.storm.thunder"
+    ],
+    "desc": "+2% critical chance per rank."
+   },
+   {
+    "id": "zk.storm.storm",
+    "name": "Stormborn",
+    "path": 1,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "onShock",
+      "amt": 18
+     }
+    ],
+    "requires": [
+     "zk.storm.split"
+    ],
+    "desc": "Capstone. Your blows build shock, which arcs between foes."
+   },
+   {
+    "id": "zk.rage.fury",
+    "name": "Fury",
+    "path": 2,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "meleePct",
+      "amt": 0.04
+     }
+    ],
+    "requires": [],
+    "desc": "+4% melee damage per rank."
+   },
+   {
+    "id": "zk.rage.howl",
+    "name": "Battle Howl",
+    "path": 2,
+    "row": 1,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "zk.rage.fury"
+    ],
+    "desc": "Unlocks Battle Howl: +30% damage for 8 s and a stagger burst.",
+    "ability": "zerk.howl"
+   },
+   {
+    "id": "zk.rage.reckless",
+    "name": "Reckless",
+    "path": 2,
+    "row": 2,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "lowHpPct",
+      "amt": 0.08
+     }
+    ],
+    "requires": [
+     "zk.rage.howl"
+    ],
+    "desc": "Up to +8% damage per rank as your health falls."
+   },
+   {
+    "id": "zk.rage.unbroken",
+    "name": "Unbroken",
+    "path": 2,
+    "row": 3,
+    "maxRank": 3,
+    "effects": [
+     {
+      "stat": "dmgTakenPct",
+      "amt": -0.03
+     }
+    ],
+    "requires": [
+     "zk.rage.reckless"
+    ],
+    "desc": "Take 3% less damage per rank."
+   },
+   {
+    "id": "zk.rage.edge",
+    "name": "Killing Edge",
+    "path": 2,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "critMult",
+      "amt": 0.06
+     }
+    ],
+    "requires": [
+     "zk.rage.unbroken"
+    ],
+    "desc": "+6% critical damage per rank."
+   },
+   {
+    "id": "zk.rage.gang",
+    "name": "Berserkergang",
+    "path": 2,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "critMult",
+      "amt": 0.3
+     },
+     {
+      "stat": "lowHpPct",
+      "amt": 0.2
+     }
+    ],
+    "requires": [
+     "zk.rage.edge"
+    ],
+    "desc": "Capstone. Crits hit far harder, and fury rises as you bleed."
+   }
+  ]
+ },
+ {
+  "id": "tree.commando",
+  "paths": [
+   "Marksman",
+   "Demolitions",
+   "Tactician"
+  ],
+  "nodes": [
+   {
+    "id": "cm.mark.steady",
+    "name": "Steady Aim",
+    "path": 0,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "rangedPct",
+      "amt": 0.04
+     }
+    ],
+    "requires": [],
+    "desc": "+4% ranged damage per rank."
+   },
+   {
+    "id": "cm.mark.slug",
+    "name": "Breaker Slug",
+    "path": 0,
+    "row": 1,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "cm.mark.steady"
+    ],
+    "desc": "Unlocks Breaker Slug: a charged shot that pierces four foes.",
+    "ability": "cmdo.slug"
+   },
+   {
+    "id": "cm.mark.eagle",
+    "name": "Eagle Eye",
+    "path": 0,
+    "row": 2,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "weakPct",
+      "amt": 0.08
+     }
+    ],
+    "requires": [
+     "cm.mark.slug"
+    ],
+    "desc": "+8% weak-point damage per rank."
+   },
+   {
+    "id": "cm.mark.trigger",
+    "name": "Hair Trigger",
+    "path": 0,
+    "row": 3,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "atkSpeed",
+      "amt": 0.03
+     }
+    ],
+    "requires": [
+     "cm.mark.eagle"
+    ],
+    "desc": "+3% fire rate per rank."
+   },
+   {
+    "id": "cm.mark.deadeye",
+    "name": "Deadeye",
+    "path": 0,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "crit",
+      "amt": 0.02
+     }
+    ],
+    "requires": [
+     "cm.mark.trigger"
+    ],
+    "desc": "+2% critical chance per rank."
+   },
+   {
+    "id": "cm.mark.hunter",
+    "name": "Headhunter",
+    "path": 0,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "critMult",
+      "amt": 0.4
+     },
+     {
+      "stat": "weakPct",
+      "amt": 0.2
+     }
+    ],
+    "requires": [
+     "cm.mark.deadeye"
+    ],
+    "desc": "Capstone. Crits and weak points hit far harder."
+   },
+   {
+    "id": "cm.demo.incend",
+    "name": "Incendiary",
+    "path": 1,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "onBurn",
+      "amt": 8
+     }
+    ],
+    "requires": [],
+    "desc": "Every hit builds burn; more per rank."
+   },
+   {
+    "id": "cm.demo.volley",
+    "name": "Volley",
+    "path": 1,
+    "row": 1,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "cm.demo.incend"
+    ],
+    "desc": "Unlocks Volley: five rounds in a fan.",
+    "ability": "cmdo.volley"
+   },
+   {
+    "id": "cm.demo.radius",
+    "name": "Blast Radius",
+    "path": 1,
+    "row": 2,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "statusPct",
+      "amt": 0.06
+     }
+    ],
+    "requires": [
+     "cm.demo.volley"
+    ],
+    "desc": "+6% status build-up per rank."
+   },
+   {
+    "id": "cm.demo.shrap",
+    "name": "Shrapnel",
+    "path": 1,
+    "row": 3,
+    "maxRank": 3,
+    "effects": [
+     {
+      "stat": "poisePct",
+      "amt": 0.06
+     }
+    ],
+    "requires": [
+     "cm.demo.radius"
+    ],
+    "desc": "+6% stagger power per rank."
+   },
+   {
+    "id": "cm.demo.starter",
+    "name": "Firestarter",
+    "path": 1,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "dmgPct",
+      "amt": 0.03
+     }
+    ],
+    "requires": [
+     "cm.demo.shrap"
+    ],
+    "desc": "+3% damage per rank."
+   },
+   {
+    "id": "cm.demo.inferno",
+    "name": "Inferno",
+    "path": 1,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "cap.inferno",
+      "amt": 1
+     }
+    ],
+    "requires": [
+     "cm.demo.starter"
+    ],
+    "desc": "Capstone. Burning foes take 20% more from you."
+   },
+   {
+    "id": "cm.tact.medic",
+    "name": "Field Medic",
+    "path": 2,
+    "row": 0,
+    "maxRank": 3,
+    "effects": [
+     {
+      "stat": "flaskHeal",
+      "amt": 0.05
+     }
+    ],
+    "requires": [],
+    "desc": "Flasks heal 5% more per rank."
+   },
+   {
+    "id": "cm.tact.mine",
+    "name": "Root Mine",
+    "path": 2,
+    "row": 1,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "cm.tact.medic"
+    ],
+    "desc": "Unlocks Root Mine: roots whatever trips it.",
+    "ability": "cmdo.mine"
+   },
+   {
+    "id": "cm.tact.entrench",
+    "name": "Entrench",
+    "path": 2,
+    "row": 2,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "armor",
+      "amt": 5
+     }
+    ],
+    "requires": [
+     "cm.tact.mine"
+    ],
+    "desc": "+5 armour per rank."
+   },
+   {
+    "id": "cm.tact.turret",
+    "name": "Sentry Turret",
+    "path": 2,
+    "row": 3,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "cm.tact.entrench"
+    ],
+    "desc": "Unlocks Sentry Turret: it shoots what you leave behind.",
+    "ability": "cmdo.turret"
+   },
+   {
+    "id": "cm.tact.eye",
+    "name": "Tactician's Eye",
+    "path": 2,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "cdr",
+      "amt": 0.04
+     }
+    ],
+    "requires": [
+     "cm.tact.turret"
+    ],
+    "desc": "-4% ability cooldowns per rank."
+   },
+   {
+    "id": "cm.tact.over",
+    "name": "Overwatch",
+    "path": 2,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "cap.overwatch",
+      "amt": 1
+     },
+     {
+      "stat": "cdr",
+      "amt": 0.1
+     }
+    ],
+    "requires": [
+     "cm.tact.eye"
+    ],
+    "desc": "Capstone. Turrets last twice as long; cooldowns shorter still."
+   }
+  ]
+ },
+ {
+  "id": "align.human",
+  "paths": [
+   "Human"
+  ],
+  "nodes": [
+   {
+    "id": "hu.a.fleet",
+    "name": "Fleet",
+    "path": 0,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "speedPct",
+      "amt": 0.03
+     }
+    ],
+    "requires": [],
+    "desc": "+3% move speed per rank."
+   },
+   {
+    "id": "hu.a.breath",
+    "name": "Second Breath",
+    "path": 0,
+    "row": 1,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "dodge",
+      "amt": 1
+     }
+    ],
+    "requires": [
+     "hu.a.fleet"
+    ],
+    "desc": "A third dodge charge."
+   },
+   {
+    "id": "hu.a.keen",
+    "name": "Keen",
+    "path": 0,
+    "row": 2,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "crit",
+      "amt": 0.02
+     }
+    ],
+    "requires": [
+     "hu.a.breath"
+    ],
+    "desc": "+2% critical chance per rank."
+   },
+   {
+    "id": "hu.a.surge",
+    "name": "Midgard Surge",
+    "path": 0,
+    "row": 3,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "hu.a.keen"
+    ],
+    "desc": "Unlocks Midgard Surge: dash through a line of foes, untouchable.",
+    "ability": "human.surge"
+   },
+   {
+    "id": "hu.a.flow",
+    "name": "Flow",
+    "path": 0,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "atkSpeed",
+      "amt": 0.03
+     }
+    ],
+    "requires": [
+     "hu.a.surge"
+    ],
+    "desc": "+3% attack speed per rank."
+   },
+   {
+    "id": "hu.heart",
+    "name": "Heart of Midgard",
+    "path": 0,
+    "row": 1,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "hpPct",
+      "amt": 0.03
+     }
+    ],
+    "requires": [
+     "hu.a.fleet"
+    ],
+    "desc": "+3% health per rank."
+   },
+   {
+    "id": "hu.saga",
+    "name": "Saga Hero",
+    "path": 0,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "meleePct",
+      "amt": 0.15
+     },
+     {
+      "stat": "airPct",
+      "amt": 0.15
+     }
+    ],
+    "requires": [
+     "hu.a.flow"
+    ],
+    "desc": "Capstone (Berserker). Melee and air damage +15%.",
+    "cls": "berserker"
+   },
+   {
+    "id": "hu.hunt",
+    "name": "Wild Hunt",
+    "path": 0,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "rangedPct",
+      "amt": 0.15
+     },
+     {
+      "stat": "weakPct",
+      "amt": 0.2
+     }
+    ],
+    "requires": [
+     "hu.a.flow"
+    ],
+    "desc": "Capstone (Commando). Ranged +15%, weak points +20%.",
+    "cls": "commando"
+   }
+  ]
+ },
+ {
+  "id": "align.cyber",
+  "paths": [
+   "Cyber"
+  ],
+  "nodes": [
+   {
+    "id": "cy.a.plate",
+    "name": "Plating",
+    "path": 0,
+    "row": 0,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "armor",
+      "amt": 6
+     }
+    ],
+    "requires": [],
+    "desc": "+6 armour per rank."
+   },
+   {
+    "id": "cy.a.clock",
+    "name": "Overclock",
+    "path": 0,
+    "row": 1,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "dmgPct",
+      "amt": 0.03
+     }
+    ],
+    "requires": [
+     "cy.a.plate"
+    ],
+    "desc": "+3% damage per rank."
+   },
+   {
+    "id": "cy.a.eye",
+    "name": "Odin's Eye",
+    "path": 0,
+    "row": 2,
+    "maxRank": 1,
+    "effects": [],
+    "requires": [
+     "cy.a.clock"
+    ],
+    "desc": "Unlocks Odin's Eye: a heavy laser that shocks along its line.",
+    "ability": "cyber.beam"
+   },
+   {
+    "id": "cy.a.reactor",
+    "name": "Reactor",
+    "path": 0,
+    "row": 3,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "ruinGain",
+      "amt": 0.1
+     }
+    ],
+    "requires": [
+     "cy.a.eye"
+    ],
+    "desc": "Ruin fills 10% faster per rank."
+   },
+   {
+    "id": "cy.a.servo",
+    "name": "Servo Limbs",
+    "path": 0,
+    "row": 4,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "poisePct",
+      "amt": 0.05
+     }
+    ],
+    "requires": [
+     "cy.a.reactor"
+    ],
+    "desc": "+5% stagger power per rank."
+   },
+   {
+    "id": "cy.shield",
+    "name": "Shielding",
+    "path": 0,
+    "row": 1,
+    "maxRank": 5,
+    "effects": [
+     {
+      "stat": "dmgTakenPct",
+      "amt": -0.02
+     }
+    ],
+    "requires": [
+     "cy.a.plate"
+    ],
+    "desc": "Take 2% less damage per rank."
+   },
+   {
+    "id": "cy.iron",
+    "name": "Iron Berserker",
+    "path": 0,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "armor",
+      "amt": 40
+     },
+     {
+      "stat": "hpPct",
+      "amt": 0.1
+     }
+    ],
+    "requires": [
+     "cy.a.servo"
+    ],
+    "desc": "Capstone (Berserker). +40 armour, +10% health.",
+    "cls": "berserker"
+   },
+   {
+    "id": "cy.gungnir",
+    "name": "Gungnir Array",
+    "path": 0,
+    "row": 5,
+    "maxRank": 1,
+    "effects": [
+     {
+      "stat": "rangedPct",
+      "amt": 0.2
+     },
+     {
+      "stat": "onShock",
+      "amt": 20
+     }
+    ],
+    "requires": [
+     "cy.a.servo"
+    ],
+    "desc": "Capstone (Commando). Ranged +20%, shots build shock.",
+    "cls": "commando"
+   }
+  ]
+ }
 ]

@@ -18,10 +18,10 @@
     "startMelee": "blades",
     "startRanged": "pistols",
     "abilities": [
+      "zerk.rend",
       "zerk.leap",
-      "zerk.whirl",
       "zerk.howl",
-      "zerk.rend"
+      "zerk.whirl"
     ],
     "tree": "tree.berserker",
     "dodge": "dodge.roll"
@@ -46,8 +46,9 @@
     "startRanged": "rifle",
     "abilities": [
       "cmdo.grenade",
-      "cmdo.mine",
       "cmdo.slug",
+      "cmdo.mine",
+      "cmdo.turret",
       "cmdo.volley"
     ],
     "tree": "tree.commando",

@@ -207,6 +207,8 @@ export interface Entity {
   ai?: AiComp;
   proj?: ProjComp;
   pick?: PickupComp;
+  /** Deployed turret: owner player entity, ticks left, shot cooldown. */
+  tur?: { owner: number; life: number; cd: number };
   parts?: PartState[];
   elite?: string[];
   boss?: BossComp;

@@ -105,7 +105,7 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   // Weak points: the part nearest the strike point, if the strike reaches it.
   let weak = 1;
   let partHit = -1;
-  if (t.parts && t.parts.length && tdef) {
+  if (t.parts && t.parts.length && tdef && h.hit.tag !== 'finisher') {
     let bestD = Infinity;
     tdef.parts.forEach((pd, i) => {
       const [x, z] = partWorld(t, pd.fwd, pd.right);
@@ -132,10 +132,15 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
     src.pl.empowered = -1;
   }
   if (behind && src.kind === 'player') pct += 0.15;
+  // Inferno capstone: burning targets take more from this attacker.
+  const ownerSlot = src.pl ? w.players[src.pl.slot] : null;
+  if (ownerSlot?.stats.flags.includes('cap.inferno') && t.status.burn > 0) pct += 0.2;
   let armor = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.armor : (tdef?.armor ?? 0);
   if (t.boss) armor += t.boss.plating > 0 ? 400 : 0;
   const taken = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.dmgTakenPct : t.status.freeze > 0 ? 0.25 : 0;
   const finisher = h.hit.tag === 'finisher';
+  // The finishing blow ends the kneel: the troll gets up, legs still broken.
+  if (finisher) t.stun = Math.min(t.stun, 30);
   const dmg = finisher ? Math.round(t.hpMax * (t.boss ? 0.08 : 0.35)) : computeDamage({
     base: h.prof.base,
     mult,

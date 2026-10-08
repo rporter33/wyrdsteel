@@ -8,7 +8,7 @@ export function vitalsSystem(w: World, db: ContentDb): void {
     if (e.hitstop > 0) continue;
     if (e.stun > 0) {
       // Airborne targets stay stunned until they land.
-      if (e.y <= 0.05 || e.stunKind !== 2) e.stun--;
+      if (e.y <= 0.05 || (e.stunKind !== 2 && e.stunKind !== 4)) e.stun--;
       if (e.stun === 0) e.stunKind = 0;
     }
     if (e.status.freeze > 0) e.stunKind = 3;

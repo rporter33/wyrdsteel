@@ -6,6 +6,7 @@ import { grantXp, xpFor } from './rewards';
 import { nextFloat } from '../rng/xoshiro';
 import { spawnShot } from '../combat/projectiles';
 import { dropLoot } from '../loot/drop';
+import { charmProgress } from './charms';
 
 export function spawnPickup(w: World, kind: 'bounty' | 'heal' | 'shade' | 'item' | 'rune' | 'mat', x: number, z: number, amount: number, ref = '', owner = -1): Entity {
   const p = newEntity(w, 'pickup', kind, TEAM_NEUTRAL, x, z);
@@ -37,9 +38,14 @@ export function onEnemyDeath(w: World, db: ContentDb, id: number): void {
     const c = p.character;
     c.kills[e.def] = (c.kills[e.def] ?? 0) + 1;
   }
-  // Ruin for the killer.
+  // Ruin for the killer; Fenrir's Hunger heals on kills.
   const killer = byId(w, e.lastHit);
-  if (killer?.pl) killer.pl.ruin = Math.min(100, killer.pl.ruin + 6 * w.players[killer.pl.slot]!.stats.ruinGain);
+  if (killer?.pl && !killer.dead) {
+    const ks = w.players[killer.pl.slot]!.stats;
+    killer.pl.ruin = Math.min(100, killer.pl.ruin + 6 * ks.ruinGain);
+    if (ks.flags.includes('cap.fenrir')) killer.hp = Math.min(killer.hpMax, killer.hp + Math.round(killer.hpMax * 0.05));
+  }
+  charmProgress(w, db, e);
   if (e.elite?.includes('volatile')) {
     spawnShot(w, db, { owner: e, def: 'volatile.blast', x: e.x, z: e.z, y: 0.5, dx: 0, dz: 1, mult: 1.6 });
     w.events.push({ k: 'telegraph', t: w.tick, src: e.id, shape: 'circle', x: e.x, z: e.z, r: 3, dx: 0, dz: 1, len: 3, width: 0, dur: db.projectiles['volatile.blast']!.life });

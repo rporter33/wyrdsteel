@@ -58,9 +58,14 @@ export class InputSampler {
     });
   }
 
+  /** Menu keys get their own latch: gameplay sampling clears its latch every tick. */
+  private uiLatched = new Set<string>();
+  private static readonly UI_KEYS = ['Escape', 'KeyI', 'KeyK', 'KeyM'];
+
   private press(code: string) {
     this.down.add(code);
     this.latched.add(code);
+    if (InputSampler.UI_KEYS.includes(code)) this.uiLatched.add(code);
   }
   private release(code: string) {
     this.down.delete(code);
@@ -116,19 +121,17 @@ export class InputSampler {
   /** Is a menu-level button newly pressed (gamepad Menu/View or Esc/I/K)? Consumed on read. */
   takeUi(): string[] {
     const out: string[] = [];
-    for (const code of ['Escape', 'KeyI', 'KeyK', 'KeyM']) {
-      if (this.latched.has(code)) {
-        out.push(code);
-        this.latched.delete(code);
-      }
+    for (const code of InputSampler.UI_KEYS) {
+      if (this.uiLatched.has(code)) out.push(code);
     }
+    this.uiLatched.clear();
     const gp = this.gamepad();
     if (gp) {
       const menu = !!gp.buttons[PAD.Menu]?.pressed;
       const view = !!gp.buttons[PAD.View]?.pressed;
       const prev = this.padUi;
       if (menu && !(prev & 1)) out.push('Escape');
-      if (view && !(prev & 2)) out.push('KeyI');
+      if (view && !(prev & 2)) out.push('KeyK');
       this.padUi = (menu ? 1 : 0) | (view ? 2 : 0);
     }
     return out;

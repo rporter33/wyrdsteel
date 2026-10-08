@@ -1,1 +1,62 @@
-[]
+[
+ {
+  "id": "charm.b.wolf",
+  "name": "Fenris Fang",
+  "slot": "charm",
+  "kind": "charm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": "ruiner.quake"
+ },
+ {
+  "id": "charm.b.storm",
+  "name": "Thor's Knot",
+  "slot": "charm",
+  "kind": "charm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": "ruiner.storm"
+ },
+ {
+  "id": "charm.b.frost",
+  "name": "Skadi's Tear",
+  "slot": "charm",
+  "kind": "charm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": "ruiner.frost"
+ },
+ {
+  "id": "charm.b.fire",
+  "name": "Surtr's Coal",
+  "slot": "charm",
+  "kind": "charm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": "ruiner.fire"
+ },
+ {
+  "id": "charm.b.rune",
+  "name": "Mimir's Eye",
+  "slot": "charm",
+  "kind": "charm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": "ruiner.spear"
+ },
+ {
+  "id": "charm.b.root",
+  "name": "Yggdrasil Knot",
+  "slot": "charm",
+  "kind": "charm",
+  "ilvl": 1,
+  "classes": null,
+  "armor": 0,
+  "ruiner": "ruiner.roots"
+ }
+]

@@ -5,7 +5,7 @@ import { byId } from '../entity';
 import { msToTicks } from '../constants';
 import { resetActiveEncounters, RESPAWN_TICKS, SKIP_AFTER } from '../../level/encounters';
 import { spawnPickup } from '../../progression/drops';
-import { startAction } from './actions';
+import { startAction, canCancel } from './actions';
 
 const WAYSTONE_R = 2.2;
 const PICK_R = 1.4;
@@ -117,7 +117,9 @@ export function setItemPickup(f: ItemPickup): void {
 }
 
 function interact(w: World, db: ContentDb, slot: number, e: Entity): void {
-  // Finisher: climb a kneeling heavy from behind.
+  // Finisher: climb a kneeling heavy. Not mid-action, and each kneel can be climbed once
+  // (stunKind 4 marks "being climbed"), so mashing the button can't stun-lock a troll.
+  if (e.act && !canCancel(e, db)) return;
   for (const t of w.entities) {
     if (t.kind !== 'enemy' || t.dead || t.stunKind !== 2 || !t.parts) continue;
     const d2 = (t.x - e.x) * (t.x - e.x) + (t.z - e.z) * (t.z - e.z);
@@ -126,6 +128,7 @@ function interact(w: World, db: ContentDb, slot: number, e: Entity): void {
     startAction(w, e, db.actions['finisher.climb']!, dx, dz, t.id, 'finisher');
     e.iframes = msToTicks(1100);
     t.stun = Math.max(t.stun, msToTicks(1300));
+    t.stunKind = 4;
     w.events.push({ k: 'finisher', t: w.tick, src: e.id, dst: t.id });
     return;
   }

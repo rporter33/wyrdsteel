@@ -1,10 +1,99 @@
 [
-  { "id": "zerk.leap", "name": "Wolf's Leap", "cls": "berserker", "cdMs": 8000, "action": "zerk.leap", "desc": "Leap to your aim and crash down, knocking foes away." },
-  { "id": "zerk.whirl", "name": "Iron Whirl", "cls": "berserker", "cdMs": 10000, "action": "zerk.whirl", "desc": "Spin through a crowd with unbreakable footing." },
-  { "id": "zerk.howl", "name": "Battle Howl", "cls": "berserker", "cdMs": 16000, "action": "zerk.howl", "desc": "+30% damage for 8 s; staggers everything close." },
-  { "id": "zerk.rend", "name": "Rend", "cls": "berserker", "cdMs": 6000, "action": "zerk.rend", "desc": "A driving thrust that sets wounds burning." },
-  { "id": "cmdo.grenade", "name": "Fire Grenade", "cls": "commando", "cdMs": 7000, "action": "cmdo.grenade", "desc": "Lob a grenade at your aim point. Burns, and arcs over shields." },
-  { "id": "cmdo.mine", "name": "Root Mine", "cls": "commando", "cdMs": 9000, "action": "cmdo.mine", "desc": "Drop a mine that roots whatever trips it." },
-  { "id": "cmdo.slug", "name": "Breaker Slug", "cls": "commando", "cdMs": 6000, "action": "cmdo.slug", "desc": "A charged shot that pierces four foes and wrecks armour." },
-  { "id": "cmdo.volley", "name": "Volley", "cls": "commando", "cdMs": 8000, "action": "cmdo.volley", "desc": "Five rounds in a fan." }
+ {
+  "id": "zerk.leap",
+  "name": "Wolf's Leap",
+  "cls": "berserker",
+  "cdMs": 8000,
+  "action": "zerk.leap",
+  "desc": "Leap to your aim and crash down, knocking foes away.",
+  "unlock": "zk.storm.leap"
+ },
+ {
+  "id": "zerk.whirl",
+  "name": "Iron Whirl",
+  "cls": "berserker",
+  "cdMs": 10000,
+  "action": "zerk.whirl",
+  "desc": "Spin through a crowd with unbreakable footing.",
+  "unlock": "zk.wolf.whirl"
+ },
+ {
+  "id": "zerk.howl",
+  "name": "Battle Howl",
+  "cls": "berserker",
+  "cdMs": 16000,
+  "action": "zerk.howl",
+  "desc": "+30% damage for 8 s; staggers everything close.",
+  "unlock": "zk.rage.howl"
+ },
+ {
+  "id": "zerk.rend",
+  "name": "Rend",
+  "cls": "berserker",
+  "cdMs": 6000,
+  "action": "zerk.rend",
+  "desc": "A driving thrust that sets wounds burning."
+ },
+ {
+  "id": "cmdo.grenade",
+  "name": "Fire Grenade",
+  "cls": "commando",
+  "cdMs": 7000,
+  "action": "cmdo.grenade",
+  "desc": "Lob a grenade at your aim point. Burns, and arcs over shields."
+ },
+ {
+  "id": "cmdo.mine",
+  "name": "Root Mine",
+  "cls": "commando",
+  "cdMs": 9000,
+  "action": "cmdo.mine",
+  "desc": "Drop a mine that roots whatever trips it.",
+  "unlock": "cm.tact.mine"
+ },
+ {
+  "id": "cmdo.slug",
+  "name": "Breaker Slug",
+  "cls": "commando",
+  "cdMs": 6000,
+  "action": "cmdo.slug",
+  "desc": "A charged shot that pierces four foes and wrecks armour.",
+  "unlock": "cm.mark.slug"
+ },
+ {
+  "id": "cmdo.volley",
+  "name": "Volley",
+  "cls": "commando",
+  "cdMs": 8000,
+  "action": "cmdo.volley",
+  "desc": "Five rounds in a fan.",
+  "unlock": "cm.demo.volley"
+ },
+ {
+  "id": "cmdo.turret",
+  "name": "Sentry Turret",
+  "cls": "commando",
+  "cdMs": 16000,
+  "action": "cmdo.turret",
+  "desc": "Deploy a turret that shoots the nearest foe for 12 s.",
+  "unlock": "cm.tact.turret"
+ },
+ {
+  "id": "human.surge",
+  "name": "Midgard Surge",
+  "cls": "human",
+  "cdMs": 9000,
+  "action": "human.surge",
+  "desc": "Dash through a line of foes, untouchable.",
+  "unlock": "hu.a.surge"
+ },
+ {
+  "id": "cyber.beam",
+  "name": "Odin's Eye",
+  "cls": "cyber",
+  "cdMs": 11000,
+  "action": "cyber.beam",
+  "desc": "A heavy laser that shocks everything along its line.",
+  "unlock": "cy.a.eye"
+ }
 ]

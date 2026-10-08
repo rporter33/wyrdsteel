@@ -26,3 +26,8 @@ export interface Item {
 export function rarityIndex(r: Rarity): number {
   return RARITIES.indexOf(r);
 }
+
+/** A plain item with fixed affixes (quest rewards, starting gear). Random rolls live in generate.ts. */
+export function makeItem(base: string, rarity: Rarity, ilvl: number, uid: string, affixes: ItemAffix[], sockets = 0): Item {
+  return { uid, base, rarity, ilvl, affixes, sockets: Array.from({ length: sockets }, () => null), seed: 0, unique: null, v: 1 };
+}

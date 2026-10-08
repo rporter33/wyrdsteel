@@ -168,6 +168,7 @@ function tree(tr: Raw): TreeDef {
       effects: n.effects ?? [],
       ability: n.ability ?? null,
       desc: n.desc ?? '',
+      cls: n.cls ?? null,
     })),
   };
 }

@@ -227,3 +227,21 @@ describe('sim budget', () => {
     expect(ms).toBeLessThan(4);
   });
 });
+
+describe('finisher', () => {
+  it('mashing interact cannot stun-lock a kneeling troll: one climb, one blow, then it rises', () => {
+    const w = createWorld({ seed: 4, players: [{ name: 'A', cls: 'berserker' }], zone: 'training', node: 'arena' }, db());
+    const p = playerEntity(w, 0)!;
+    const t = spawnEnemy(w, db(), 'troll', p.x, p.z - 3, 3, []);
+    t.stun = 200;
+    t.stunKind = 2;
+    p.x = t.x;
+    p.z = t.z + 2.2;
+    const hp = t.hp;
+    let finishers = 0;
+    for (let i = 0; i < 400; i++) for (const ev of press(w, BTN.interact)) if (ev.k === 'finisher') finishers++;
+    expect(finishers).toBe(1);
+    expect(t.hp).toBeLessThan(hp);
+    expect(t.stun).toBe(0);
+  });
+});

@@ -41,7 +41,7 @@ export function spawnShot(w: World, db: ContentDb, s: ShotSpec): Entity {
   }
   const prof = s.prof ?? profile(w, db, s.owner, true);
   p.proj = {
-    owner: s.owner.id,
+    owner: s.owner.tur ? s.owner.tur.owner : s.owner.id,
     prof: { ...prof, base: prof.base * s.mult },
     dmg: prof.base * s.mult,
     poise: def.poise,

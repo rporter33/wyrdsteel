@@ -1,1 +1,44 @@
-[]
+[
+ {
+  "id": "ruiner.basic",
+  "name": "Ruin Pulse",
+  "action": "r.pulse",
+  "desc": "A burst that throws back everything close. Every Sworn has it."
+ },
+ {
+  "id": "ruiner.quake",
+  "name": "Fenrir's Quake",
+  "action": "r.quake",
+  "desc": "Slam the ground and launch everything within six metres."
+ },
+ {
+  "id": "ruiner.storm",
+  "name": "Thor's Wrath",
+  "action": "r.storm",
+  "desc": "Three waves of lightning that shock and chain."
+ },
+ {
+  "id": "ruiner.frost",
+  "name": "Skadi's Breath",
+  "action": "r.frost",
+  "desc": "Two waves of frost: the second freezes."
+ },
+ {
+  "id": "ruiner.fire",
+  "name": "Surtr's Ring",
+  "action": "r.fire",
+  "desc": "A ring of fire that sets the crowd burning."
+ },
+ {
+  "id": "ruiner.spear",
+  "name": "Gungnir's Fan",
+  "action": "r.spear",
+  "desc": "Seven piercing spears in a fan."
+ },
+ {
+  "id": "ruiner.roots",
+  "name": "Yggdrasil's Grasp",
+  "action": "r.roots",
+  "desc": "Roots everything nearby and mends 20% of your health."
+ }
+]

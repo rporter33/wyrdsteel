@@ -3,6 +3,7 @@ import type { World } from '../sim/types';
 import { spawnShot } from './projectiles';
 import { spawnEnemy } from '../sim/spawn';
 import { AIM_UNIT } from '../input/frame';
+import { spawnTurret } from './turret';
 
 /** Scripted side effects of actions at their marked ticks: shots, summons, buffs, heals. */
 export function emitSystem(w: World, db: ContentDb): void {
@@ -36,7 +37,9 @@ export function emitSystem(w: World, db: ContentDb): void {
         spawnShot(w, db, { owner: e, def: sh.proj, x: e.x + dx * (e.r + 0.3), z: e.z + dz * (e.r + 0.3), y: Math.min(e.h * 0.65, 2.4) + e.y, dx, dz, mult: sh.dmg, arcDist });
       }
     }
-    if (def.spawn && t === def.spawn.at) {
+    if (def.spawn && t === def.spawn.at && def.spawn.def === 'turret') {
+      spawnTurret(w, e, e.x + e.act.dx * 1.4, e.z + e.act.dz * 1.4);
+    } else if (def.spawn && t === def.spawn.at) {
       for (let k = 0; k < def.spawn.count; k++) {
         const ox = (k - (def.spawn.count - 1) / 2) * 1.6;
         const s = spawnEnemy(w, db, def.spawn.def, e.x + e.act.dx * 2 + e.act.dz * ox, e.z + e.act.dz * 2 - e.act.dx * ox, e.level, []);

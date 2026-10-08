@@ -143,6 +143,8 @@ export interface SkillNodeDef {
   effects: SkillEffect[];
   ability: string | null;
   desc: string;
+  /** Class-locked nodes (aspect capstones) only rank for this class. */
+  cls: string | null;
 }
 
 export interface TreeDef {

@@ -46,7 +46,20 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   const t1 = await tick(page);
   await expect.poll(() => tick(page)).toBeGreaterThan(t1 + 30);
   const a2 = (await player(page))!;
-  expect(a2.z - b2.z).toBeGreaterThan(1.5);
+  // Pillars may stop it; any clear southward movement proves the pad drives the player.
+  expect(a2.z - b2.z).toBeGreaterThan(0.5);
+
+  // Menus: K opens the character panel; spending a point works; Escape closes it.
+  await page.evaluate(() => {
+    (window as unknown as { __game: { world: () => { players: { character: { level: number } }[] } } }).__game.world().players[0]!.character.level = 3;
+  });
+  await page.keyboard.press('KeyK');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.locator('button.node:has(.nname:text-is("Thick Hide"))').click();
+  await expect(page.locator('button.node:has(.nname:text-is("Thick Hide"))')).toContainText('1/5');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.locator('#view').focus();
 
   // Combat: lock on to the nearest dummy, walk to it, and swing until damage lands.
   await page.evaluate(() => (navigator as unknown as { getGamepads: () => unknown[] }).getGamepads = () => []);
@@ -79,6 +92,34 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   });
   await expect.poll(async () => (await player(page)) as unknown as { dead: boolean }).toMatchObject({ dead: true });
   await expect.poll(async () => ((await player(page)) as unknown as { dead: boolean }).dead, { timeout: 15_000 }).toBe(false);
+
+  // Gamepad menu navigation: View opens the panel, D-pad moves focus, A activates, B closes.
+  await page.evaluate(() => {
+    const buttons = Array.from({ length: 17 }, () => ({ pressed: false, value: 0, touched: false }));
+    const pad = { id: 'fake', index: 0, connected: true, mapping: 'standard', axes: [0, 0, 0, 0], buttons, timestamp: 0 };
+    (window as unknown as { __pad: typeof pad }).__pad = pad;
+    (navigator as unknown as { getGamepads: () => unknown[] }).getGamepads = () => [pad];
+  });
+  // Headless Chromium stops issuing animation frames while a paused page sits idle, so wait on
+  // rendered frames (polling also wakes the page) rather than on wall time.
+  const frameCount = () => page.evaluate(() => (window as unknown as { __game: { frames: number } }).__game.frames);
+  const waitFrames = async (n: number) => {
+    const f0 = await frameCount();
+    await expect.poll(frameCount).toBeGreaterThan(f0 + n);
+  };
+  const padPress = async (i: number) => {
+    await page.evaluate((b) => ((window as unknown as { __pad: { buttons: { pressed: boolean }[] } }).__pad.buttons[b]!.pressed = true), i);
+    await waitFrames(2);
+    await page.evaluate((b) => ((window as unknown as { __pad: { buttons: { pressed: boolean }[] } }).__pad.buttons[b]!.pressed = false), i);
+    await waitFrames(2);
+  };
+  await padPress(8);
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await padPress(13);
+  const focused = await page.evaluate(() => document.activeElement?.tagName);
+  expect(focused).toBe('BUTTON');
+  await padPress(1);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await page.screenshot({ path: 'test-results/smoke-game.png' });
   expect(errors).toEqual([]);

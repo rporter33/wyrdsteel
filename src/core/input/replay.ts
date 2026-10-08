@@ -2,12 +2,13 @@ import type { ContentDb } from '../data/types';
 import { createWorld, type StartSpec } from '../sim/world';
 import { step } from '../sim/step';
 import { hashWorld } from '../sim/hash';
-import { applyCommands, type Command } from '../sim/commands';
+import type { Command } from '../sim/commands';
+import { applyCommands } from '../sim/apply';
 import type { World } from '../sim/types';
 import { emptyInput, sameInput, type InputFrame, type PlayerInput } from './frame';
 
 /** Bumped whenever a sim change intentionally alters outcomes; golden replays then re-baseline. */
-export const SIM_VERSION = 2;
+export const SIM_VERSION = 3;
 
 /** Run-length encoded frames: [repeat count, inputs per slot]. */
 export type RleFrames = [number, PlayerInput[]][];

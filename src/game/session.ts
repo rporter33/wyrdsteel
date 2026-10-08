@@ -1,7 +1,8 @@
 import type { ContentDb } from '../core/data/types';
 import type { PlayerInput } from '../core/input/frame';
 import { Recorder } from '../core/input/replay';
-import { applyCommands, type Command } from '../core/sim/commands';
+import type { Command } from '../core/sim/commands';
+import { applyCommands } from '../core/sim/apply';
 import { step } from '../core/sim/step';
 import { createWorld, type StartSpec } from '../core/sim/world';
 import type { SimEvent, World } from '../core/sim/types';

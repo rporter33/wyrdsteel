@@ -12,6 +12,8 @@ import { panel, screen, version } from '../ui/store';
 import type { SimEvent } from '../core/sim/types';
 import { installDebug } from './debug';
 import { eventToasts } from './feedback';
+import { MenuPad, installArrowKeys } from '../ui/focus';
+import type { Panel } from '../ui/store';
 import { AudioEngine } from '../audio/engine';
 import { playEvents } from '../audio/sfx';
 import * as THREE from 'three';
@@ -99,6 +101,11 @@ setApi({
 
 render(h(App, {}), document.getElementById('menu')!);
 
+const menuRoot = document.getElementById('menu')!;
+const menuPad = new MenuPad();
+installArrowKeys(() => (panel.value ? menuRoot : null));
+const NPC_PANELS: Record<string, Panel> = { well: 'well', board: 'board', smith: 'smith', carver: 'carver', skald: 'skald', gate: 'gate', stash: 'stash', trainer: 'trainer' };
+
 const loop = startLoop({
   paused: () => !session || panel.value !== null || screen.value !== 'game',
   tick: () => {
@@ -111,12 +118,22 @@ const loop = startLoop({
     for (const k of input.takeUi()) {
       if (screen.value !== 'game') continue;
       if (k === 'Escape') panel.value = panel.value ? null : 'pause';
+      else if (k === 'KeyI' && !panel.value) panel.value = 'inventory';
+      else if (k === 'KeyK' && !panel.value) panel.value = 'skills';
+      else if ((k === 'KeyI' || k === 'KeyK') && (panel.value === 'inventory' || panel.value === 'skills')) panel.value = null;
+    }
+    if (panel.value && menuPad.poll(menuRoot, performance.now()) === 'back') {
+      panel.value = panel.value === 'controls' ? 'pause' : null;
+      canvas.focus();
     }
     input.suspended = panel.value !== null;
     if (session) {
       gfx.frame(session.world, alpha, dt, pendingEvents, 0, db.rooms[session.world.room.id]?.palette ?? 'hall');
       playEvents(audio, session.world, pendingEvents, pan);
       eventToasts(session.world, db, pendingEvents, 0);
+      for (const ev of pendingEvents) {
+        if (ev.k === 'interact' && ev.slot === 0 && ev.what === 'npc' && NPC_PANELS[ev.id]) panel.value = NPC_PANELS[ev.id]!;
+      }
       pendingEvents = [];
       hud.setHint(session.world.room.id === 'training' ? SANDBOX_HINT : '');
       hud.show(screen.value === 'game');

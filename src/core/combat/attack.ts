@@ -8,18 +8,15 @@ import { startAction, canCancel } from '../sim/systems/actions';
 import { coneTarget, lockCandidates, meleeCone, rangedCone, sideOf } from './targeting';
 import { spawnShot } from './projectiles';
 import { profile } from './hits';
+import { unlockedAbilities } from '../progression/skills';
 
 const ABILITY_BTNS = [BTN.ab1, BTN.ab2, BTN.ab3, BTN.ab4];
 const CHAIN_GRACE = msToTicks(220);
 
-/** Abilities bound to slots 1-4: the character's choices, else the class defaults that are unlocked. */
+/** Abilities bound to slots 1-4: the character's choices, else the first four unlocked. */
 export function boundAbilities(p: PlayerSlot, db: ContentDb): string[] {
-  const cls = db.classes[p.character.cls]!;
-  if (p.character.abilities.length) return p.character.abilities;
-  return cls.abilities.filter((a) => {
-    const def = db.abilities[a];
-    return def && (!def.unlock || (p.character.skills.cls[def.unlock] ?? 0) > 0);
-  });
+  if (p.character.abilities.length) return p.character.abilities.slice(0, 4);
+  return unlockedAbilities(p.character, db).slice(0, 4);
 }
 
 function findNode(db: ContentDb, weapon: string, input: ComboInput, current: string, air: boolean) {

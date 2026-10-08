@@ -121,5 +121,15 @@
   "aoe": 3.0,
   "poise": 60,
   "color": "#ff6a3c"
+ },
+ {
+  "id": "spear",
+  "speed": 34,
+  "radius": 0.25,
+  "lifeMs": 700,
+  "pierce": 6,
+  "poise": 40,
+  "stopMs": 40,
+  "color": "#78c6ff"
  }
 ]
