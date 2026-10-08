@@ -130,9 +130,6 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
       case 'W':
         feature('waystone', m.x, m.z, nodeId);
         break;
-      case 'S':
-        feature('generator', m.x, m.z, '', 400);
-        break;
       case '>':
       case '<':
       case '^':
@@ -184,7 +181,14 @@ export function enterNode(w: World, db: ContentDb, nodeId: string, fromExit?: st
   const zone = db.zones[w.zone.id];
   const node = zone?.nodes.find((n) => n.id === nodeId);
   const exits = markersOf(built, 'D');
-  const nexts = node ? node.next : [];
+  // Alignment routes: a link to a node reserved for the other aspect is not a door here.
+  const align = w.players[0]?.character.alignment ?? null;
+  const nexts = node
+    ? node.next.filter((id) => {
+        const target = zone?.nodes.find((n) => n.id === id);
+        return !target?.align || target.align === align;
+      })
+    : [];
   exits.forEach((m, i) => {
     const to = nexts[i] ?? '';
     room.exits.push({ x: m.x, z: m.z, to, open: room.encounters.every((e) => e.state === 'done'), label: to ? (zone?.nodes.find((n) => n.id === to)?.room ?? to) : '' });

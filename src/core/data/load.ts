@@ -40,6 +40,7 @@ export interface RawPacks {
   story: Raw[];
   wyrd: Raw[];
   uniques: Raw[];
+  codex: Raw[];
 }
 
 const t = (ms: number | undefined, d = 0) => (ms === undefined ? d : msToTicks(ms));
@@ -245,5 +246,6 @@ export function loadContent(raw: RawPacks): ContentDb {
     story: byId(raw.story),
     wyrd: byId(raw.wyrd),
     uniques: byId(raw.uniques),
+    codex: raw.codex,
   };
 }

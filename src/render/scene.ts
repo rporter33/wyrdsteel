@@ -43,6 +43,10 @@ export class GameRenderer {
     this.features = new FeatureViews();
     this.valkyrie = new Valkyrie(document.getElementById('hud') ?? document.body);
     this.sun.position.set(-6, 14, 8);
+    this.views.group.name = 'entities';
+    this.features.group.name = 'features';
+    this.valkyrie.root.name = 'valkyrie';
+    this.weather.points.name = 'weather';
     this.scene.add(this.hemi, this.sun, this.views.group, this.features.group, this.valkyrie.root, this.weather.points);
     this.frost = document.createElement('div');
     this.frost.className = 'frost';
@@ -50,7 +54,16 @@ export class GameRenderer {
     this.scene.fog = new THREE.Fog(0x0b1016, 26, 60);
   }
 
+  private floorVer = 0;
   private ensureRoom(w: World, palette: string): void {
+    // Cracked ice changes tiles: rebuild the floor only, not the entities or features.
+    if (this.room && w.room.ver !== this.floorVer && this.roomKey.startsWith(`${w.room.id}:${w.room.variant}:`)) {
+      this.floorVer = w.room.ver;
+      this.scene.remove(this.room.group);
+      this.room.dispose();
+      this.room = new RoomMesh(w.room, PALETTES[palette] ?? PALETTES.hall!);
+      this.scene.add(this.room.group);
+    }
     const key = `${w.room.id}:${w.room.variant}:${w.zone.node}:${w.tick === 0 ? 0 : ''}${this.roomKeyNonce}`;
     if (key === this.roomKey) return;
     this.roomKey = key;
@@ -59,6 +72,7 @@ export class GameRenderer {
       this.room.dispose();
     }
     const pal = PALETTES[palette] ?? PALETTES.hall!;
+    this.floorVer = w.room.ver;
     this.room = new RoomMesh(w.room, pal);
     this.scene.add(this.room.group);
     this.scene.fog = new THREE.Fog(pal.fog, 24, 56);

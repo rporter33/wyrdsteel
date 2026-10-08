@@ -354,6 +354,14 @@ export interface StoryBeat {
   choice?: { label: string; set: string; value: number; desc: string }[];
 }
 
+export interface CodexEntry {
+  id: string;
+  title: string;
+  text: string;
+  /** "beat:x", "kill:enemy", or a story flag. */
+  unlock: string;
+}
+
 export interface WyrdRuleDef {
   id: string;
   name: string;
@@ -383,4 +391,5 @@ export interface ContentDb {
   story: Record<string, StoryBeat>;
   wyrd: Record<string, WyrdRuleDef>;
   uniques: Record<string, UniqueDef>;
+  codex: CodexEntry[];
 }

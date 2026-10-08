@@ -151,5 +151,190 @@
     }
    }
   ]
+ },
+ {
+  "id": "foundry",
+  "name": "Nidavellir Foundry",
+  "desc": "The dwarven forges that heat Midgard, overrun by rime-engines.",
+  "start": "gate",
+  "level": [
+   6,
+   9
+  ],
+  "palette": "foundry",
+  "next": "roots",
+  "travel": true,
+  "requires": "alignment",
+  "nodes": [
+   {
+    "id": "gate",
+    "room": "f.gate",
+    "next": [
+     "vents"
+    ],
+    "level": 6,
+    "align": null,
+    "optional": false,
+    "story": "f.arrive"
+   },
+   {
+    "id": "vents",
+    "room": "f.vents",
+    "next": [
+     "catwalks",
+     "smelter"
+    ],
+    "level": 7,
+    "align": null,
+    "optional": false,
+    "story": "f.vents"
+   },
+   {
+    "id": "catwalks",
+    "room": "f.catwalks",
+    "next": [
+     "heart",
+     "wyrd"
+    ],
+    "level": 8,
+    "align": "human",
+    "optional": false,
+    "story": "f.catwalks"
+   },
+   {
+    "id": "smelter",
+    "room": "f.smelter",
+    "next": [
+     "heart",
+     "wyrd"
+    ],
+    "level": 8,
+    "align": "cyber",
+    "optional": false,
+    "story": "f.smelter"
+   },
+   {
+    "id": "wyrd",
+    "room": "wyrd.mark",
+    "next": [
+     "heart"
+    ],
+    "level": 8,
+    "align": null,
+    "optional": true,
+    "story": "wyrd.mark",
+    "onClear": {
+     "sigil": true
+    }
+   },
+   {
+    "id": "heart",
+    "room": "f.heart",
+    "next": [
+     "citadel:hub"
+    ],
+    "level": 9,
+    "align": null,
+    "optional": false,
+    "story": "f.heart",
+    "onClear": {
+     "flags": {
+      "zone.foundry": 1
+     },
+     "story": "f.done",
+     "to": "citadel:hub"
+    }
+   }
+  ]
+ },
+ {
+  "id": "roots",
+  "name": "Hvergelmir Roots",
+  "desc": "Down to the boiling spring, where the world's last heat is being drunk.",
+  "start": "descent",
+  "level": [
+   10,
+   14
+  ],
+  "palette": "roots",
+  "next": null,
+  "travel": true,
+  "requires": "zone.foundry",
+  "nodes": [
+   {
+    "id": "descent",
+    "room": "r.descent",
+    "next": [
+     "geysers"
+    ],
+    "level": 10,
+    "align": null,
+    "optional": false,
+    "story": "r.arrive"
+   },
+   {
+    "id": "geysers",
+    "room": "r.geysers",
+    "next": [
+     "pools",
+     "wyrd"
+    ],
+    "level": 11,
+    "align": null,
+    "optional": false,
+    "story": "r.geysers"
+   },
+   {
+    "id": "wyrd",
+    "room": "wyrd.stand",
+    "next": [
+     "pools"
+    ],
+    "level": 11,
+    "align": null,
+    "optional": true,
+    "story": "wyrd.stand",
+    "onClear": {
+     "sigil": true
+    }
+   },
+   {
+    "id": "pools",
+    "room": "r.pools",
+    "next": [
+     "gate"
+    ],
+    "level": 12,
+    "align": null,
+    "optional": false
+   },
+   {
+    "id": "gate",
+    "room": "r.gate",
+    "next": [
+     "caldera"
+    ],
+    "level": 13,
+    "align": null,
+    "optional": false,
+    "story": "r.gate"
+   },
+   {
+    "id": "caldera",
+    "room": "r.caldera",
+    "next": [],
+    "level": 14,
+    "align": null,
+    "optional": false,
+    "story": "r.caldera",
+    "onClear": {
+     "flags": {
+      "zone.roots": 1
+     },
+     "story": "r.done",
+     "to": "citadel:hub"
+    }
+   }
+  ]
  }
 ]

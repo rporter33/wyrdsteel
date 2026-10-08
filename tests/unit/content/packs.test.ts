@@ -56,8 +56,17 @@ describe('content packs', () => {
         }
         if (n.story) expect(d.story[n.story], n.story).toBeDefined();
         if (n.onClear?.story) expect(d.story[n.onClear.story], n.onClear.story).toBeDefined();
-        const r = buildRoom(d, n.room, 0);
-        expect(markersOf(r, 'D').length, `${n.room} exits for ${n.id}`).toBeGreaterThanOrEqual(n.next.length);
+        // Links to nodes reserved for one aspect only become doors for that aspect.
+        const doorsNeeded = Math.max(
+          ...[null, 'human', 'cyber'].map((al) => n.next.filter((id) => {
+            const t = z.nodes.find((m) => m.id === id);
+            return !t?.align || t.align === al;
+          }).length),
+        );
+        for (let v = 0; v < d.rooms[n.room]!.variants.length; v++) {
+          const r = buildRoom(d, n.room, v);
+          expect(markersOf(r, 'D').length, `${n.room}#${v} exits for ${n.id}`).toBeGreaterThanOrEqual(doorsNeeded);
+        }
       }
     }
   });

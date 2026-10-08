@@ -8,6 +8,7 @@ import { Controls } from './Controls';
 import { Smith, Carver, Stash } from './Smith';
 import { SettingsView } from './Settings';
 import { Dialogue, Gate, Waystone } from './Story';
+import { Codex } from './Codex';
 
 export function App() {
   const s = screen.value;
@@ -31,6 +32,7 @@ export function App() {
       {s === 'game' && p === 'dialogue' && <Dialogue />}
       {s === 'game' && p === 'gate' && <Gate />}
       {s === 'game' && p === 'waystone' && <Waystone />}
+      {s === 'game' && p === 'skald' && <Codex />}
       <Toasts />
     </>
   );

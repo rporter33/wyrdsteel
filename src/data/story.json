@@ -114,5 +114,156 @@
     "text": "The cut came from the forges themselves. Nidavellir. The gate is open to it now."
    }
   ]
+ },
+ {
+  "id": "f.arrive",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "Nidavellir. The forges that keep Midgard alive, and every one of them banked cold."
+   },
+   {
+    "who": "Ullr",
+    "text": "The conveyors still run. Use them, or be carried by them. Somewhere below, someone is drawing the heat off."
+   }
+  ]
+ },
+ {
+  "id": "f.vents",
+  "lines": [
+   {
+    "who": "Brokkr",
+    "text": "My vents! Still blowing on a cycle. Stand clear when they rumble."
+   },
+   {
+    "who": "Brokkr",
+    "text": "Or don't stand clear: put the rime-engines on them. Launch them right into the fire. I'd enjoy that.",
+    "human": "Or put the rime-engines on them. You're quick enough to launch them right into the fire.",
+    "cyber": "Or put the rime-engines on them. You're heavy enough now to throw them in."
+   }
+  ]
+ },
+ {
+  "id": "f.catwalks",
+  "lines": [
+   {
+    "who": "Idunn",
+    "text": "The high way. Narrow and fast, over the drop. Flesh is light enough to cross it. Knock them off; don't follow."
+   }
+  ]
+ },
+ {
+  "id": "f.smelter",
+  "lines": [
+   {
+    "who": "Brokkr",
+    "text": "The smelter floor. Heavy enough to hold you, now. See those pylons? They're shielding the bulwarks. Smash the pylons first."
+   }
+  ]
+ },
+ {
+  "id": "wyrd.mark",
+  "lines": [
+   {
+    "who": "Bragi",
+    "text": "The Well of the Mark. Here nothing can be hurt unless it already suffers: burning, freezing, shocked or bound."
+   },
+   {
+    "who": "Bragi",
+    "text": "Your blows can still mark them, if your runes or your skills carry a status. Then strike."
+   }
+  ]
+ },
+ {
+  "id": "f.heart",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "The forge-heart. Something has threaded a channel through it, and the heat runs down, not out."
+   },
+   {
+    "who": "Brokkr",
+    "text": "Down. Toward Hvergelmir. Who drinks from a spring of fire?"
+   }
+  ]
+ },
+ {
+  "id": "f.done",
+  "lines": [
+   {
+    "who": "Brokkr",
+    "text": "The forge-heart burns again. Midgard's outer wall will thaw by morning."
+   },
+   {
+    "who": "Ullr",
+    "text": "But the channel goes on down, to the roots and the boiling spring. Whatever cut the heat-lines is drinking at Hvergelmir."
+   },
+   {
+    "who": "Bragi",
+    "text": "Old songs say a giant of stone once came to Asgard to drink and boast. They say its heart was a whetstone. I hope the songs are wrong."
+   }
+  ]
+ },
+ {
+  "id": "r.arrive",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "Ice, and under it, black water that steams where it touches the air."
+   },
+   {
+    "who": "Ullr",
+    "text": "Thin ice. Heavy blows will crack it, and what's cracked gives way. Use it, but don't stand on it when it goes."
+   }
+  ]
+ },
+ {
+  "id": "r.geysers",
+  "lines": [
+   {
+    "who": "Bragi",
+    "text": "The geysers throw anything standing near them into the air. Lure foes over them and you'll have them where you want them."
+   }
+  ]
+ },
+ {
+  "id": "wyrd.stand",
+  "lines": [
+   {
+    "who": "Bragi",
+    "text": "The Well of Standing. No dodging here. Read their blows, keep your distance, and strike in the gaps."
+   }
+  ]
+ },
+ {
+  "id": "r.gate",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "Beyond this gate the spring boils, and something vast is breathing."
+   },
+   {
+    "who": "Idunn",
+    "text": "Whatever you find, Sworn, you were made for this, flesh or steel."
+   }
+  ]
+ },
+ {
+  "id": "r.caldera",
+  "lines": [
+   {
+    "who": "{name}",
+    "text": "The caldera. Its guardians come first."
+   }
+  ]
+ },
+ {
+  "id": "r.done",
+  "lines": [
+   {
+    "who": "Ullr",
+    "text": "The way to the spring is open. Rest. Then finish it."
+   }
+  ]
  }
 ]

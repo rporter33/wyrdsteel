@@ -60,27 +60,34 @@ export function blobShadow(r: number): THREE.Mesh {
   return m;
 }
 
+/** Meshes that bakeStatic merges: opaque ones not listed as animated. */
+export function bakeable(o: THREE.Object3D, skip?: Set<THREE.Object3D>): o is THREE.Mesh {
+  return o instanceof THREE.Mesh && !(o.material as THREE.Material).transparent && !skip?.has(o);
+}
+
 /**
  * Merge a static model into at most two meshes (lit and glowing) with baked vertex colours.
  * NPCs and props don't animate per limb, so they cost two draw calls instead of twenty-five.
+ * Meshes in `skip` (animated parts) are left out; already-baked meshes keep their colours.
  */
-export function bakeStatic(root: THREE.Object3D): THREE.Group {
+export function bakeStatic(root: THREE.Object3D, skip?: Set<THREE.Object3D>): THREE.Group {
   root.updateMatrixWorld(true);
   const lit: THREE.BufferGeometry[] = [];
   const glowG: THREE.BufferGeometry[] = [];
   const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
   root.traverse((o) => {
-    if (!(o instanceof THREE.Mesh)) return;
+    if (!bakeable(o, skip)) return;
     const mat = o.material as THREE.MeshToonMaterial;
-    if ((mat as THREE.Material).transparent) return;
     const g = (o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone()).applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
-    g.deleteAttribute('uv');
-    const c = mat.color ?? new THREE.Color(0xffffff);
-    const n = g.getAttribute('position').count;
-    const col = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) col.set([c.r, c.g, c.b], i * 3);
-    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    ((mat.emissiveIntensity ?? 0) > 0 ? glowG : lit).push(g);
+    for (const name of Object.keys(g.attributes)) if (name !== 'position' && name !== 'normal' && name !== 'color') g.deleteAttribute(name);
+    if (!g.getAttribute('color') || !mat.vertexColors) {
+      const c = mat.color ?? new THREE.Color(0xffffff);
+      const n = g.getAttribute('position').count;
+      const col = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) col.set([c.r, c.g, c.b], i * 3);
+      g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    }
+    ((mat.emissiveIntensity ?? 0) > 0 || mat instanceof THREE.MeshBasicMaterial ? glowG : lit).push(g);
   });
   const out = new THREE.Group();
   if (lit.length) out.add(new THREE.Mesh(mergeGeometries(lit, false)!, toonVertexMat()));

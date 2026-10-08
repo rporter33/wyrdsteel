@@ -1,0 +1,86 @@
+[
+ {
+  "id": "c.sworn",
+  "title": "The Sworn",
+  "text": "Soldiers of Midgard, rebuilt on Brokkr's forge-table and given a god's name and a god's duty. Some keep more flesh than others.",
+  "unlock": "beat:intro"
+ },
+ {
+  "id": "c.winter",
+  "title": "The Fimbulwinter",
+  "text": "Three winters with no summer between, the songs said. It has been three hundred. Midgard lives on the heat the dwarven forges send up the heat-lines.",
+  "unlock": "beat:intro"
+ },
+ {
+  "id": "c.ironwood",
+  "title": "The Iron Wood",
+  "text": "J\u00e1rnvi\u00f0r: trees with bark like cast iron, where trolls were said to be born. The first heat-line runs through it.",
+  "unlock": "zone.ironwood"
+ },
+ {
+  "id": "c.nidavellir",
+  "title": "Nidavellir",
+  "text": "The dwarven forges under the mountain. Brokkr was born here, and swears he will die here, but not this year.",
+  "unlock": "zone.foundry"
+ },
+ {
+  "id": "c.hvergelmir",
+  "title": "Hvergelmir",
+  "text": "The boiling spring beneath the world, where every river begins. Its heat is the last heat there is.",
+  "unlock": "zone.roots"
+ },
+ {
+  "id": "c.thrall",
+  "title": "Thralls",
+  "text": "Rime-engines built small and cheap, sent in swarms. They circle to your back while their kin hold your eye.",
+  "unlock": "kill:thrall"
+ },
+ {
+  "id": "c.spiker",
+  "title": "Spikers",
+  "text": "They keep their distance and throw ice. Close in and they retreat; cornered, they fight poorly.",
+  "unlock": "kill:spiker"
+ },
+ {
+  "id": "c.bulwark",
+  "title": "Bulwarks",
+  "text": "A tower shield on legs. Light blows and shots break on it. Heavy blows, a launcher, or a step behind it do not.",
+  "unlock": "kill:bulwark"
+ },
+ {
+  "id": "c.frostwright",
+  "title": "Frostwrights",
+  "text": "Engines of cold that freeze the ground and loose shards that follow you. Near death they glow white and burst. Leave them.",
+  "unlock": "kill:frostwright"
+ },
+ {
+  "id": "c.mender",
+  "title": "Menders",
+  "text": "They tether a shield to whichever ally is worst off. Cut the tether by staggering them, or kill them first.",
+  "unlock": "kill:mender"
+ },
+ {
+  "id": "c.troll",
+  "title": "Iron Trolls",
+  "text": "Break the arms and they stop throwing. Break a leg and they kneel, and a kneeling troll can be climbed.",
+  "unlock": "kill:troll"
+ },
+ {
+  "id": "c.burrower",
+  "title": "Burrowers",
+  "text": "They travel under the ice and come up beneath you. Watch for the cracks; a slam brings them up early.",
+  "unlock": "kill:burrower"
+ },
+ {
+  "id": "c.valkyrie",
+  "title": "The Valkyries",
+  "text": "They carry the fallen Sworn home to the last waystone. Their price is a tenth of what you carried since; you can take it back where you fell.",
+  "unlock": "beat:intro"
+ },
+ {
+  "id": "c.wyrd",
+  "title": "Wells of Wyrd",
+  "text": "The Norns keep one rule in each well. Win under it and the well pays in sigils and blueprints.",
+  "unlock": "beat:wyrd.air"
+ }
+]

@@ -2,6 +2,7 @@ import { DT, GRAVITY } from '../constants';
 import { collideCircle, blocksMove, T_PIT, tileAt, type Grid } from '../../level/grid';
 import type { ContentDb } from '../../data/types';
 import type { Entity, World } from '../types';
+import { crackIce } from '../../level/hazards';
 
 export function gridOf(w: World): Grid {
   return w.room as unknown as Grid;
@@ -26,6 +27,8 @@ export function motionSystem(w: World, db: ContentDb): void {
         e.y = 0;
         e.vy = 0;
         if (e.juggle > 0 || fast) w.events.push({ k: 'land', t: w.tick, dst: e.id, slam: fast });
+        // A hard landing (a slam, or a body hurled down) cracks thin ice.
+        if (fast) crackIce(w, e.x, e.z, 1.4);
         e.juggle = 0;
         // Landing ends an air string (a slam finishes its own impact window first).
         if (def && def.air && !def.slam) e.act = null;
@@ -33,6 +36,11 @@ export function motionSystem(w: World, db: ContentDb): void {
       }
     }
     if (e.kind === 'pickup' || e.kind === 'npc' || e.kind === 'prop') continue;
+    // The ground gave way (cracked ice became water): grounded enemies fall in.
+    if (e.kind === 'enemy' && !e.dead && e.y <= 0 && tileAt(g, Math.floor(e.x), Math.floor(e.z)) === T_PIT) {
+      e.hp = 0;
+      continue;
+    }
     let nx = e.x + e.vx * DT;
     let nz = e.z + e.vz * DT;
     // Knocked or slid into a pit: enemies fall (handled by deaths), players are stopped at the edge.

@@ -34,6 +34,21 @@ export function installDebug(d: DebugDeps): void {
     },
     newGame: d.newGame,
     perf: () => ({ ...d.loop, ...d.gfx.info() }),
+    /** Debug-only: visible meshes per top-level scene group, to see where draw calls go. */
+    calls: () => {
+      const out: Record<string, number> = {};
+      const tops = d.gfx.scene.children.flatMap((t) => (t.name === 'entities' ? t.children : [t]));
+      for (const top of tops) {
+        let n = 0;
+        top.traverseVisible((o) => {
+          const m = o as { isMesh?: boolean; isInstancedMesh?: boolean; count?: number; isPoints?: boolean };
+          if ((m.isMesh && (!m.isInstancedMesh || (m.count ?? 0) > 0)) || m.isPoints) n++;
+        });
+        const k = top.name || top.type;
+        out[k] = (out[k] ?? 0) + n;
+      }
+      return out;
+    },
     replay: () => d.session()?.recorder.build() ?? null,
     /** Debug-only travel: queues a room change the sim applies at the end of the next tick. */
     goto: (node: string) => {

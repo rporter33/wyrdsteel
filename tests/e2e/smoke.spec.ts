@@ -113,6 +113,10 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   await expect.poll(enemies, { timeout: 20_000 }).toBeGreaterThan(0);
   await page.keyboard.up('KeyW');
   await page.keyboard.up('KeyA');
+  // Draw-call budget: crowds are instanced, so a wave stays well under 120.
+  const calls = await page.evaluate(() => (window as unknown as { __game: { perf: () => { calls: number } } }).__game.perf().calls);
+  expect(calls).toBeGreaterThan(0);
+  expect(calls).toBeLessThanOrEqual(120);
   await page.evaluate(() => {
     const p = (window as unknown as { __game: { player: () => { hp: number } } }).__game.player();
     p.hp = 0;

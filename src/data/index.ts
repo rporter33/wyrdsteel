@@ -21,6 +21,7 @@ import zones from './zones.json';
 import story from './story.json';
 import wyrd from './wyrd.json';
 import uniques from './uniques.json';
+import codex from './codex.json';
 
 export const CONTENT_VERSION = 1;
 
@@ -46,4 +47,5 @@ export const packs: RawPacks = {
   story,
   wyrd,
   uniques,
+  codex,
 };

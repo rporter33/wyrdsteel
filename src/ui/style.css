@@ -223,3 +223,7 @@ button.armed { border-color: var(--gold); color: var(--gold); }
 .hud-heat { position: absolute; left: 16px; bottom: 116px; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: none; }
 .hud-heat.cold { display: block; background: rgba(155, 231, 255, 0.18); color: var(--frost); border: 1px solid var(--frost); }
 .hud-heat.warm { display: block; background: rgba(255, 154, 60, 0.15); color: var(--ember); border: 1px solid var(--ember); }
+.codex { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.codex article { border: 1px solid var(--panel-edge); border-radius: 8px; padding: 10px 12px; }
+.codex h4 { margin: 0 0 4px; color: var(--gold); font-size: 14px; }
+.codex p { margin: 0; font-size: 13px; line-height: 1.5; color: #cfd8e0; }

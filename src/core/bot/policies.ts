@@ -17,6 +17,13 @@ export function newMemory(): BotMemory {
   return { threats: [], t: 0 };
 }
 
+/** Shield pylons first while a bulwark lives (they make bulwarks invulnerable), then the nearest. */
+function botTarget(w: World, e: Entity): Entity | null {
+  const pylon = w.entities.find((o) => o.def === 'generator' && !o.dead);
+  if (pylon && w.entities.some((o) => o.def === 'bulwark' && !o.dead)) return pylon;
+  return nearestEnemy(w, e);
+}
+
 function nearestEnemy(w: World, e: Entity): Entity | null {
   let best: Entity | null = null;
   let bd = Infinity;
@@ -61,7 +68,7 @@ export function botInput(w: World, db: ContentDb, slot: number, policy: Policy, 
     if (ev.k === 'telegraph') mem.threats.push({ x: ev.x, z: ev.z, r: ev.r, until: w.tick + ev.dur + 4, line: ev.shape === 'line', dx: ev.dx, dz: ev.dz, len: ev.len, w: ev.width });
   }
   mem.threats = mem.threats.filter((t) => t.until > w.tick);
-  const t = nearestEnemy(w, e);
+  const t = botTarget(w, e);
   if (!t) return explore(w, e, inp);
   const dx = t.x - e.x;
   const dz = t.z - e.z;
@@ -119,6 +126,19 @@ export function botInput(w: World, db: ContentDb, slot: number, policy: Policy, 
   // Kneeling heavy: climb it.
   if (t.stunKind === 2 && t.parts && d < t.r + 1.5) {
     inp.pressed = BTN.interact;
+    return inp;
+  }
+  const tdef = db.enemies[t.def];
+  const guardedFromUs = tdef?.guard === 'front' && t.fx * -dx / d + t.fz * -dz / d > 0.3;
+  if (ranged && guardedFromUs) {
+    // Shots break on a shield: lob a grenade over it if one is ready, else circle hard to flank.
+    const gi = abil.indexOf('cmdo.grenade');
+    if (gi >= 0 && e.pl!.cds[gi] === 0 && d < 12) {
+      inp.pressed = [BTN.ab1, BTN.ab2, BTN.ab3, BTN.ab4][gi]!;
+      return inp;
+    }
+    const side = (Math.floor(mem.t / 240) % 2) * 2 - 1;
+    [inp.mx, inp.mz] = quantizeMove(-dz * side + (d < 4 ? -dx : 0), dx * side + (d < 4 ? -dz : 0));
     return inp;
   }
   if (ranged || policy === 'kite') {

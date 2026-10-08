@@ -6,6 +6,7 @@ import { nextFloat } from '../rng/xoshiro';
 import { computeDamage, juggleLift } from './damage';
 import { addBuildup } from './status';
 import { msToTicks } from '../sim/constants';
+import { shielded, crackIce } from '../level/hazards';
 
 /** Bits recorded on the victim describing how the killing blow landed (charm quests read them). */
 export const HOW_AIR = 1;
@@ -89,6 +90,21 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
     return 'dodged';
   }
   const tdef = t.kind === 'enemy' ? db.enemies[t.def] : null;
+  let wyrdMarkOnly = false;
+  if (shielded(w, t)) {
+    w.events.push({ k: 'immune', t: w.tick, dst: t.id });
+    return 'immune';
+  }
+  // Well of Wyrd, rule of the mark: only foes already suffering a status can be hurt.
+  if (w.room.rule === 'status' && t.kind === 'enemy') {
+    const st = t.status;
+    const marked = st.burn > 0 || st.chill > 0 || st.freeze > 0 || st.root > 0 || st.shock > 0;
+    if (!marked && !h.hit.status && !h.prof.onHit.length) {
+      w.events.push({ k: 'immune', t: w.tick, dst: t.id });
+      return 'immune';
+    }
+    if (!marked) wyrdMarkOnly = true;
+  }
   // Well of Wyrd, rule of the air: grounded foes shrug off everything but the blow that lifts them.
   let wyrdZero = false;
   if (w.room.rule === 'air' && t.kind === 'enemy' && t.y < 0.3) {
@@ -147,11 +163,12 @@ export function applyHit(w: World, db: ContentDb, h: HitSpec, t: Entity): HitRes
   let armor = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.armor : (tdef?.armor ?? 0);
   if (t.boss) armor += t.boss.plating > 0 ? 400 : 0;
   const taken = t.kind === 'player' ? w.players[t.pl!.slot]!.stats.dmgTakenPct : t.status.freeze > 0 ? 0.25 : 0;
-  if (wyrdZero) mult = 0;
+  // Under the rule of the mark, an unmarked foe only takes the status, not the damage.
+  if (wyrdZero || wyrdMarkOnly) mult = 0;
   const finisher = h.hit.tag === 'finisher';
   // The finishing blow ends the kneel: the troll gets up, legs still broken.
   if (finisher) t.stun = Math.min(t.stun, 30);
-  const dmg = finisher ? Math.round(t.hpMax * (t.boss ? 0.08 : 0.35)) : wyrdZero ? 0 : computeDamage({
+  const dmg = finisher ? Math.round(t.hpMax * (t.boss ? 0.08 : 0.35)) : wyrdZero || wyrdMarkOnly ? 0 : computeDamage({
     base: h.prof.base,
     mult,
     pct,
@@ -326,6 +343,7 @@ export function hitSystem(w: World, db: ContentDb): void {
         const pz = a.z + dz * Math.min(d, hd.range * 0.7);
         const r = applyHit(w, db, { src: a, dx, dz, hit: hd, ranged: false, px, pz, prof }, t);
         if (r === 'hit') landed = true;
+        if (r === 'hit' && (hd.tag === 'heavy' || hd.down) && hd.poise >= 40) crackIce(w, t.x, t.z, 1.6);
       }
       if (landed) a.hitstop = Math.max(a.hitstop, hd.stop);
     });

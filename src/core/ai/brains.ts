@@ -124,13 +124,14 @@ export function fighter(w: World, db: ContentDb, e: Entity, def: EnemyDef, t: En
     ai.st = 'wait';
     const [fx, fz] = flankPoint(w, e, t, 3.4, def.brain === 'thrall');
     moveTo(w, e, fx, fz, speed * 0.7, false);
-    face(e, t.x, t.z, 0.2);
+    face(e, t.x, t.z, def.guard === 'front' ? 0.015 : 0.2);
     return;
   }
   ai.st = 'chase';
   if (d > def.range * 0.85) moveTo(w, e, t.x, t.z, speed);
   else stop(e);
-  face(e, t.x, t.z, def.weight === 'heavy' ? 0.06 : def.guard === 'front' ? 0.05 : 0.2);
+  // Shield bearers turn slowly: about 50 degrees a second, so a player can work around them.
+  face(e, t.x, t.z, def.weight === 'heavy' ? 0.06 : def.guard === 'front' ? 0.015 : 0.2);
 }
 
 /** Frostwright: a fighter that self-destructs when nearly dead, after a long, visible fuse. */

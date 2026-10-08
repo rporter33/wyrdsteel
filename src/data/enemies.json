@@ -408,5 +408,22 @@
     "weight": 1
    }
   ]
+ },
+ {
+  "id": "generator",
+  "name": "Shield Pylon",
+  "brain": "static",
+  "hp": 260,
+  "dmg": 0,
+  "speed": 0,
+  "radius": 0.6,
+  "height": 1.9,
+  "poise": 999,
+  "weight": "heavy",
+  "xp": 20,
+  "bounty": 10,
+  "model": "generator",
+  "color": "#8a6a3a",
+  "attacks": []
  }
 ]

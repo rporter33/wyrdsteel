@@ -169,6 +169,25 @@ export function buildEnemy(model: string, colorHex: string, elites: string[]): E
       radius = 1.2;
       break;
     }
+    case 'generator': {
+      // Shield pylon: an iron column with a gold core and three fins.
+      root.add(cyl(0.45, 0.6, 1.5, PALETTE.iron, 8, 0.75));
+      const core = glow(0.32, PALETTE.gold, 2.2);
+      core.position.y = 1.75;
+      root.add(core);
+      for (let i = 0; i < 3; i++) {
+        const fin = box(0.08, 1.0, 0.5, 0x5b4636, 1.0);
+        fin.position.x = Math.cos(i * 2.09) * 0.5;
+        fin.position.z = Math.sin(i * 2.09) * 0.5;
+        fin.rotation.y = -i * 2.09;
+        root.add(fin);
+      }
+      update = (_e, w) => {
+        core.scale.setScalar(1 + Math.sin(w.tick / 8) * 0.12);
+      };
+      radius = 0.6;
+      break;
+    }
     case 'dummy': {
       const post = cyl(0.12, 0.15, 1.6, PALETTE.wood, 6, 0.8);
       const body = cyl(0.35, 0.3, 0.9, 0xb89a6a, 7, 1.2);

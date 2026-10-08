@@ -4,11 +4,11 @@ import type { Entity, World } from '../../core/sim/types';
 import { buildHumanoid, type Rig } from '../models/humanoid';
 import { buildWeapon } from '../models/weapons';
 import { blobShadow, glow } from '../models/kit';
-void blobShadow;
 import { applyPose } from '../anim/poses';
 import { PALETTE, toon } from '../materials';
 import { buildNpc } from '../models/npcs';
 import { CrowdRenderer, type Proxy } from './crowd';
+import type { EnemyModel } from '../models/enemies';
 
 interface View {
   id: number;
@@ -23,9 +23,42 @@ interface View {
   meleeL: THREE.Object3D | null;
   ranged: THREE.Object3D | null;
   lastFire: number;
-  flash: THREE.Mesh[];
   seen: number;
   deadAt: number;
+  /** Batched projectiles and pickups: their colour, size and whether a loot beam marks them. */
+  color: THREE.Color | null;
+  size: number;
+  beam: boolean;
+}
+
+/** A pool of identical meshes drawn in one call, refilled every frame. */
+class Batch {
+  readonly mesh: THREE.InstancedMesh;
+  private n = 0;
+  constructor(
+    geo: THREE.BufferGeometry,
+    mat: THREE.Material,
+    private readonly cap: number,
+  ) {
+    this.mesh = new THREE.InstancedMesh(geo, mat, cap);
+    this.mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3).fill(1), 3);
+    this.mesh.count = 0;
+    this.mesh.frustumCulled = false;
+  }
+  begin(): void {
+    this.n = 0;
+  }
+  push(m: THREE.Matrix4, c: THREE.Color): void {
+    if (this.n >= this.cap) return;
+    this.mesh.setMatrixAt(this.n, m);
+    this.mesh.setColorAt(this.n, c);
+    this.n++;
+  }
+  end(): void {
+    this.mesh.count = this.n;
+    this.mesh.instanceMatrix.needsUpdate = true;
+    if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
+  }
 }
 
 const RARITY_COLOR: Record<string, number> = {
@@ -52,6 +85,11 @@ export class EntityViews {
   private shadows: THREE.InstancedMesh;
   private barBg: THREE.InstancedMesh;
   private barFill: THREE.InstancedMesh;
+  private bolts = new Batch(new THREE.IcosahedronGeometry(1, 0), new THREE.MeshBasicMaterial({ toneMapped: false }), 128);
+  private gems = new Batch(new THREE.IcosahedronGeometry(1, 0), new THREE.MeshBasicMaterial({ toneMapped: false }), 96);
+  private beams = new Batch(new THREE.CylinderGeometry(0.05, 0.05, 3, 6), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.45, depthWrite: false }), 48);
+  private readonly q = new THREE.Quaternion();
+  private readonly up = new THREE.Vector3(0, 1, 0);
   private readonly m4 = new THREE.Matrix4();
   private readonly v3 = new THREE.Vector3();
   private readonly s3 = new THREE.Vector3();
@@ -61,6 +99,7 @@ export class EntityViews {
   flash = true;
 
   constructor(private readonly db: ContentDb) {
+    this.crowd.group.name = 'crowd';
     this.group.add(this.crowd.group);
     const blob = blobShadow(0.5);
     this.shadows = new THREE.InstancedMesh(blob.geometry, blob.material as THREE.Material, SHADOW_CAP);
@@ -76,7 +115,7 @@ export class EntityViews {
       b.frustumCulled = false;
       b.renderOrder = 20;
     }
-    this.group.add(this.shadows, this.barBg, this.barFill);
+    this.group.add(this.shadows, this.barBg, this.barFill, this.bolts.mesh, this.gems.mesh, this.beams.mesh);
   }
 
   clear(): void {
@@ -93,8 +132,15 @@ export class EntityViews {
     this.frame++;
     for (const e of w.entities) {
       let v = this.views.get(e.id);
+      // A player who equips a different weapon type gets a rebuilt model.
+      if (v && e.kind === 'player' && v.crowdKey !== playerKey(e, w)) {
+        this.drop(v);
+        this.views.delete(e.id);
+        v = undefined;
+      }
       if (!v) {
         v = this.create(e, w);
+        v.obj.name = e.kind;
         this.views.set(e.id, v);
         this.group.add(v.obj);
       }
@@ -108,6 +154,37 @@ export class EntityViews {
       }
     }
     this.writeShadowsAndBars(w);
+    this.writeBatches();
+  }
+
+  private writeBatches(): void {
+    this.bolts.begin();
+    this.gems.begin();
+    this.beams.begin();
+    for (const v of this.views.values()) {
+      if (!v.color) continue;
+      const o = v.obj;
+      this.q.setFromAxisAngle(this.up, o.rotation.y);
+      if (v.kind === 'projectile') {
+        this.s3.set(v.size, v.size, v.size * 2.2);
+        this.m4.compose(o.position, this.q, this.s3);
+        this.bolts.push(this.m4, v.color);
+        continue;
+      }
+      this.v3.set(o.position.x, o.position.y + 0.45, o.position.z);
+      this.s3.setScalar(v.size);
+      this.m4.compose(this.v3, this.q, this.s3);
+      this.gems.push(this.m4, v.color);
+      if (v.beam) {
+        this.v3.set(o.position.x, 1.5, o.position.z);
+        this.s3.setScalar(1);
+        this.m4.compose(this.v3, this.q.identity(), this.s3);
+        this.beams.push(this.m4, v.color);
+      }
+    }
+    this.bolts.end();
+    this.gems.end();
+    this.beams.end();
   }
 
   private writeShadowsAndBars(w: World): void {
@@ -157,42 +234,19 @@ export class EntityViews {
   }
 
   private create(e: Entity, w: World): View {
-    const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, proxy: null, crowdKey: '', shadowR: 0, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, flash: [], seen: 0, deadAt: -1 };
+    const v: View = { id: e.id, kind: e.kind, obj: new THREE.Group(), rig: null, proxy: null, crowdKey: '', shadowR: 0, phase: 0, melee: null, meleeL: null, ranged: null, lastFire: -999, seen: 0, deadAt: -1, color: null, size: 0, beam: false };
     if (e.kind === 'player') {
-      const slot = w.players.find((p) => p.entity === e.id);
-      const cls = slot?.character.cls ?? 'berserker';
-      const st = CLASS_STYLE[cls] ?? CLASS_STYLE.berserker!;
-      const align = slot?.character.alignment;
-      const rig = buildHumanoid({
-        body: st.body,
-        trim: align === 'cyber' ? 0x9fd8ff : align === 'human' ? 0xd8c8a0 : st.trim,
-        skin: 0xc9a68a,
-        eye: align === 'human' ? PALETTE.human : PALETTE.cyber,
-        bulk: cls === 'berserker' ? 1.1 : 1,
-        height: 1.85,
-        helm: 'sworn',
-        cape: st.cape,
-        cyber: align === 'cyber' ? 2 : align === 'human' ? 0 : 1,
-      });
-      v.rig = rig;
-      v.shadowR = 0.45;
-      v.obj.add(rig.root);
-      const stats = slot?.stats;
-      const meleeKind = stats?.meleeKind ?? 'sword';
-      const rangedKind = stats?.rangedKind ?? 'pistols';
-      v.melee = buildWeapon(meleeKind);
-      v.melee.rotation.x = Math.PI / 2;
-      rig.handR.add(v.melee);
-      if (meleeKind === 'blades') {
-        v.meleeL = buildWeapon('blades');
-        v.meleeL.rotation.x = Math.PI / 2;
-        rig.handL.add(v.meleeL);
+      const key = playerKey(e, w);
+      const got = this.crowd.acquireWith(key, () => buildPlayer(key));
+      if (got) {
+        v.proxy = got.proxy;
+        v.crowdKey = got.key;
+        v.rig = got.proxy.model.rig;
+        v.melee = got.proxy.model.root.getObjectByName('melee') ?? null;
+        v.meleeL = got.proxy.model.root.getObjectByName('meleeL') ?? null;
+        v.ranged = got.proxy.model.root.getObjectByName('ranged') ?? null;
       }
-      v.ranged = buildWeapon(rangedKind);
-      v.ranged.visible = false;
-      rig.handR.add(v.ranged);
-      v.ranged.rotation.x = Math.PI / 2;
-      rig.root.traverse((o) => o instanceof THREE.Mesh && v.flash.push(o));
+      v.shadowR = 0.45;
     } else if (e.kind === 'enemy') {
       const def = this.db.enemies[e.def];
       const got = this.crowd.acquire(def?.model ?? e.def, def?.color ?? '#888888', e.elite ?? []);
@@ -208,21 +262,13 @@ export class EntityViews {
       v.shadowR = e.r;
     } else if (e.kind === 'projectile') {
       const def = this.db.projectiles[e.def];
-      const c = new THREE.Color(def?.color ?? '#ffffff').getHex();
-      const m = glow(Math.max(0.08, (def?.radius ?? 0.15) * 0.8), c, 3);
-      m.scale.z = 2.2;
-      v.obj.add(m);
+      v.color = new THREE.Color(def?.color ?? '#ffffff');
+      v.size = Math.max(0.08, (def?.radius ?? 0.15) * 0.8);
     } else if (e.kind === 'pickup') {
       const rar = e.pick?.item?.rarity ?? (e.pick?.kind === 'bounty' ? 'bounty' : e.pick?.kind === 'shade' ? 'shade' : 'worn');
-      const color = rar === 'bounty' ? PALETTE.gold : rar === 'shade' ? 0xb8a0ff : e.pick?.kind === 'rune' ? PALETTE.rune : e.pick?.kind === 'heal' ? PALETTE.human : (RARITY_COLOR[rar] ?? 0xffffff);
-      const gem = glow(e.pick?.kind === 'bounty' ? 0.12 : 0.2, color, 2.2);
-      gem.position.y = 0.45;
-      v.obj.add(gem);
-      if (e.pick?.item && (rar === 'ascendant' || rar === 'relic' || rar === 'runed')) {
-        const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3, 6), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45 }));
-        beam.position.y = 1.5;
-        v.obj.add(beam);
-      }
+      v.color = new THREE.Color(rar === 'bounty' ? PALETTE.gold : rar === 'shade' ? 0xb8a0ff : e.pick?.kind === 'rune' ? PALETTE.rune : e.pick?.kind === 'heal' ? PALETTE.human : (RARITY_COLOR[rar] ?? 0xffffff));
+      v.size = e.pick?.kind === 'bounty' ? 0.12 : 0.2;
+      v.beam = !!e.pick?.item && (rar === 'ascendant' || rar === 'relic' || rar === 'runed');
     } else if (e.kind === 'npc') {
       const n = buildNpc(e.def);
       v.rig = n;
@@ -288,9 +334,11 @@ export class EntityViews {
       if (firing) v.lastFire = w.tick;
       const aiming = w.tick - v.lastFire < 20;
       if (v.ranged && v.melee) {
-        v.ranged.visible = aiming && !e.act;
-        v.melee.visible = !v.ranged.visible;
-        if (v.meleeL) v.meleeL.visible = !v.ranged.visible;
+        // Instanced parts hide by scale, not visibility.
+        const gun = aiming && !e.act;
+        v.ranged.scale.setScalar(gun ? 1 : 0);
+        v.melee.scale.setScalar(gun ? 0 : 1);
+        v.meleeL?.scale.setScalar(gun ? 0 : 1);
       }
       applyPose(v.rig, {
         speed: e.act ? 0 : speed,
@@ -314,4 +362,38 @@ export class EntityViews {
       this.crowd.write(v.crowdKey, v.proxy);
     }
   }
+}
+
+function playerKey(e: Entity, w: World): string {
+  const slot = w.players.find((p) => p.entity === e.id);
+  const cls = slot?.character.cls ?? 'berserker';
+  return `player|${cls}|${slot?.character.alignment ?? ''}|${slot?.stats?.meleeKind ?? 'sword'}|${slot?.stats?.rangedKind ?? 'pistols'}`;
+}
+
+/** The Sworn: class colours, alignment trim and eyes, and the equipped weapon types on named pivots. */
+function buildPlayer(key: string): EnemyModel {
+  const [, cls = 'berserker', align, meleeKind = 'sword', rangedKind = 'pistols'] = key.split('|');
+  const st = CLASS_STYLE[cls] ?? CLASS_STYLE.berserker!;
+  const rig = buildHumanoid({
+    body: st.body,
+    trim: align === 'cyber' ? 0x9fd8ff : align === 'human' ? 0xd8c8a0 : st.trim,
+    skin: 0xc9a68a,
+    eye: align === 'human' ? PALETTE.human : PALETTE.cyber,
+    bulk: cls === 'berserker' ? 1.1 : 1,
+    height: 1.85,
+    helm: 'sworn',
+    cape: st.cape,
+    cyber: align === 'cyber' ? 2 : align === 'human' ? 0 : 1,
+  });
+  const hold = (kind: string, hand: THREE.Object3D, name: string, shown: boolean) => {
+    const g = buildWeapon(kind);
+    g.rotation.x = Math.PI / 2;
+    g.name = name;
+    g.scale.setScalar(shown ? 1 : 0);
+    hand.add(g);
+  };
+  hold(meleeKind, rig.handR, 'melee', true);
+  if (meleeKind === 'blades') hold('blades', rig.handL, 'meleeL', true);
+  hold(rangedKind, rig.handR, 'ranged', false);
+  return { root: rig.root as THREE.Group, rig, flash: () => {} };
 }

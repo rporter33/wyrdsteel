@@ -30,7 +30,7 @@ const WALL_H = 2.6;
 
 /** Static room geometry: one merged floor, instanced walls. Walls nearest the camera cut away. */
 export class RoomMesh {
-  readonly group = new THREE.Group();
+  readonly group = Object.assign(new THREE.Group(), { name: "room" });
   private walls: THREE.InstancedMesh | null = null;
   private wallPos: { x: number; z: number; h: number }[] = [];
   private lastCut = '';

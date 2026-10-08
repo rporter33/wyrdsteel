@@ -51,8 +51,9 @@ function controlPlayer(w: World, db: ContentDb, p: PlayerSlot, e: Entity, inp: P
     return;
   }
 
-  // Dodge: cancels almost anything after its cancel point; two charges.
-  if (inp.pressed & BTN.dodge && pl.dodges > 0 && (canCancel(e, db) || (e.act && e.act.t > 4 && !db.actions[e.act.id]!.armor))) {
+  // Dodge: cancels almost anything after its cancel point; two charges. The Well of Standing forbids it.
+  if (inp.pressed & BTN.dodge && w.room.rule === 'nododge') w.events.push({ k: 'immune', t: w.tick, dst: e.id });
+  else if (inp.pressed & BTN.dodge && pl.dodges > 0 && (canCancel(e, db) || (e.act && e.act.t > 4 && !db.actions[e.act.id]!.armor))) {
     const cls = db.classes[p.character.cls]!;
     const dodge = db.actions[cls.dodge]!;
     const [dx, dz] = moving ? norm(mx, mz) : [-e.fx, -e.fz];

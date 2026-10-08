@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { World } from '../../core/sim/types';
-import { box, cyl, glow, cone, ico, bakeStatic } from '../models/kit';
+import { box, cyl, glow, cone, ico, bakeStatic, bakeable } from '../models/kit';
 import { PALETTE, toon } from '../materials';
 import { buildNpc } from '../models/npcs';
 import { applyPose } from '../anim/poses';
@@ -136,6 +136,18 @@ export class FeatureViews {
       this.exits.push({ obj: g, kind: 'exit', i: this.exits.length, barrier, glow: arrowMark, phase: 0 });
       this.group.add(g);
     }
+    // Everything that never moves is merged room-wide: twenty conveyor tiles cost two draw calls.
+    const animated = new Set<THREE.Object3D>();
+    for (const v of [...this.items, ...this.exits]) {
+      if (v.glow) animated.add(v.glow);
+      if (v.barrier) animated.add(v.barrier);
+      if (v.kind === 'chest') v.obj.children[1]?.traverse((o) => animated.add(o));
+    }
+    const baked = bakeStatic(this.group, animated);
+    const merged: THREE.Mesh[] = [];
+    this.group.traverse((o) => bakeable(o, animated) && merged.push(o));
+    for (const m of merged) m.removeFromParent();
+    this.group.add(baked);
   }
 
   sync(w: World, dt: number): void {
