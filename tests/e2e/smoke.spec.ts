@@ -139,6 +139,36 @@ test('boots, starts a new game, and moves with keyboard and gamepad', async ({ p
   await padPress(1);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
+  // Saves: save, reload the page, Continue: level and gear come back.
+  type G = { __game: { save: () => Promise<void>; world: () => { players: { character: { level: number; equip: Record<string, { rarity: string } | null> } }[] } } };
+  const before3 = await page.evaluate(() => {
+    const c = (window as unknown as G).__game.world().players[0]!.character;
+    return { level: c.level, melee: c.equip.melee?.rarity, ranged: c.equip.ranged?.rarity };
+  });
+  await page.evaluate(() => (window as unknown as G).__game.save());
+  await page.reload();
+  await page.getByTestId('continue').click();
+  await expect.poll(() => tick(page)).toBeGreaterThan(2);
+  const after3 = await page.evaluate(() => {
+    const c = (window as unknown as G).__game.world().players[0]!.character;
+    return { level: c.level, melee: c.equip.melee?.rarity, ranged: c.equip.ranged?.rarity };
+  });
+  expect(after3).toEqual(before3);
+
+  // A refused write is shown, with a way to export, never swallowed.
+  await page.evaluate(() => {
+    IDBObjectStore.prototype.put = () => {
+      throw new DOMException('quota', 'QuotaExceededError');
+    };
+    Storage.prototype.setItem = () => {
+      throw new DOMException('quota', 'QuotaExceededError');
+    };
+  });
+  await page.evaluate(() => (window as unknown as G).__game.save());
+  await expect(page.locator('.toast.error')).toContainText("Couldn't save");
+  await expect(page.locator('.toast.error').getByRole('button', { name: 'Export now' })).toBeVisible();
+
   await page.screenshot({ path: 'test-results/smoke-game.png' });
+  // The refused write logs nothing to the console; only real errors fail the run.
   expect(errors).toEqual([]);
 });

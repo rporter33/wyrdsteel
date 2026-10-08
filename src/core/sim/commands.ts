@@ -22,4 +22,6 @@ export type Command =
   | { t: 'story'; key: string; value: number }
   | { t: 'travel'; zone: string; node: string; trial?: number; mods?: string[] }
   | { t: 'flask' }
-  | { t: 'stash'; uid: string; dir: 'in' | 'out' };
+  | { t: 'stash'; uid: string; dir: 'in' | 'out' }
+  | { t: 'assist'; value: number }
+  | { t: 'difficulty'; value: 0 | 1 | 2 };

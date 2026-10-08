@@ -50,7 +50,6 @@ export interface CharacterState {
   sigils: number;
   kills: Record<string, number>;
   deaths: number;
-  playMs: number;
 }
 
 export const INVENTORY_SIZE = 40;
@@ -79,6 +78,5 @@ export function newCharacter(name: string, cls: string): CharacterState {
     sigils: 0,
     kills: {},
     deaths: 0,
-    playMs: 0,
   };
 }

@@ -1,7 +1,7 @@
 {
  "replay": {
   "v": 1,
-  "simVersion": 4,
+  "simVersion": 5,
   "contentHash": "8b36d9cd",
   "start": {
    "seed": 101,
@@ -345,27 +345,27 @@
   "checkpoints": [
    {
     "tick": 60,
-    "hash": "46c13977fc8685f7"
+    "hash": "5f5e9badfd3b012d"
    },
    {
     "tick": 120,
-    "hash": "16e74d6fc72301ef"
+    "hash": "f81120417fb8bdc1"
    },
    {
     "tick": 180,
-    "hash": "0242104c54c0a0cc"
+    "hash": "39132194505f5314"
    },
    {
     "tick": 240,
-    "hash": "69b4dd3f0d5c1dbf"
+    "hash": "76934729620988a9"
    },
    {
     "tick": 300,
-    "hash": "3026c6a5b8e16325"
+    "hash": "164db98d6a5a0f0d"
    }
   ]
  },
- "final": "74dbdfa7283d0c27",
+ "final": "d02e70b1b2be7631",
  "summary": {
   "hits": 11,
   "damage": 131,

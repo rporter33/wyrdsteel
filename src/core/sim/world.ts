@@ -21,6 +21,7 @@ export interface StartSpec {
   mods?: string[];
   trial?: number;
   stash?: import('../loot/item').Item[];
+  shade?: { node: string; x: number; z: number; amount: number } | null;
 }
 
 export function createWorld(spec: StartSpec, db: ContentDb): World {
@@ -45,7 +46,7 @@ export function createWorld(spec: StartSpec, db: ContentDb): World {
       node: spec.node,
       waystone: spec.node,
       sinceWaystone: 0,
-      shade: null,
+      shade: spec.shade ? { ...spec.shade } : null,
       mods: spec.mods ?? [],
       trial: spec.trial ?? 0,
     },

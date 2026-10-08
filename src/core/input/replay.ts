@@ -8,7 +8,7 @@ import type { World } from '../sim/types';
 import { emptyInput, sameInput, type InputFrame, type PlayerInput } from './frame';
 
 /** Bumped whenever a sim change intentionally alters outcomes; golden replays then re-baseline. */
-export const SIM_VERSION = 4;
+export const SIM_VERSION = 5;
 
 /** Run-length encoded frames: [repeat count, inputs per slot]. */
 export type RleFrames = [number, PlayerInput[]][];

@@ -73,6 +73,7 @@ export class GameRenderer {
     this.ensureRoom(w, palette);
     const dt = dtMs / 1000;
     this.views.camera = this.rig.camera;
+    this.views.flash = this.opts.flash;
     this.views.sync(w, alpha, dt);
     this.features.sync(w, dt);
     const p = w.players[focusSlot];

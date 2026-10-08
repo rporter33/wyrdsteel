@@ -11,6 +11,7 @@ export interface DebugDeps {
   newGame: (name: string, cls: string) => void;
   loop: { fps: number; simMs: number };
   gfx: GameRenderer;
+  saveNow: () => Promise<void>;
 }
 
 /**
@@ -50,6 +51,7 @@ export function installDebug(d: DebugDeps): void {
       p.vx = p.vz = p.vy = 0;
       p.y = 0;
     },
+    save: () => d.saveNow(),
     god: () => {
       const w = d.session()?.world;
       const e = w?.entities.find((x) => x.id === w.players[0]?.entity);

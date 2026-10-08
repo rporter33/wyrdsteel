@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals';
 
-export type Screen = 'title' | 'newgame' | 'game' | 'loading';
+export type Screen = 'title' | 'newgame' | 'game' | 'loading' | 'load' | 'settings';
 export type Panel = null | 'pause' | 'inventory' | 'skills' | 'settings' | 'controls' | 'smith' | 'carver' | 'well' | 'board' | 'skald' | 'gate' | 'stash' | 'dialogue' | 'death' | 'ending' | 'map' | 'saves' | 'trainer';
 
 export const screen = signal<Screen>('title');

@@ -1,0 +1,45 @@
+{
+  "format": "wyrdsteel-save",
+  "v": 1,
+  "contentVersion": 1,
+  "savedAt": "2026-10-01T12:00:00.000Z",
+  "profile": {
+    "stash": [
+      { "uid": "s1", "base": "a.helm.2", "rarity": "runed", "ilvl": 7, "affixes": [{ "id": "hale.2", "v": 30 }], "sockets": [null], "seed": 1, "unique": null, "v": 1 },
+      { "uid": "s2", "base": "w.laser.9", "rarity": "relic", "ilvl": 9, "affixes": [], "sockets": [], "seed": 2, "unique": null, "v": 1 }
+    ],
+    "settings": { "assist": 0.4, "volume": "loud", "difficulty": 2 },
+    "unlocks": {}
+  },
+  "characters": [
+    {
+      "slot": 0,
+      "seed": 77,
+      "playMs": 123456,
+      "savedAt": "2026-10-01T12:00:00.000Z",
+      "difficulty": 1,
+      "zone": { "id": "training", "node": "arena", "cleared": ["arena", "nowhere"], "shade": null, "mods": [], "trial": 0 },
+      "character": {
+        "name": "Hild", "cls": "berserker", "level": 6, "xp": 1200, "bounty": 340, "alignment": null,
+        "skills": { "cls": { "zk.wolf.hide": 2, "zk.storm.updraft": 1 }, "aspect": { "human": {}, "cyber": {} }, "respecs": 0, "swaps": 0 },
+        "equip": {
+          "melee": { "uid": "m", "base": "w.blades.2", "rarity": "ascendant", "ilvl": 6, "affixes": [{ "id": "brutal.2", "v": 0.1 }, { "id": "made-up.9", "v": 5 }], "sockets": ["rune.tyr.1", "rune.nope.4"], "seed": 3, "unique": null, "v": 1 },
+          "ranged": { "uid": "r", "base": "w.scrap.1", "rarity": "worn", "ilvl": 1, "affixes": [], "sockets": [], "seed": 4, "unique": null, "v": 1 },
+          "helm": null, "chest": null, "hands": null, "legs": null, "charm": null
+        },
+        "inv": [
+          { "uid": "i1", "base": "a.chest.1", "rarity": "forged", "ilvl": 3, "affixes": [{ "id": "stalwart.1", "v": 6 }], "sockets": [], "seed": 5, "unique": null, "v": 1 },
+          { "uid": "i2", "base": "a.legs.1", "rarity": "mythic", "ilvl": 3, "affixes": [], "sockets": [], "seed": 6, "unique": null, "v": 1 },
+          "garbage"
+        ],
+        "runes": { "rune.tyr.1": 2, "rune.tiwaz.1": 1, "rune.void.1": 5 },
+        "mats": { "mat.iron": 7 },
+        "charms": [{ "id": "charm.wolf", "progress": [4], "done": false }, { "id": "charm.ghost", "progress": [1], "done": false }],
+        "blueprints": ["bp.wolfblades", "bp.unknown"],
+        "recentSalvage": [], "story": {}, "abilities": [], "autoSalvage": { "maxRarity": 0, "onlyIfWorse": true, "keepSockets": 0 },
+        "bossPity": null, "sigils": 0, "kills": {}, "deaths": 2
+      }
+    },
+    { "slot": 1, "character": { "name": "Ghost", "cls": "necromancer" } }
+  ]
+}

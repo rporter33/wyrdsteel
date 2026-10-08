@@ -57,6 +57,8 @@ export class EntityViews {
   private readonly s3 = new THREE.Vector3();
   private readonly qFlat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
   camera: THREE.Camera | null = null;
+  /** Accessibility: hit flashes can be turned off. */
+  flash = true;
 
   constructor(private readonly db: ContentDb) {
     this.group.add(this.crowd.group);
@@ -306,7 +308,7 @@ export class EntityViews {
     if (v.proxy) {
       if (!v.rig) v.proxy.model.root.rotation.y = facing;
       v.proxy.model.update?.(e, w);
-      v.proxy.flash = w.tick - e.hurtAt < 4 ? 1 : 0;
+      v.proxy.flash = this.flash && w.tick - e.hurtAt < 4 ? 1 : 0;
       // Burrowed enemies sink out of sight.
       if (e.ai && (e.ai.st === 'travel' || e.ai.st === 'burrowed')) v.proxy.holder.position.y = -3;
       this.crowd.write(v.crowdKey, v.proxy);

@@ -83,6 +83,12 @@ export function applyCommand(w: World, slot: number, cmd: Command, db: ContentDb
     case 'story':
       c.story[cmd.key] = cmd.value;
       return null;
+    case 'assist':
+      p.assist = Math.max(0, Math.min(1, cmd.value));
+      return null;
+    case 'difficulty':
+      w.difficulty = cmd.value;
+      return null;
     case 'flask': {
       const e = byId(w, p.entity);
       if (e?.pl) e.pl.flasks = p.stats.flasks;

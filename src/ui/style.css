@@ -200,3 +200,15 @@ table.controls th { color: var(--ink-dim); font-weight: 600; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .grow { flex: 1; font-size: 13px; }
 h3 { font-size: 14px; margin: 14px 0 6px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.settings { display: flex; flex-direction: column; gap: 10px; }
+.settings label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.settings label b { color: var(--steel); font-weight: 600; margin-left: 6px; }
+.settings label small { color: var(--ink-dim); font-size: 11.5px; }
+.settings label.check { flex-direction: row; align-items: center; gap: 8px; }
+.settings input[type=range] { width: 100%; max-width: 420px; accent-color: var(--steel); }
+.keys { display: flex; flex-direction: column; gap: 4px; max-width: 520px; }
+.keys .row button { min-width: 180px; font-size: 13px; }
+button.armed { border-color: var(--gold); color: var(--gold); }
+.slot-btn { text-align: left; }
+.warn { color: var(--ember); font-size: 13px; }
+.reduced-motion * { transition: none !important; animation: none !important; }

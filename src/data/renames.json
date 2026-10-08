@@ -1,0 +1,7 @@
+{
+ "note": "Old content ids mapped to their current ones, so saves from earlier builds still load.",
+ "ids": {
+  "w.scrap.1": "w.pistols.1",
+  "rune.tiwaz.1": "rune.tyr.1"
+ }
+}
